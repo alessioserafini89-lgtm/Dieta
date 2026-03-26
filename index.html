@@ -337,10 +337,7 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
 <footer>Piano indicativo · Non sostituisce il parere di un medico o nutrizionista<br>Alessio · 26 marzo – 3 aprile 2026</footer>
 
 <script>
-// ============================================================
-// DATI — ogni item ha: qty (numero), unit (stringa), food, kcalPer100 (kcal per 100g/unità base), kcal (calcolato)
-// Per item non pesabili (es. "1 caffè") kcalPer100 = null e kcal è fisso
-// ============================================================
+
 const DAYS = [
   { label: '26 Gio', total: 1840, warn: null, meals: [
     { icon:'☕', name:'Colazione', time:'07:30', items:[
@@ -391,7 +388,7 @@ const DAYS = [
       { qty:1, unit:'tazza', food:'Caffè nero', kcal:30, kcalPer100:null }
     ]},
     { icon:'🥚', name:'Spuntino mattina', time:'10:30', items:[
-      { qty:2, unit:'uova', food:'Uova all\'occhio di bue con filo d\'olio EVO', kcal:150, kcalPer100:null },
+      { qty:2, unit:'uova', food:"Uova all'occhio di bue con filo d'olio EVO", kcal:150, kcalPer100:null },
       { qty:50, unit:'g', food:'Prosciutto crudo', kcal:50, kcalPer100:100 }
     ]},
     { icon:'🔥', name:'Pranzo — Grigliata + Riso', time:'13:00', tip:'🍚 Riso basmati: indice glicemico più basso. Lessalo e scolalo bene.', items:[
@@ -552,7 +549,7 @@ const DAYS = [
     ]},
     { icon:'🌙', name:'Ultima cena', time:'20:00', tip:'🎒 Buona vacanza Alessio! Al rientro si riparte più forti 💪', items:[
       { qty:3, unit:'uova', food:'Frittata con spinaci e primo sale', kcal:280, kcalPer100:null },
-      { qty:300, unit:'g', food:'Broccoletti ripassati all\'aglio', kcal:150, kcalPer100:50 },
+      { qty:300, unit:'g', food:"Broccoletti ripassati all'aglio", kcal:150, kcalPer100:50 },
       { qty:100, unit:'g', food:'Fagioli cannellini al pomodoro e basilico', kcal:110, kcalPer100:110 },
       { qty:10, unit:'g', food:'Olio EVO', kcal:90, kcalPer100:900 }
     ]}
@@ -562,9 +559,6 @@ const DAYS = [
 let currentDay = 0;
 const START = new Date(2026,2,26);
 
-// ============================================================
-// STORAGE
-// ============================================================
 function getState() {
   try { return JSON.parse(localStorage.getItem('ale_v6') || '{}'); } catch(e) { return {}; }
 }
@@ -572,102 +566,84 @@ function saveState(s) {
   try { localStorage.setItem('ale_v6', JSON.stringify(s)); } catch(e) {}
 }
 
-// ============================================================
-// CALCOLA KCAL in base a quantità corrente
-// ============================================================
 function calcKcal(item, qty) {
-  if (item.kcalPer100 === null) return item.kcal; // fisso (uova, frutta intera, ecc.)
+  if (item.kcalPer100 === null) return item.kcal;
   return Math.round(item.kcalPer100 * qty / 100);
 }
 
-// ============================================================
-// BUILD HTML
-// ============================================================
 function buildDays() {
   const main = document.getElementById('mainContent');
-  DAYS.forEach((day, di) => {
+  DAYS.forEach(function(day, di) {
     const panel = document.createElement('div');
     panel.className = 'panel' + (di === 0 ? ' active' : '');
-    panel.id = `p${di}`;
+    panel.id = 'p' + di;
 
-    let html = `<div class="day-totals">
-      <div class="dtbox"><span class="num" id="dt-kcal-${di}">${day.total}</span><span class="lbl">Kcal tot</span></div>
-      <div class="dtbox"><span class="num">~${Math.round(day.total*0.08)}g</span><span class="lbl">Proteine</span></div>
-      <div class="dtbox"><span class="num">~${Math.round(day.total*0.03)}g</span><span class="lbl">Carb</span></div>
-      <div class="dtbox"><span class="num">~${Math.round(day.total*0.055)}g</span><span class="lbl">Grassi</span></div>
-    </div>`;
+    let html = '<div class="day-totals">' +
+      '<div class="dtbox"><span class="num" id="dt-kcal-' + di + '">' + day.total + '</span><span class="lbl">Kcal tot</span></div>' +
+      '<div class="dtbox"><span class="num">~' + Math.round(day.total*0.08) + 'g</span><span class="lbl">Proteine</span></div>' +
+      '<div class="dtbox"><span class="num">~' + Math.round(day.total*0.03) + 'g</span><span class="lbl">Carb</span></div>' +
+      '<div class="dtbox"><span class="num">~' + Math.round(day.total*0.055) + 'g</span><span class="lbl">Grassi</span></div>' +
+      '</div>';
 
-    if (day.warn) html += `<div class="warn">${day.warn}</div>`;
-    html += `<div class="edit-hint">✏️ Tocca la quantità per modificarla — le kcal si aggiornano automaticamente</div>`;
+    if (day.warn) html += '<div class="warn">' + day.warn + '</div>';
+    html += '<div class="edit-hint">✏️ Tocca la quantità per modificarla — le kcal si aggiornano in tempo reale</div>';
 
-    day.meals.forEach((meal, mi) => {
-      const mealId = `d${di}m${mi}`;
-      const totalKcal = meal.items.reduce((s,i) => s+i.kcal, 0);
+    day.meals.forEach(function(meal, mi) {
+      const mealId = 'd' + di + 'm' + mi;
+      const totalKcal = meal.items.reduce(function(s,i){ return s+i.kcal; }, 0);
 
-      html += `<div class="meal" id="${mealId}">
-        <div class="mh">
-          <div class="mico">${meal.icon}</div>
-          <div class="minfo">
-            <div class="mn">${meal.name}</div>
-            <div class="mt">⏰ ${meal.time}</div>
-          </div>
-          <div class="mkcal-badge" id="badge-${mealId}">${totalKcal} kcal</div>
-          <button class="meal-check" id="mcheck-${mealId}" onclick="toggleMeal('${mealId}',${di},${mi})">○ Fatto</button>
-        </div>
-        <div class="mb">`;
+      html += '<div class="meal" id="' + mealId + '">' +
+        '<div class="mh">' +
+        '<div class="mico">' + meal.icon + '</div>' +
+        '<div class="minfo"><div class="mn">' + meal.name + '</div><div class="mt">⏰ ' + meal.time + '</div></div>' +
+        '<div class="mkcal-badge" id="badge-' + mealId + '">' + totalKcal + ' kcal</div>' +
+        '<button class="meal-check" id="mcheck-' + mealId + '" onclick="toggleMeal(\'' + mealId + '\',' + di + ',' + mi + ')">○ Fatto</button>' +
+        '</div><div class="mb">';
 
-      if (meal.warn) html += `<div class="warn" style="margin:4px 12px 4px;">${meal.warn}</div>`;
+      if (meal.warn) html += '<div class="warn" style="margin:4px 12px 4px;">' + meal.warn + '</div>';
 
-      meal.items.forEach((item, ii) => {
-        const itemId = `${mealId}i${ii}`;
+      meal.items.forEach(function(item, ii) {
+        const itemId = mealId + 'i' + ii;
         const canEdit = item.kcalPer100 !== null;
-        html += `<div class="item-row" id="${itemId}">
-          <button class="item-check-btn" id="ibtn-${itemId}" onclick="toggleItem('${itemId}',${di},${mi},${ii})">○</button>
-          <div class="item-main">
-            <div class="item-qty-row">
-              ${canEdit
-                ? `<input class="qty-input" id="qtyinput-${itemId}" type="number" min="1" max="2000" value="${item.qty}" onchange="onQtyChange('${itemId}',${di},${mi},${ii},this.value)" oninput="onQtyChange('${itemId}',${di},${mi},${ii},this.value)">`
-                : `<span class="qty-input" style="border-bottom:1px dashed var(--muted);color:var(--muted)">${item.qty}</span>`
-              }
-              <span class="qty-unit">${item.unit}</span>
-            </div>
-            <span class="food" id="food-${itemId}">${item.food}</span>
-          </div>
-          <div class="item-kcal-col">
-            <span class="item-kcal" id="ikcal-${itemId}">${item.kcal} kcal</span>
-            ${canEdit ? `<span class="kcal-per-unit" id="kpu-${itemId}">${item.kcalPer100} kcal/100${item.unit==='g'?'g':'u'}</span>` : ''}
-            <button class="sub-btn" id="subbtn-${itemId}" onclick="substituteItem('${itemId}',${di},${mi},${ii})">↺ Sost.</button>
-          </div>
-        </div>`;
+        const qtyField = canEdit
+          ? '<input class="qty-input" id="qtyinput-' + itemId + '" type="number" min="1" max="2000" value="' + item.qty + '" onchange="onQtyChange(\'' + itemId + '\',' + di + ',' + mi + ',' + ii + ',this.value)" oninput="onQtyChange(\'' + itemId + '\',' + di + ',' + mi + ',' + ii + ',this.value)">'
+          : '<span class="qty-input" style="border-bottom:1px dashed var(--muted);color:var(--muted)">' + item.qty + '</span>';
+        const kpuField = canEdit ? '<span class="kcal-per-unit" id="kpu-' + itemId + '">' + item.kcalPer100 + ' kcal/100' + (item.unit === 'g' ? 'g' : 'u') + '</span>' : '';
+
+        html += '<div class="item-row" id="' + itemId + '">' +
+          '<button class="item-check-btn" id="ibtn-' + itemId + '" onclick="toggleItem(\'' + itemId + '\',' + di + ',' + mi + ',' + ii + ')">○</button>' +
+          '<div class="item-main">' +
+          '<div class="item-qty-row">' + qtyField + '<span class="qty-unit">' + item.unit + '</span></div>' +
+          '<span class="food" id="food-' + itemId + '">' + item.food + '</span>' +
+          '</div>' +
+          '<div class="item-kcal-col">' +
+          '<span class="item-kcal" id="ikcal-' + itemId + '">' + item.kcal + ' kcal</span>' +
+          kpuField +
+          '<button class="sub-btn" id="subbtn-' + itemId + '" onclick="substituteItem(\'' + itemId + '\',' + di + ',' + mi + ',' + ii + ')">↺ Sost.</button>' +
+          '</div></div>';
       });
 
-      if (meal.tip) html += `<div class="tip">${meal.tip}</div>`;
-      html += `</div></div>`;
+      if (meal.tip) html += '<div class="tip">' + meal.tip + '</div>';
+      html += '</div></div>';
     });
 
-    html += `<button class="reset-btn" onclick="resetDay(${di})">↺ Reset giorno</button>`;
+    html += '<button class="reset-btn" onclick="resetDay(' + di + ')">↺ Reset giorno</button>';
     panel.innerHTML = html;
     const p9 = document.getElementById('p9');
     main.insertBefore(panel, p9);
   });
 }
 
-// ============================================================
-// MODIFICA QUANTITÀ
-// ============================================================
 function onQtyChange(itemId, di, mi, ii, rawVal) {
   const val = parseFloat(rawVal);
   if (isNaN(val) || val <= 0) return;
   const item = DAYS[di].meals[mi].items[ii];
   const newKcal = calcKcal(item, val);
-  // aggiorna display kcal item
   const kcalEl = document.getElementById('ikcal-' + itemId);
   if (kcalEl) kcalEl.textContent = newKcal + ' kcal';
-  // salva quantità custom nello state
   const s = getState();
   s['qty_' + itemId] = val;
   saveState(s);
-  // aggiorna badge pasto e totale giorno
   updateMealBadge(di, mi);
   updateKcal(di);
 }
@@ -675,16 +651,13 @@ function onQtyChange(itemId, di, mi, ii, rawVal) {
 function getItemKcal(di, mi, ii) {
   const item = DAYS[di].meals[mi].items[ii];
   const s = getState();
-  const customQty = s['qty_' + `d${di}m${mi}i${ii}`];
+  const customQty = s['qty_d' + di + 'm' + mi + 'i' + ii];
   if (customQty !== undefined && item.kcalPer100 !== null) {
     return calcKcal(item, customQty);
   }
   return item.kcal;
 }
 
-// ============================================================
-// TOGGLE ITEM
-// ============================================================
 function toggleItem(itemId, di, mi, ii) {
   const s = getState();
   s[itemId] = !s[itemId];
@@ -712,16 +685,13 @@ function applyItemState(itemId) {
   }
 }
 
-// ============================================================
-// TOGGLE MEAL
-// ============================================================
 function toggleMeal(mealId, di, mi) {
   const s = getState();
   const meal = DAYS[di].meals[mi];
-  const allDone = meal.items.every((_, ii) => s[`${mealId}i${ii}`]);
-  meal.items.forEach((_, ii) => { s[`${mealId}i${ii}`] = !allDone; });
+  const allDone = meal.items.every(function(_, ii){ return s[mealId + 'i' + ii]; });
+  meal.items.forEach(function(_, ii){ s[mealId + 'i' + ii] = !allDone; });
   saveState(s);
-  meal.items.forEach((_, ii) => applyItemState(`${mealId}i${ii}`));
+  meal.items.forEach(function(_, ii){ applyItemState(mealId + 'i' + ii); });
   updateMealBadge(di, mi);
   updateMealHeader(mealId, di, mi);
   updateKcal(di);
@@ -729,17 +699,17 @@ function toggleMeal(mealId, di, mi) {
 }
 
 function autoCheckMeal(di, mi) {
-  const mealId = `d${di}m${mi}`;
+  const mealId = 'd' + di + 'm' + mi;
   const s = getState();
   const meal = DAYS[di].meals[mi];
-  const allDone = meal.items.every((_, ii) => s[`${mealId}i${ii}`]);
+  const allDone = meal.items.every(function(_, ii){ return s[mealId + 'i' + ii]; });
   updateMealHeader(mealId, di, mi, allDone);
 }
 
 function updateMealHeader(mealId, di, mi, forceDone) {
   const s = getState();
   const meal = DAYS[di].meals[mi];
-  const allDone = forceDone !== undefined ? forceDone : meal.items.every((_, ii) => s[`${mealId}i${ii}`]);
+  const allDone = forceDone !== undefined ? forceDone : meal.items.every(function(_, ii){ return s[mealId + 'i' + ii]; });
   const mealEl = document.getElementById(mealId);
   const btn = document.getElementById('mcheck-' + mealId);
   if (!mealEl || !btn) return;
@@ -754,41 +724,33 @@ function updateMealHeader(mealId, di, mi, forceDone) {
   }
 }
 
-// ============================================================
-// BADGE KCAL PASTO — item non spuntati mostrano kcal pianificate, spuntati mostrano quelle effettive
-// ============================================================
 function updateMealBadge(di, mi) {
-  const mealId = `d${di}m${mi}`;
+  const mealId = 'd' + di + 'm' + mi;
   const s = getState();
   const meal = DAYS[di].meals[mi];
-  const remaining = meal.items.reduce((sum, item, ii) => {
-    if (s[`${mealId}i${ii}`]) return sum; // spuntato: non conta nel rimanente
-    return sum + item.kcal; // non spuntato: usa kcal pianificate originali
+  const remaining = meal.items.reduce(function(sum, item, ii) {
+    if (s[mealId + 'i' + ii]) return sum;
+    return sum + item.kcal;
   }, 0);
   const badge = document.getElementById('badge-' + mealId);
   if (badge) badge.textContent = remaining + ' kcal';
 }
 
-// ============================================================
-// KCAL TOTALI GIORNO — totale FISSO dal piano, solo le spuntate scalano
-// ============================================================
 function updateKcal(day) {
   if (day === undefined) day = currentDay;
   if (day >= DAYS.length) return;
   const s = getState();
-  // totale giorno SEMPRE fisso dal piano originale
   const dayTotal = DAYS[day].total;
-  // kcal consumate = solo item spuntati, con eventuale quantità custom
   let eaten = 0;
-  DAYS[day].meals.forEach((meal, mi) => {
-    meal.items.forEach((_, ii) => {
-      if (s[`d${day}m${mi}i${ii}`]) eaten += getItemKcal(day, mi, ii);
+  DAYS[day].meals.forEach(function(meal, mi) {
+    meal.items.forEach(function(_, ii) {
+      if (s['d' + day + 'm' + mi + 'i' + ii]) eaten += getItemKcal(day, mi, ii);
     });
   });
   const rem = Math.max(0, dayTotal - eaten);
   const pct = Math.min(100, Math.round(eaten / dayTotal * 100));
   document.getElementById('kcalNum').textContent = rem;
-  document.getElementById('kcalSub').textContent = `${eaten} / ${dayTotal}`;
+  document.getElementById('kcalSub').textContent = eaten + ' / ' + dayTotal;
   const bar = document.getElementById('progressBar');
   const box = document.getElementById('kcalBox');
   bar.style.width = pct + '%';
@@ -798,15 +760,15 @@ function updateKcal(day) {
   else if (pct >= 75) { box.classList.add('warning'); bar.classList.add('warning'); }
 }
 
-// ============================================================
-// DOTS
-// ============================================================
 function updateDots() {
   const s = getState();
   for (let d = 0; d < DAYS.length; d++) {
     let total = 0, eaten = 0;
-    DAYS[d].meals.forEach((meal, mi) => {
-      meal.items.forEach((_, ii) => { total++; if (s[`d${d}m${mi}i${ii}`]) eaten++; });
+    DAYS[d].meals.forEach(function(meal, mi) {
+      meal.items.forEach(function(_, ii) {
+        total++;
+        if (s['d' + d + 'm' + mi + 'i' + ii]) eaten++;
+      });
     });
     const tab = document.querySelectorAll('.tab')[d];
     if (!tab) continue;
@@ -816,16 +778,13 @@ function updateDots() {
   }
 }
 
-// ============================================================
-// RESET GIORNO
-// ============================================================
 function resetDay(day) {
   if (!confirm('Resetta tutti i pasti e le quantità di oggi?')) return;
   const s = getState();
-  DAYS[day].meals.forEach((meal, mi) => {
-    meal.items.forEach((_, ii) => {
-      delete s[`d${day}m${mi}i${ii}`];
-      delete s[`qty_d${day}m${mi}i${ii}`];
+  DAYS[day].meals.forEach(function(meal, mi) {
+    meal.items.forEach(function(_, ii) {
+      delete s['d' + day + 'm' + mi + 'i' + ii];
+      delete s['qty_d' + day + 'm' + mi + 'i' + ii];
     });
   });
   saveState(s);
@@ -834,17 +793,13 @@ function resetDay(day) {
   updateDots();
 }
 
-// ============================================================
-// APPLICA TUTTO LO STATO (incluse quantità custom)
-// ============================================================
 function applyAllState() {
   const s = getState();
-  DAYS.forEach((day, di) => {
-    day.meals.forEach((meal, mi) => {
-      const mealId = `d${di}m${mi}`;
-      meal.items.forEach((item, ii) => {
-        const itemId = `${mealId}i${ii}`;
-        // ripristina quantità custom se salvata
+  DAYS.forEach(function(day, di) {
+    day.meals.forEach(function(meal, mi) {
+      const mealId = 'd' + di + 'm' + mi;
+      meal.items.forEach(function(item, ii) {
+        const itemId = mealId + 'i' + ii;
         const customQty = s['qty_' + itemId];
         if (customQty !== undefined && item.kcalPer100 !== null) {
           const input = document.getElementById('qtyinput-' + itemId);
@@ -860,38 +815,29 @@ function applyAllState() {
   });
 }
 
-// ============================================================
-// NEXT MEAL
-// ============================================================
 function updateNextMeal(day) {
   const el = document.getElementById('nextMeal');
   if (day >= DAYS.length) { el.textContent = '🏖️ Sei in vacanza!'; return; }
   const s = getState();
   for (let mi = 0; mi < DAYS[day].meals.length; mi++) {
     const meal = DAYS[day].meals[mi];
-    const allDone = meal.items.every((_, ii) => s[`d${day}m${mi}i${ii}`]);
+    const allDone = meal.items.every(function(_, ii){ return s['d' + day + 'm' + mi + 'i' + ii]; });
     if (!allDone) {
-      el.innerHTML = `⏰ Prossimo: <strong>${meal.name}</strong> alle ${meal.time}`;
+      el.innerHTML = '⏰ Prossimo: <strong>' + meal.name + '</strong> alle ' + meal.time;
       return;
     }
   }
-  el.innerHTML = `✅ <strong>Tutti i pasti completati oggi!</strong>`;
+  el.innerHTML = '✅ <strong>Tutti i pasti completati oggi!</strong>';
 }
 
-// ============================================================
-// SHOW TAB
-// ============================================================
 function show(i) {
-  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', i===j));
-  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', i===j));
+  document.querySelectorAll('.panel').forEach(function(p,j){ p.classList.toggle('active', i===j); });
+  document.querySelectorAll('.tab').forEach(function(t,j){ t.classList.toggle('active', i===j); });
   currentDay = i;
   updateKcal(i);
   updateNextMeal(i);
 }
 
-// ============================================================
-// AUTO SELECT TODAY
-// ============================================================
 function autoSelectToday() {
   const now = new Date();
   const diff = Math.floor((now - START) / 86400000);
@@ -907,38 +853,40 @@ autoSelectToday();
 updateDots();
 
 // ============================================================
-// SOSTITUZIONE ITEM — step 1: categorie dinamiche, step 2: opzioni
+// SOSTITUZIONE — step 1: categorie, step 2: opzioni
 // ============================================================
+window._subData = {};
+
 async function substituteItem(itemId, di, mi, ii) {
   const btn = document.getElementById('subbtn-' + itemId);
   if (!btn || btn.classList.contains('loading')) return;
   const item = DAYS[di].meals[mi].items[ii];
   const mealName = DAYS[di].meals[mi].name;
-  btn.classList.add('loading');
-  btn.textContent = '⏳';
   const key = getApiKey();
   if (!key) {
-    btn.classList.remove('loading');
-    btn.textContent = '↺ Sost.';
     alert('Imposta prima la chiave API nella tab 🤖 AI');
     return;
   }
-  const promptCat = 'L'alimento da sostituire è: "' + item.food + '" nel pasto "' + mealName + '" (dieta low-carb alta proteina).\nGenera 3-4 categorie di sostituti adatte. Ogni categoria deve avere emoji e nome breve.\nRispondi SOLO con questo JSON senza testo extra:\n[{"emoji":"🐟","name":"Pesce"},{"emoji":"🥩","name":"Carne"}]';
+  btn.classList.add('loading');
+  btn.textContent = '⏳';
+
   try {
     const data = await callAPI(key, {
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 150,
-      messages: [{ role: 'user', content: promptCat }]
+      messages: [{ role: 'user', content: 'Alimento: "' + item.food + '" pasto: "' + mealName + '" dieta low-carb alta proteina. Genera 3-4 categorie di sostituti. Rispondi SOLO con JSON array: [{"emoji":"🐟","name":"Pesce"}]' }]
     });
     if (data.error) throw new Error(data.error.message);
-    const raw = data.content?.[0]?.text || '';
-    let cats = null;
+    const raw = data.content[0].text;
     const m = raw.match(/\[[\s\S]*\]/);
-    if (m) { try { cats = JSON.parse(m[0]); } catch(e) {} }
-    if (!cats || cats.length === 0) throw new Error('Categorie non trovate');
+    if (!m) throw new Error('No categories');
+    const cats = JSON.parse(m[0]);
+
     btn.classList.remove('loading');
     btn.textContent = '↺ Sost.';
-    showCategoryPopup(cats, item, itemId, di, mi, ii, key, mealName);
+
+    window._subData = { item: item, itemId: itemId, di: di, mi: mi, ii: ii, key: key, mealName: mealName, cats: cats };
+    showCategoryPopup();
   } catch(e) {
     btn.classList.remove('loading');
     btn.textContent = '↺ Sost.';
@@ -946,28 +894,52 @@ async function substituteItem(itemId, di, mi, ii) {
   }
 }
 
-function showCategoryPopup(cats, item, itemId, di, mi, ii, key, mealName) {
-  window._subCats = cats;
-  window._subItem = item;
-  window._subIds = {itemId:itemId, di:di, mi:mi, ii:ii, key:key, mealName:mealName};
-  const ex = document.getElementById('subOverlay');
-  if (ex) ex.remove();
+function showCategoryPopup() {
+  const existing = document.getElementById('subOverlay');
+  if (existing) existing.remove();
+
+  const d = window._subData;
   const overlay = document.createElement('div');
   overlay.className = 'sub-overlay';
   overlay.id = 'subOverlay';
   overlay._options = [];
-  const catsHtml = cats.map(function(cat, idx) {
-    return '<div class="sub-cat" onclick="loadCatOptions(' + idx + ')">' +
-      '<span style="font-size:24px;line-height:1;">' + cat.emoji + '</span>' +
-      '<span class="sub-cat-name">' + cat.name + '</span></div>';
-  }).join('');
-  overlay.innerHTML =
-    '<div class="sub-popup">' +
-    '<div class="sub-popup-title">Sostituisci</div>' +
-    '<div class="sub-popup-sub">"' + item.food + '" — scegli una categoria</div>' +
-    '<div class="sub-popup-content"><div class="sub-cats">' + catsHtml + '</div></div>' +
-    '<button class="sub-cancel" onclick="document.getElementById('subOverlay').remove()">✕ Annulla</button>' +
-    '</div>';
+
+  const popup = document.createElement('div');
+  popup.className = 'sub-popup';
+
+  const title = document.createElement('div');
+  title.className = 'sub-popup-title';
+  title.textContent = 'Sostituisci';
+  popup.appendChild(title);
+
+  const subtitle = document.createElement('div');
+  subtitle.className = 'sub-popup-sub';
+  subtitle.textContent = '"' + d.item.food + '" — scegli categoria';
+  popup.appendChild(subtitle);
+
+  const content = document.createElement('div');
+  content.className = 'sub-popup-content';
+  content.id = 'subPopupContent';
+
+  const catsDiv = document.createElement('div');
+  catsDiv.className = 'sub-cats';
+  d.cats.forEach(function(cat, idx) {
+    const el = document.createElement('div');
+    el.className = 'sub-cat';
+    el.innerHTML = '<span style="font-size:24px">' + cat.emoji + '</span><span class="sub-cat-name">' + cat.name + '</span>';
+    el.onclick = function() { loadCatOptions(idx); };
+    catsDiv.appendChild(el);
+  });
+  content.appendChild(catsDiv);
+  popup.appendChild(content);
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'sub-cancel';
+  cancelBtn.textContent = '✕ Annulla';
+  cancelBtn.onclick = function() { document.getElementById('subOverlay').remove(); };
+  popup.appendChild(cancelBtn);
+
+  overlay.appendChild(popup);
   document.body.appendChild(overlay);
   overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
 }
@@ -975,64 +947,68 @@ function showCategoryPopup(cats, item, itemId, di, mi, ii, key, mealName) {
 async function loadCatOptions(catIdx) {
   const overlay = document.getElementById('subOverlay');
   if (!overlay) return;
-  const ids = window._subIds;
-  const item = window._subItem;
-  const cat = window._subCats[catIdx];
-  const content = overlay.querySelector('.sub-popup-content');
-  content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">⏳ Carico opzioni ' + cat.emoji + ' ' + cat.name + '...</div>';
-  const prompt = 'Alessio vuole sostituire "' + item.food + '" (' + item.qty + item.unit + ', ~' + item.kcal + ' kcal) nel pasto "' + ids.mealName + '" con categoria "' + cat.name + '".\nDieta: low-carb, alta proteina. OK: pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure cotte, soia. NO: frutta secca, ceci, branzino, orata, alcol.\nProponi 4 sostituti categoria "' + cat.name + '" con kcal simili (~' + item.kcal + ' ±100).\nRispondi SOLO con JSON: [{"food":"nome preparazione","qty":100,"unit":"g","kcal":120,"kcalPer100":120}]';
+  const d = window._subData;
+  const cat = d.cats[catIdx];
+  const content = document.getElementById('subPopupContent');
+  content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">⏳ ' + cat.emoji + ' ' + cat.name + '...</div>';
+
   try {
-    const data = await callAPI(ids.key, {
+    const data = await callAPI(d.key, {
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 300,
-      messages: [{ role: 'user', content: prompt }]
+      messages: [{ role: 'user', content: 'Sostituisci "' + d.item.food + '" (' + d.item.qty + d.item.unit + ', ' + d.item.kcal + ' kcal) con categoria "' + cat.name + '". Dieta low-carb, alta proteina. OK: pollo,maiale,pesce,gamberi,cozze,polpo,merluzzo,salmone,uova,ricotta,fiocchi latte,stracchino,affettati,legumi,riso basmati,verdure. NO: frutta secca,ceci,branzino,alcol. 4 opzioni, kcal simili. SOLO JSON: [{"food":"nome","qty":100,"unit":"g","kcal":120,"kcalPer100":120}]' }]
     });
     if (data.error) throw new Error(data.error.message);
-    const raw = data.content?.[0]?.text || '';
-    let opts = null;
+    const raw = data.content[0].text;
     const m = raw.match(/\[[\s\S]*\]/);
-    if (m) { try { opts = JSON.parse(m[0]); } catch(e) {} }
-    if (!opts || opts.length === 0) throw new Error('Nessuna opzione');
+    if (!m) throw new Error('No options');
+    const opts = JSON.parse(m[0]);
     overlay._options = opts;
-    const backBtn = '<button class="sub-cancel" style="margin-top:6px;" onclick="showCategoryPopup(window._subCats,window._subItem,'' + ids.itemId + '',' + ids.di + ',' + ids.mi + ',' + ids.ii + ','' + ids.key + '','' + ids.mealName + '')">← Categorie</button>';
-    content.innerHTML = opts.map(function(opt, idx) {
-      return '<div class="sub-option" onclick="applySubstitution(' + idx + ','' + ids.itemId + '',' + ids.di + ',' + ids.mi + ',' + ids.ii + ')">' +
-        '<div class="sub-option-info">' +
-        '<div class="sub-option-food">' + opt.food + '</div>' +
-        '<div class="sub-option-qty">' + opt.qty + opt.unit + '</div>' +
-        '</div>' +
-        '<div class="sub-option-kcal">' + opt.kcal + ' kcal</div>' +
-        '</div>';
-    }).join('') + backBtn;
+
+    content.innerHTML = '';
+    opts.forEach(function(opt, idx) {
+      const el = document.createElement('div');
+      el.className = 'sub-option';
+      el.innerHTML = '<div class="sub-option-info"><div class="sub-option-food">' + opt.food + '</div><div class="sub-option-qty">' + opt.qty + opt.unit + '</div></div><div class="sub-option-kcal">' + opt.kcal + ' kcal</div>';
+      el.onclick = function() { applySubstitution(idx); };
+      content.appendChild(el);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'sub-cancel';
+    backBtn.style.marginTop = '6px';
+    backBtn.textContent = '← Categorie';
+    backBtn.onclick = showCategoryPopup;
+    content.appendChild(backBtn);
+
   } catch(e) {
-    content.innerHTML = '<div style="padding:14px;color:var(--red);font-size:12px;text-align:center;">Errore: ' + e.message + '</div>' +
-      '<button class="sub-cancel" onclick="document.getElementById('subOverlay').remove()">Chiudi</button>';
+    content.innerHTML = '<div style="padding:14px;color:var(--red);font-size:12px;text-align:center;">Errore: ' + e.message + '</div>';
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'sub-cancel';
+    closeBtn.textContent = 'Chiudi';
+    closeBtn.onclick = function() { document.getElementById('subOverlay').remove(); };
+    content.appendChild(closeBtn);
   }
 }
 
-function applySubstitution(optIdx, itemId, di, mi, ii) {
+function applySubstitution(optIdx) {
   const overlay = document.getElementById('subOverlay');
   if (!overlay) return;
-  const options = overlay._options;
-  const sub = options[optIdx];
+  const sub = overlay._options[optIdx];
+  const d = window._subData;
   overlay.remove();
 
-  // Aggiorna dati in memoria
-  DAYS[di].meals[mi].items[ii] = {
-    qty: sub.qty,
-    unit: sub.unit || 'g',
-    food: sub.food,
-    kcal: sub.kcal,
-    kcalPer100: sub.kcalPer100 || null
+  DAYS[d.di].meals[d.mi].items[d.ii] = {
+    qty: sub.qty, unit: sub.unit || 'g',
+    food: sub.food, kcal: sub.kcal, kcalPer100: sub.kcalPer100 || null
   };
 
-  // Aggiorna DOM
-  const foodEl = document.getElementById('food-' + itemId);
-  const kcalEl = document.getElementById('ikcal-' + itemId);
-  const kpuEl  = document.getElementById('kpu-' + itemId);
-  const qtyEl  = document.getElementById('qtyinput-' + itemId);
-  const btn    = document.getElementById('subbtn-' + itemId);
-  const row    = document.getElementById(itemId);
+  const foodEl = document.getElementById('food-' + d.itemId);
+  const kcalEl = document.getElementById('ikcal-' + d.itemId);
+  const kpuEl  = document.getElementById('kpu-' + d.itemId);
+  const qtyEl  = document.getElementById('qtyinput-' + d.itemId);
+  const btn    = document.getElementById('subbtn-' + d.itemId);
+  const row    = document.getElementById(d.itemId);
 
   if (foodEl) foodEl.textContent = sub.food;
   if (kcalEl) kcalEl.textContent = sub.kcal + ' kcal';
@@ -1041,24 +1017,64 @@ function applySubstitution(optIdx, itemId, di, mi, ii) {
   if (row) row.classList.add('substituted');
   if (btn) { btn.classList.add('done'); btn.textContent = '✓ Sost.'; }
 
-  updateMealBadge(di, mi);
-  updateKcal(di);
+  updateMealBadge(d.di, d.mi);
+  updateKcal(d.di);
+}
+
+// ============================================================
+// BRIDGE ANDROID
+// ============================================================
+const _pendingCallbacks = {};
+let _cbCounter = 0;
+
+window.androidCallback = function(callbackId, rawJson) {
+  const resolve = _pendingCallbacks[callbackId];
+  if (resolve) {
+    delete _pendingCallbacks[callbackId];
+    resolve(rawJson);
+  }
+};
+
+function callAPI(apiKey, bodyObj) {
+  return new Promise(function(resolve, reject) {
+    if (window.AndroidBridge) {
+      const cbId = 'cb_' + (++_cbCounter);
+      _pendingCallbacks[cbId] = function(raw) {
+        try {
+          const data = JSON.parse(raw);
+          if (data.error) reject(new Error(data.error.message));
+          else resolve(data);
+        } catch(e) { reject(e); }
+      };
+      window.AndroidBridge.callAnthropic(apiKey, JSON.stringify(bodyObj), cbId);
+    } else {
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify(bodyObj)
+      }).then(function(r){ return r.json(); }).then(function(data) {
+        if (data.error) reject(new Error(data.error.message));
+        else resolve(data);
+      }).catch(reject);
+    }
+  });
 }
 
 // ============================================================
 // AI CHAT
 // ============================================================
-const API_KEY = "INSERISCI_QUI_LA_TUA_CHIAVE"; // non serve più — la chiave si imposta dall'app
-
 function getApiKey() {
   return localStorage.getItem('ale_api_key') || '';
 }
 
 function saveApiKey() {
   const val = document.getElementById('apiKeyInput').value.trim();
-  if (!val.startsWith('sk-ant-')) {
-    alert('La chiave deve iniziare con sk-ant-'); return;
-  }
+  if (!val.startsWith('sk-ant-')) { alert('La chiave deve iniziare con sk-ant-'); return; }
   localStorage.setItem('ale_api_key', val);
   document.getElementById('apiKeyInput').value = '';
   updateApiKeyStatus();
@@ -1075,6 +1091,7 @@ function updateApiKeyStatus() {
   const key = getApiKey();
   const label = document.getElementById('apiKeyLabel');
   const btn = document.getElementById('apiKeyToggleBtn');
+  if (!label || !btn) return;
   if (key) {
     label.textContent = '🔑 Chiave API impostata ✓';
     label.style.color = 'var(--green)';
@@ -1095,42 +1112,25 @@ function buildSystemPrompt() {
   const today = currentDay < DAYS.length ? DAYS[currentDay] : null;
   let eaten = [], remaining = [];
   if (today) {
-    today.meals.forEach((meal, mi) => {
-      meal.items.forEach((item, ii) => {
-        const key = `d${currentDay}m${mi}i${ii}`;
-        if (s[key]) eaten.push(`${item.qty}${item.unit} ${item.food}`);
-        else remaining.push(`${item.qty}${item.unit} ${item.food} (${meal.name})`);
+    today.meals.forEach(function(meal, mi) {
+      meal.items.forEach(function(item, ii) {
+        if (s['d' + currentDay + 'm' + mi + 'i' + ii]) eaten.push(item.qty + item.unit + ' ' + item.food);
+        else remaining.push(item.qty + item.unit + ' ' + item.food + ' (' + meal.name + ')');
       });
     });
   }
-  const kcalEaten = eaten.length > 0 ? getEatenKcal(currentDay) : 0;
+  const kcalEaten = getEatenKcal(currentDay);
   const kcalLeft = today ? today.total - kcalEaten : 0;
-
-  return `Sei un assistente nutrizionale personale per Alessio.
-
-PROFILO ALESSIO:
-- Età: ~37 anni, peso attuale: ~145kg, obiettivo: 100-110kg
-- Dieta: low-carb, ~1850 kcal/die, alta proteina
-- Alimenti graditi: pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta di pecora, fiocchi di latte, stracchino, tutti gli affettati, legumi, riso basmati, verdure cotte, soia
-- NON mangia: frutta secca, ceci, branzino/orata, alcol
-- Carboidrati: solo riso basmati (sab/dom/mar), legumi e verdure
-
-OGGI (${today ? today.label : 'N/D'}):
-- Kcal consumate: ${kcalEaten} / ${today ? today.total : '—'}
-- Kcal rimanenti: ${kcalLeft}
-- Già mangiato: ${eaten.length > 0 ? eaten.join(', ') : 'niente ancora'}
-- Da mangiare: ${remaining.length > 0 ? remaining.join(', ') : 'tutto completato'}
-
-Rispondi sempre in italiano, in modo amichevole e pratico. Sii conciso (max 3-4 righe). Usa emoji con moderazione.`;
+  return 'Sei un assistente nutrizionale personale per Alessio.\n\nPROFILO:\n- Peso: ~145kg, obiettivo: 100-110kg\n- Dieta: low-carb, ~1850 kcal/die, alta proteina\n- Gradisce: pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta di pecora, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure cotte, soia\n- NON mangia: frutta secca, ceci, branzino/orata, alcol\n\nOGGI (' + (today ? today.label : 'N/D') + '):\n- Kcal consumate: ' + kcalEaten + ' / ' + (today ? today.total : '—') + '\n- Kcal rimanenti: ' + kcalLeft + '\n- Già mangiato: ' + (eaten.length > 0 ? eaten.join(', ') : 'niente') + '\n- Da mangiare: ' + (remaining.length > 0 ? remaining.join(', ') : 'tutto completato') + '\n\nRispondi in italiano, amichevole e pratico. Max 3-4 righe.';
 }
 
 function getEatenKcal(day) {
   const s = getState();
   let eaten = 0;
   if (day >= DAYS.length) return 0;
-  DAYS[day].meals.forEach((meal, mi) => {
-    meal.items.forEach((_, ii) => {
-      if (s[`d${day}m${mi}i${ii}`]) eaten += getItemKcal(day, mi, ii);
+  DAYS[day].meals.forEach(function(meal, mi) {
+    meal.items.forEach(function(_, ii) {
+      if (s['d' + day + 'm' + mi + 'i' + ii]) eaten += getItemKcal(day, mi, ii);
     });
   });
   return eaten;
@@ -1139,12 +1139,14 @@ function getEatenKcal(day) {
 function addMessage(role, text) {
   const box = document.getElementById('aiMessages');
   const div = document.createElement('div');
-  div.className = `ai-msg ${role}`;
+  div.className = 'ai-msg ' + role;
   div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
   return div;
 }
+
+const aiHistory = [];
 
 async function sendAI() {
   const input = document.getElementById('aiInput');
@@ -1154,7 +1156,7 @@ async function sendAI() {
 
   const key = getApiKey();
   if (!key) {
-    addMessage('assistant', '⚠️ Imposta prima la chiave API toccando il pulsante "Imposta" qui sopra.');
+    addMessage('assistant', '⚠️ Imposta prima la chiave API toccando "Imposta" qui sopra.');
     document.getElementById('apiKeySection').style.display = 'block';
     return;
   }
@@ -1174,7 +1176,7 @@ async function sendAI() {
       system: buildSystemPrompt(),
       messages: aiHistory
     });
-    const reply = data.content?.[0]?.text || 'Errore nella risposta.';
+    const reply = data.content[0].text;
     thinking.remove();
     addMessage('assistant', reply);
     aiHistory.push({ role: 'assistant', content: reply });
@@ -1192,52 +1194,8 @@ function aiChip(el) {
   sendAI();
 }
 
-const aiHistory = [];
 updateApiKeyStatus();
 
-// ============================================================
-// BRIDGE ANDROID — chiama API tramite Java se disponibile, altrimenti fetch
-// ============================================================
-const _pendingCallbacks = {};
-let _cbCounter = 0;
-
-window.androidCallback = function(callbackId, rawJson) {
-  const resolve = _pendingCallbacks[callbackId];
-  if (resolve) {
-    delete _pendingCallbacks[callbackId];
-    resolve(rawJson);
-  }
-};
-
-function callAPI(apiKey, bodyObj) {
-  return new Promise((resolve, reject) => {
-    if (window.AndroidBridge) {
-      const cbId = 'cb_' + (++_cbCounter);
-      _pendingCallbacks[cbId] = (raw) => {
-        try {
-          const data = JSON.parse(raw);
-          if (data.error) reject(new Error(data.error.message));
-          else resolve(data);
-        } catch(e) { reject(e); }
-      };
-      window.AndroidBridge.callAnthropic(apiKey, JSON.stringify(bodyObj), cbId);
-    } else {
-      fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify(bodyObj)
-      }).then(r => r.json()).then(data => {
-        if (data.error) reject(new Error(data.error.message));
-        else resolve(data);
-      }).catch(reject);
-    }
-  });
-}
 </script>
 </body>
 </html>
