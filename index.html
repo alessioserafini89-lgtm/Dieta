@@ -288,6 +288,22 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
 <!-- AI PANEL -->
 <div class="panel" id="p11">
   <div class="ai-wrap">
+    <!-- SEZIONE CHIAVE API -->
+    <div id="apiKeySection" style="display:none; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:12px;">
+      <div style="font-size:12px; color:var(--text); font-weight:600; margin-bottom:4px;">🔑 Chiave API Anthropic</div>
+      <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">La chiave viene salvata solo sul tuo telefono, mai su GitHub.</div>
+      <div style="display:flex; gap:8px;">
+        <input id="apiKeyInput" type="password" placeholder="sk-ant-..." style="flex:1; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; color:var(--text); font-size:12px; font-family:'Source Sans 3',sans-serif; outline:none;">
+        <button onclick="saveApiKey()" style="background:var(--green); border:none; border-radius:8px; padding:7px 12px; color:#0f1a08; font-size:12px; font-weight:700; cursor:pointer;">Salva</button>
+      </div>
+    </div>
+
+    <!-- STATO CHIAVE -->
+    <div id="apiKeyStatus" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <span id="apiKeyLabel" style="font-size:11px; color:var(--muted);">🔑 Nessuna chiave API impostata</span>
+      <button onclick="toggleApiKeySection()" id="apiKeyToggleBtn" style="background:transparent; border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--muted); font-size:10px; cursor:pointer;">Imposta</button>
+    </div>
+
     <div class="ai-chips">
       <div class="ai-chip" onclick="aiChip(this)">Cosa mangio stasera?</div>
       <div class="ai-chip" onclick="aiChip(this)">Ho sgarrato, come recupero?</div>
@@ -897,6 +913,14 @@ async function substituteItem(itemId, di, mi, ii) {
   btn.classList.add('loading');
   btn.textContent = '⏳';
 
+  const key = getApiKey();
+  if (!key) {
+    btn.classList.remove('loading');
+    btn.textContent = '↺ Sost.';
+    alert('Imposta prima la chiave API nella tab 🤖 AI');
+    return;
+  }
+
   const prompt = `Alessio non può mangiare "${item.food}" (${item.qty}${item.unit}, ~${item.kcal} kcal) nel pasto "${mealName}".
 
 Dieta: low-carb, alta proteina, ~1850 kcal/die.
@@ -915,7 +939,7 @@ Rispondi SOLO con un JSON valido, nessun testo prima o dopo:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
+        'x-api-key': key,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
@@ -1018,8 +1042,47 @@ function applySubstitution(optIdx, itemId, di, mi, ii) {
 // ============================================================
 // AI CHAT
 // ============================================================
-const API_KEY = "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";
-const aiHistory = [];
+const API_KEY = "INSERISCI_QUI_LA_TUA_CHIAVE"; // non serve più — la chiave si imposta dall'app
+
+function getApiKey() {
+  return localStorage.getItem('ale_api_key') || '';
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    alert('La chiave deve iniziare con sk-ant-'); return;
+  }
+  localStorage.setItem('ale_api_key', val);
+  document.getElementById('apiKeyInput').value = '';
+  updateApiKeyStatus();
+  document.getElementById('apiKeySection').style.display = 'none';
+  addMessage('assistant', '✅ Chiave API salvata! Ora puoi usare l\'assistente.');
+}
+
+function toggleApiKeySection() {
+  const sec = document.getElementById('apiKeySection');
+  sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+}
+
+function updateApiKeyStatus() {
+  const key = getApiKey();
+  const label = document.getElementById('apiKeyLabel');
+  const btn = document.getElementById('apiKeyToggleBtn');
+  if (key) {
+    label.textContent = '🔑 Chiave API impostata ✓';
+    label.style.color = 'var(--green)';
+    btn.textContent = 'Cambia';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+  } else {
+    label.textContent = '⚠️ Nessuna chiave API — tocca Imposta';
+    label.style.color = 'var(--amber)';
+    btn.textContent = 'Imposta';
+    btn.style.borderColor = 'var(--amber)';
+    btn.style.color = 'var(--amber)';
+  }
+}
 
 function buildSystemPrompt() {
   const s = getState();
@@ -1083,6 +1146,13 @@ async function sendAI() {
   const text = input.value.trim();
   if (!text || btn.disabled) return;
 
+  const key = getApiKey();
+  if (!key) {
+    addMessage('assistant', '⚠️ Imposta prima la chiave API toccando il pulsante "Imposta" qui sopra.');
+    document.getElementById('apiKeySection').style.display = 'block';
+    return;
+  }
+
   input.value = '';
   btn.disabled = true;
   addMessage('user', text);
@@ -1096,7 +1166,7 @@ async function sendAI() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
+        'x-api-key': key,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
@@ -1112,7 +1182,6 @@ async function sendAI() {
     thinking.remove();
     addMessage('assistant', reply);
     aiHistory.push({ role: 'assistant', content: reply });
-    // tieni solo ultimi 10 messaggi per non pesare
     if (aiHistory.length > 10) aiHistory.splice(0, 2);
   } catch(e) {
     thinking.remove();
@@ -1126,6 +1195,9 @@ function aiChip(el) {
   document.getElementById('aiInput').value = el.textContent;
   sendAI();
 }
+
+const aiHistory = [];
+updateApiKeyStatus();
 </script>
 </body>
 </html>
