@@ -15,7 +15,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background: var(--bg); color: var(--text); font-family: 'Source Sans 3', sans-serif; min-height: 100vh; }
 
-header { background: linear-gradient(155deg, #1c2e10 0%, #0d1808 100%); padding: 18px 16px 13px; border-bottom: 1px solid #304018; position: sticky; top: 0; z-index: 100; }
+header { background: linear-gradient(155deg, #1c2e10 0%, #0d1808 100%); padding: env(safe-area-inset-top, 18px) 16px 13px; padding-top: max(env(safe-area-inset-top, 0px), 18px); border-bottom: 1px solid #304018; position: sticky; top: 0; z-index: 100; }
 .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 2px; font-weight: 600; }
 h1 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: #f0ede6; }
@@ -672,36 +672,30 @@ function updateMealHeader(mealId, di, mi, forceDone) {
 }
 
 // ============================================================
-// BADGE KCAL PASTO — considera quantità custom
+// BADGE KCAL PASTO — item non spuntati mostrano kcal pianificate, spuntati mostrano quelle effettive
 // ============================================================
 function updateMealBadge(di, mi) {
   const mealId = `d${di}m${mi}`;
   const s = getState();
   const meal = DAYS[di].meals[mi];
   const remaining = meal.items.reduce((sum, item, ii) => {
-    if (s[`${mealId}i${ii}`]) return sum;
-    return sum + getItemKcal(di, mi, ii);
+    if (s[`${mealId}i${ii}`]) return sum; // spuntato: non conta nel rimanente
+    return sum + item.kcal; // non spuntato: usa kcal pianificate originali
   }, 0);
   const badge = document.getElementById('badge-' + mealId);
   if (badge) badge.textContent = remaining + ' kcal';
 }
 
 // ============================================================
-// KCAL TOTALI GIORNO — considera quantità custom
+// KCAL TOTALI GIORNO — totale FISSO dal piano, solo le spuntate scalano
 // ============================================================
 function updateKcal(day) {
   if (day === undefined) day = currentDay;
   if (day >= DAYS.length) return;
   const s = getState();
-  // calcola totale giorno con eventuali quantità custom
-  let dayTotal = 0;
-  DAYS[day].meals.forEach((meal, mi) => {
-    meal.items.forEach((_, ii) => { dayTotal += getItemKcal(day, mi, ii); });
-  });
-  // aggiorna box totale giorno
-  const dtEl = document.getElementById(`dt-kcal-${day}`);
-  if (dtEl) dtEl.textContent = dayTotal;
-
+  // totale giorno SEMPRE fisso dal piano originale
+  const dayTotal = DAYS[day].total;
+  // kcal consumate = solo item spuntati, con eventuale quantità custom
   let eaten = 0;
   DAYS[day].meals.forEach((meal, mi) => {
     meal.items.forEach((_, ii) => {
