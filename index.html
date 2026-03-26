@@ -927,12 +927,10 @@ Dieta: low-carb, alta proteina, ~1850 kcal/die.
 Alimenti OK: pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta di pecora, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure cotte, soia.
 NON usare: frutta secca, ceci, branzino, orata, alcol.
 
-Proponi esattamente 4 sostituti diversi, ciascuno con calorie simili (~${item.kcal} kcal ±100).
-Rispondi SOLO con un JSON valido, nessun testo prima o dopo:
-[
-  {"food":"nome con breve preparazione","qty":numero,"unit":"g","kcal":numero,"kcalPer100":numero},
-  ...
-]`;
+Rispondi UNICAMENTE con questo JSON, senza testo prima o dopo, senza markdown, senza backtick:
+[{"food":"nome con breve preparazione","qty":100,"unit":"g","kcal":120,"kcalPer100":120},{"food":"secondo sostituto","qty":100,"unit":"g","kcal":110,"kcalPer100":110},{"food":"terzo sostituto","qty":100,"unit":"g","kcal":130,"kcalPer100":130},{"food":"quarto sostituto","qty":100,"unit":"g","kcal":115,"kcalPer100":115}]
+
+Sostituisci i valori con alternative reali simili a "${item.food}". Rispondi SOLO con il JSON.`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -951,10 +949,25 @@ Rispondi SOLO con un JSON valido, nessun testo prima o dopo:
     });
 
     const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
     const raw = data.content?.[0]?.text || '';
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error('JSON non trovato');
-    const options = JSON.parse(jsonMatch[0]);
+    // prova prima array, poi oggetto singolo
+    let options = null;
+    const arrMatch = raw.match(/\[[\s\S]*?\]/);
+    if (arrMatch) {
+      try { options = JSON.parse(arrMatch[0]); } catch(e) {}
+    }
+    if (!options) {
+      // fallback: cerca oggetti singoli e raccoglili
+      const objs = [];
+      const re = /\{[\s\S]*?\}/g;
+      let m;
+      while ((m = re.exec(raw)) !== null) {
+        try { objs.push(JSON.parse(m[0])); } catch(e) {}
+      }
+      if (objs.length > 0) options = objs;
+    }
+    if (!options || options.length === 0) throw new Error('Nessuna opzione trovata');
 
     btn.classList.remove('loading');
     btn.textContent = '↺ Sost.';
