@@ -1,8 +1,799 @@
+
+piano-alessio-v5.html
+
+Pagina
+1
+/
+1
+100%
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Dieta</title></head>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Piano Alessio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #1a1a18; --surface: #222220; --card: #2a2a26; --border: #383832;
+  --green: #7ab648; --green-dim: #1e2d12; --amber: #e8962a; --amber-dim: #332310;
+  --red: #e05a3a; --red-dim: #2e1410; --text: #f0ede6; --muted: #888878;
+  --done-bg: #141f0c; --done-text: #4a6a2a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: 'Source Sans 3', sans-serif; min-height: 100vh; }
+
+/* HEADER */
+header { background: linear-gradient(155deg, #1c2e10 0%, #0d1808 100%); padding: 18px 16px 13px; border-bottom: 1px solid #304018; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 2px; font-weight: 600; }
+h1 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: #f0ede6; }
+h1 em { font-style: italic; color: var(--green); }
+.next-meal { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.next-meal strong { color: var(--amber); }
+
+.kcal-box { background: var(--green-dim); border: 1px solid #3a5020; border-radius: 10px; padding: 7px 10px; text-align: center; min-width: 85px; flex-shrink: 0; }
+.kcal-box.warning { background: var(--amber-dim); border-color: #5a3a10; }
+.kcal-box.over { background: var(--red-dim); border-color: #5a2010; }
+.kcal-num { display: block; font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--green); line-height: 1; }
+.kcal-box.warning .kcal-num { color: var(--amber); }
+.kcal-box.over .kcal-num { color: var(--red); }
+.kcal-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); display: block; margin-top: 1px; }
+.kcal-sub { font-size: 10px; color: var(--muted); display: block; margin-top: 1px; }
+
+.progress-wrap { margin-top: 9px; background: #1a2810; border-radius: 4px; height: 4px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--green); border-radius: 4px; transition: width .3s ease; }
+.progress-bar.warning { background: var(--amber); }
+.progress-bar.over { background: var(--red); }
+
+/* PILLS */
+.pills { display: flex; gap: 6px; padding: 9px 14px; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.pills::-webkit-scrollbar { display: none; }
+.pill { flex-shrink: 0; border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.pill.g { background: var(--green-dim); border: 1px solid #3a5420; color: var(--green); }
+.pill.a { background: var(--amber-dim); border: 1px solid #5a3a10; color: var(--amber); }
+.pill.n { background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+
+/* TABS */
+.tab-wrap { background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; position: sticky; top: 104px; z-index: 90; }
+.tab-wrap::-webkit-scrollbar { display: none; }
+.tabs { display: flex; min-width: max-content; padding: 0 10px; }
+.tab { flex-shrink: 0; padding: 8px 12px 7px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; text-align: center; transition: all .15s; color: var(--muted); position: relative; }
+.tab .dn { display: block; font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1; margin-bottom: 1px; }
+.tab .dl { font-size: 9px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+.tab.active { color: var(--green); border-bottom-color: var(--green); }
+.tab .dot { width: 5px; height: 5px; border-radius: 50%; position: absolute; top: 4px; right: 4px; display: none; }
+.tab.partial .dot { display: block; background: var(--amber); }
+.tab.complete .dot { display: block; background: var(--green); }
+
+/* MAIN */
+.main { padding: 11px 13px 80px; max-width: 580px; margin: 0 auto; }
+.panel { display: none; } .panel.active { display: block; }
+
+/* DAY TOTALS */
+.day-totals { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; margin-bottom: 11px; }
+.dtbox { background: var(--green-dim); border: 1px solid #3a5020; border-radius: 8px; padding: 7px 4px; text-align: center; }
+.dtbox .num { display: block; font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--green); line-height: 1; margin-bottom: 1px; }
+.dtbox .lbl { font-size: 8px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); }
+
+/* MEAL CARD */
+.meal { background: var(--card); border: 1px solid var(--border); border-radius: 11px; margin-bottom: 8px; overflow: hidden; }
+.meal.all-eaten { background: var(--done-bg); border-color: #252e1a; }
+
+/* MEAL HEADER */
+.mh { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--border); }
+.meal.all-eaten .mh { border-bottom-color: #252e1a; }
+.mico { font-size: 16px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: var(--bg); border-radius: 7px; flex-shrink: 0; }
+.minfo { flex: 1; min-width: 0; }
+.mn { font-size: 12px; font-weight: 600; color: var(--white); }
+.meal.all-eaten .mn { color: var(--done-text); }
+.mt { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.mkcal-badge { font-size: 11px; font-weight: 700; color: var(--amber); background: var(--amber-dim); padding: 2px 8px; border-radius: 20px; flex-shrink: 0; white-space: nowrap; }
+.meal.all-eaten .mkcal-badge { color: var(--done-text); background: #1a2510; }
+
+/* MEAL FATTO BUTTON */
+.meal-check { cursor: pointer; padding: 5px 9px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 11px; font-family: 'Source Sans 3', sans-serif; font-weight: 600; transition: all .15s; flex-shrink: 0; white-space: nowrap; }
+.meal-check:active { transform: scale(0.93); }
+.meal-check.checked { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+/* ITEMS LIST */
+.mb { padding: 4px 0 8px; }
+
+.item-row {
+  display: flex; align-items: center; gap: 0;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+  min-height: 38px;
+  transition: background .15s;
+}
+.item-row:last-child { border-bottom: none; }
+.item-row.item-eaten { background: rgba(20,31,12,0.5); }
+
+.item-check-btn {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 9px;
+  transition: all .15s;
+  font-size: 13px;
+  color: var(--muted);
+}
+.item-check-btn:active { transform: scale(0.88); }
+.item-check-btn.checked { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.item-row.item-eaten .item-check-btn.checked { background: #1a2810; border-color: #3a5020; }
+
+.item-content { flex: 1; display: flex; gap: 8px; align-items: baseline; padding: 6px 0; }
+.qty { min-width: 62px; font-size: 10px; font-weight: 700; color: var(--green); flex-shrink: 0; }
+.item-row.item-eaten .qty { color: var(--done-text); }
+.food { font-size: 12px; line-height: 1.4; color: var(--text); }
+.item-row.item-eaten .food { color: var(--done-text); text-decoration: line-through; text-decoration-color: #3a5020; }
+
+.item-kcal { font-size: 10px; color: var(--muted); flex-shrink: 0; margin-left: auto; padding-left: 6px; }
+.item-row.item-eaten .item-kcal { color: var(--done-text); }
+
+.tip { background: var(--green-dim); border-left: 2px solid var(--green); border-radius: 0 5px 5px 0; padding: 6px 10px; font-size: 11px; color: #9dcc6a; margin: 4px 12px 4px; line-height: 1.5; }
+.warn { background: var(--amber-dim); border-left: 2px solid var(--amber); border-radius: 0 5px 5px 0; padding: 6px 10px; font-size: 11px; color: #e8b66a; margin-bottom: 10px; line-height: 1.5; }
+
+/* RESET */
+.reset-btn { width: 100%; margin-top: 10px; padding: 9px; background: transparent; border: 1px dashed var(--border); border-radius: 8px; color: var(--muted); font-size: 12px; font-family: 'Source Sans 3', sans-serif; cursor: pointer; }
+.reset-btn:active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+/* REGOLE */
+.stitle { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--white); margin: 13px 0 7px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.ri { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; line-height: 1.5; align-items: flex-start; }
+.ri:last-child { border-bottom: none; }
+.rn { width: 19px; height: 19px; border-radius: 50%; background: var(--green); color: #0f1a08; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.ra { color: var(--amber); flex-shrink: 0; margin-top: 2px; }
+.rt strong { color: var(--white); }
+
+.vacanza { background: linear-gradient(135deg, #7a4e10 0%, #3d2508 100%); border: 1px solid #a06020; border-radius: 11px; padding: 15px 13px; margin: 0 13px 18px; text-align: center; }
+.vacanza h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--amber); margin-bottom: 4px; }
+.vacanza p { font-size: 12px; color: #e8c87a; line-height: 1.5; }
+footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); }
+</style>
+</head>
 <body>
-  <h1>Calendario Dieta</h1>
-  <p>In costruzione...</p>
+
+<header>
+  <div class="header-top">
+    <div>
+      <div class="eyebrow">Piano Alimentare · Alessio</div>
+      <h1>Ciao <em>Alessio</em> 👋</h1>
+      <div class="next-meal" id="nextMeal">⏰ Caricamento...</div>
+    </div>
+    <div class="kcal-box" id="kcalBox">
+      <span class="kcal-num" id="kcalNum">—</span>
+      <span class="kcal-lbl">kcal rimaste</span>
+      <span class="kcal-sub" id="kcalSub"></span>
+    </div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+</header>
+
+<div class="pills">
+  <div class="pill g">⚡ ~1850 kcal</div>
+  <div class="pill g">🥩 Alta proteina</div>
+  <div class="pill g">🥦 Verdure cotte</div>
+  <div class="pill a">🍚 Low-carb + riso</div>
+  <div class="pill a">🫘 Legumi sì</div>
+  <div class="pill n">🍱 3 pasti + 2 spuntini</div>
+</div>
+
+<div class="tab-wrap">
+  <div class="tabs" id="tabs">
+    <div class="tab active" onclick="show(0)"><span class="dn">26</span><span class="dl">Gio</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(1)"><span class="dn">27</span><span class="dl">Ven</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(2)"><span class="dn">28</span><span class="dl">Sab</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(3)"><span class="dn">29</span><span class="dl">Dom</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(4)"><span class="dn">30</span><span class="dl">Lun</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(5)"><span class="dn">31</span><span class="dl">Mar</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(6)"><span class="dn">1</span><span class="dl">Mer</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(7)"><span class="dn">2</span><span class="dl">Gio</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(8)"><span class="dn">3</span><span class="dl">Ven</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(9)"><span class="dn">📋</span><span class="dl">Regole</span></div>
+    <div class="tab" onclick="show(10)"><span class="dn">🍽️</span><span class="dl">Fuori</span></div>
+  </div>
+</div>
+
+<div class="main" id="mainContent">
+
+<!-- I pasti vengono generati via JS -->
+
+<!-- REGOLE -->
+<div class="panel" id="p9">
+  <p class="stitle">📋 Regole del piano</p>
+  <div class="ri"><div class="rn">1</div><div class="rt"><strong>Acqua:</strong> 2–2,5 litri al giorno. Un bicchiere grande prima del caffè.</div></div>
+  <div class="ri"><div class="rn">2</div><div class="rt"><strong>Carboidrati:</strong> Solo riso basmati (sab/dom/mar), legumi e verdure. Niente pane bianco o dolci.</div></div>
+  <div class="ri"><div class="rn">3</div><div class="rt"><strong>Proteine ad ogni pasto:</strong> Pollo, macinato, bistecca di maiale, pesce, frutti di mare, uova, formaggi magri.</div></div>
+  <div class="ri"><div class="rn">4</div><div class="rt"><strong>Verdure cotte:</strong> Broccoli, broccoletti, spinaci, cicoria, verza, cavolfiore — abbondanti ogni giorno.</div></div>
+  <div class="ri"><div class="rn">5</div><div class="rt"><strong>Legumi:</strong> Ogni giorno — fagioli, lenticchie. Fonte di fibre e proteine.</div></div>
+  <div class="ri"><div class="rn">6</div><div class="rt"><strong>Soia:</strong> Salsa di soia leggera — usala liberamente per insaporire.</div></div>
+  <div class="ri"><div class="rn">7</div><div class="rt"><strong>Cotture:</strong> Griglia, padella, forno, vapore. Evita frittura.</div></div>
+  <div class="ri"><div class="rn">8</div><div class="rt"><strong>Alcol:</strong> Zero — grande vantaggio per il dimagrimento!</div></div>
+  <div class="ri"><div class="rn">9</div><div class="rt"><strong>Frutta:</strong> 1–2 frutti/die come spuntino (fragole, mirtilli, mela, arancia).</div></div>
+  <div class="ri"><div class="rn">10</div><div class="rt"><strong>Spuntini:</strong> Ricotta di pecora 100g, fiocchi di latte o stracchino + affettati.</div></div>
+  <p class="stitle">⚖️ I tuoi numeri</p>
+  <div class="ri"><div class="ra">→</div><div class="rt">~<strong>1820–1870 kcal</strong>/die</div></div>
+  <div class="ri"><div class="ra">→</div><div class="rt"><strong>140–152g proteine</strong>/die</div></div>
+  <div class="ri"><div class="ra">→</div><div class="rt">Perdita stimata: <strong>0,5–1 kg/settimana</strong></div></div>
+  <div class="ri"><div class="ra">→</div><div class="rt">Obiettivo lungo termine: <strong>100–110 kg</strong></div></div>
+  <p class="stitle">🔄 Dopo la vacanza (dal 7 aprile)</p>
+  <div class="ri"><div class="ra">→</div><div class="rt">Riparti da questo schema senza sensi di colpa</div></div>
+  <div class="ri"><div class="ra">→</div><div class="rt">Se hai esagerato: 2–3 giorni a 1600 kcal poi torna a 1850</div></div>
+  <div class="ri"><div class="ra">→</div><div class="rt">Considera 30 min di cammino al giorno</div></div>
+</div>
+
+<!-- FUORI -->
+<div class="panel" id="p10">
+  <div class="warn">🍽️ Vai a cena fuori? Ecco come orientarti.</div>
+  <p class="stitle">🐟 Pesce / Frutti di mare</p>
+  <div class="ri"><div class="ra">✓</div><div class="rt"><strong>Ordina:</strong> Grigliata, polpo, gamberi, seppie + verdure grigliate.</div></div>
+  <div class="ri"><div class="ra">✗</div><div class="rt"><strong>Evita:</strong> Fritti, pasta al mare intera, risotto.</div></div>
+  <p class="stitle">🥩 Grill / Braceria</p>
+  <div class="ri"><div class="ra">✓</div><div class="rt"><strong>Ordina:</strong> Bistecca, pollo, maiale alla brace + verdure grigliate.</div></div>
+  <div class="ri"><div class="ra">✗</div><div class="rt"><strong>Evita:</strong> Patate fritte, panini, salse pesanti.</div></div>
+  <p class="stitle">🍕 Pizzeria / Trattoria</p>
+  <div class="ri"><div class="ra">✓</div><div class="rt"><strong>Ordina:</strong> Secondo + contorno. Se vuoi pizza: una margherita piccola.</div></div>
+  <div class="ri"><div class="ra">✗</div><div class="rt"><strong>Evita:</strong> Antipasto fritto + primo + pizza + dolce insieme.</div></div>
+  <p class="stitle">🥢 Orientale</p>
+  <div class="ri"><div class="ra">✓</div><div class="rt"><strong>Ordina:</strong> Carne/gamberi saltati, verdure miste, miso soup.</div></div>
+  <div class="ri"><div class="ra">✗</div><div class="rt"><strong>Evita:</strong> Riso in grandi quantità, tempura, noodles abbondanti.</div></div>
+  <div class="tip" style="margin-top:10px;">💡 Regola d'oro: <strong>un secondo proteico + un contorno di verdure</strong>.</div>
+</div>
+
+</div><!-- /main -->
+
+<div class="vacanza">
+  <h2>🏖️ Dal 4 aprile: VACANZA!</h2>
+  <p>Goditi ogni pasto liberamente — niente conteggi.<br>Hai lavorato bene, te la meriti tutta!</p>
+</div>
+<footer>Piano indicativo · Non sostituisce il parere di un medico o nutrizionista<br>Alessio · 26 marzo – 3 aprile 2026</footer>
+
+<script>
+// ============================================================
+// DATI DEL PIANO
+// ============================================================
+const DAYS = [
+  { label: '26 Gio', total: 1840, warn: null,
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'1–2 tazze', food:'Caffè nero senza zucchero', kcal:30 }
+      ]},
+      { icon:'🧀', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'100g', food:'Ricotta di pecora con sale e pepe', kcal:120 },
+        { qty:'3 fette (60g)', food:'Bresaola', kcal:50 }
+      ]},
+      { icon:'🫙', name:'Pranzo — Involtini di verza', time:'13:00', tip:'✅ Esattamente quello che hai mangiato oggi — ottimo!', items:[
+        { qty:'3 involtini', food:'Verza ripiena di macinato (270g) + uovo + olio', kcal:480 },
+        { qty:'300g', food:'Broccoletti ripassati con aglio e olio EVO', kcal:200 }
+      ]},
+      { icon:'🍓', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'150g', food:'Fragole o mirtilli freschi', kcal:120 }
+      ]},
+      { icon:'🍔', name:'Cena — Hamburger', time:'20:00', warn:'🍔 Con panino: salta lo spuntino pomeriggio. Senza panino: tutto ok.', items:[
+        { qty:'1', food:'Hamburger con/senza panino', kcal:600 },
+        { qty:'Contorno', food:'Verdure grigliate — evita patatine', kcal:80 }
+      ]}
+    ]
+  },
+  { label: '27 Ven', total: 1820, warn: null,
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'Caffè', food:'Nero senza zucchero', kcal:30 }
+      ]},
+      { icon:'🧀', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'100g', food:'Ricotta di pecora', kcal:120 },
+        { qty:'3 fette (50g)', food:'Coppa o prosciutto crudo', kcal:50 }
+      ]},
+      { icon:'🦐', name:'Pranzo — Gamberi e broccoletti', time:'13:00', tip:'🦐 Gamberi surgelati: 10 min in padella con aglio e olio — velocissimo.', items:[
+        { qty:'250g', food:'Gamberi saltati con aglio, olio EVO e prezzemolo', kcal:250 },
+        { qty:'300g', food:'Broccoletti ripassati con aglio e peperoncino', kcal:150 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]},
+      { icon:'🫐', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'150g', food:'Fragole o mirtilli', kcal:60 },
+        { qty:'80g', food:'Yogurt greco 0%', kcal:60 }
+      ]},
+      { icon:'🌙', name:'Cena — Polpo e cavolfiore', time:'20:00', items:[
+        { qty:'250g', food:'Polpo lessato con olio EVO, limone e prezzemolo', kcal:300 },
+        { qty:'300g', food:'Cavolfiore al forno con olio EVO e pepe', kcal:180 },
+        { qty:'100g', food:'Fagioli cannellini al pomodoro e soia', kcal:110 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]}
+    ]
+  },
+  { label: '28 Sab', total: 1870, warn: '🔥 Sabato! Più tempo — grigliata e riso!',
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'Caffè', food:'Nero', kcal:30 }
+      ]},
+      { icon:'🥚', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'2 uova', food:'All\'occhio di bue con filo d\'olio EVO', kcal:150 },
+        { qty:'50g', food:'Prosciutto crudo', kcal:50 }
+      ]},
+      { icon:'🔥', name:'Pranzo — Grigliata + Riso', time:'13:00', tip:'🍚 Riso basmati: indice glicemico più basso. Lessalo e scolalo bene.', items:[
+        { qty:'250g', food:'Bistecca di maiale alla brace con sale grosso e rosmarino', kcal:300 },
+        { qty:'70g secco', food:'Riso basmati lessato', kcal:250 },
+        { qty:'100g', food:'Fagioli neri al pomodoro e soia', kcal:110 },
+        { qty:'200g', food:'Peperoni e melanzane grigliate', kcal:100 }
+      ]},
+      { icon:'🍎', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'1', food:'Mela media', kcal:70 },
+        { qty:'100g', food:'Fiocchi di latte', kcal:80 }
+      ]},
+      { icon:'🌙', name:'Cena — Salmone e spinaci', time:'20:00', items:[
+        { qty:'220g', food:'Salmone al forno con limone, aglio e prezzemolo', kcal:420 },
+        { qty:'350g', food:'Spinaci saltati con aglio e olio EVO', kcal:200 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]}
+    ]
+  },
+  { label: '29 Dom', total: 1860, warn: '🌞 Domenica! Riso con ragù — te lo sei guadagnato.',
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'Caffè', food:'Nero', kcal:30 }
+      ]},
+      { icon:'🧀', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'100g', food:'Stracchino su 1 fettina pane di segale (30g)', kcal:160 }
+      ]},
+      { icon:'🍚', name:'Pranzo — Riso e ragù di maiale', time:'13:00', tip:'🇮🇹 Domenica è domenica! Riso basmati col ragù.', items:[
+        { qty:'80g secco', food:'Riso basmati', kcal:280 },
+        { qty:'150g', food:'Ragù di maiale magro', kcal:250 },
+        { qty:'300g', food:'Broccoli al vapore con olio EVO', kcal:150 }
+      ]},
+      { icon:'🍓', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'200g', food:'Fragole fresche con foglioline di menta', kcal:100 }
+      ]},
+      { icon:'🌙', name:'Cena — Frittata e lenticchie', time:'20:00', items:[
+        { qty:'3 uova', food:'Frittata con zucchine e primo sale', kcal:280 },
+        { qty:'300g', food:'Broccoli al vapore con olio e limone', kcal:150 },
+        { qty:'100g', food:'Lenticchie rosse in umido al pomodoro', kcal:110 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]}
+    ]
+  },
+  { label: '30 Lun', total: 1840, warn: null,
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'Caffè', food:'Nero', kcal:30 }
+      ]},
+      { icon:'🥩', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'100g', food:'Ricotta di pecora', kcal:120 },
+        { qty:'3 fette (50g)', food:'Prosciutto crudo', kcal:50 }
+      ]},
+      { icon:'🍽️', name:'Pranzo — Pollo, fagioli e soia', time:'13:00', tip:'🍲 Tutto in una padella! La tua combo preferita.', items:[
+        { qty:'220g', food:'Pollo in padella con fagioli cannellini, pomodoro e soia', kcal:380 },
+        { qty:'100g', food:'Fagioli cannellini nel sugo', kcal:80 },
+        { qty:'300g', food:'Verza stufata con aglio e olio EVO', kcal:150 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]},
+      { icon:'🫐', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'150g', food:'Fragole o mirtilli', kcal:60 },
+        { qty:'80g', food:'Yogurt greco 0%', kcal:60 }
+      ]},
+      { icon:'🌙', name:'Cena — Merluzzo e spinaci', time:'20:00', items:[
+        { qty:'220g', food:'Merluzzo al forno con pomodorini, olive e capperi', kcal:280 },
+        { qty:'350g', food:'Spinaci saltati con aglio e olio EVO', kcal:200 },
+        { qty:'100g', food:'Fagioli borlotti al pomodoro e basilico', kcal:110 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]}
+    ]
+  },
+  { label: '31 Mar', total: 1850, warn: null,
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'Caffè', food:'Nero', kcal:30 }
+      ]},
+      { icon:'🧀', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'100g', food:'Fiocchi di latte con pepe nero', kcal:80 },
+        { qty:'4 fette (60g)', food:'Bresaola', kcal:70 }
+      ]},
+      { icon:'🍚', name:'Pranzo — Riso e macinato', time:'13:00', tip:'🥢 Riso + macinato + soia: bowl completa in 20 minuti.', items:[
+        { qty:'70g secco', food:'Riso basmati', kcal:250 },
+        { qty:'180g', food:'Macinato di manzo in padella con soia, aglio e pomodoro', kcal:280 },
+        { qty:'300g', food:'Broccoletti ripassati in padella', kcal:150 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]},
+      { icon:'🍊', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'1', food:'Arancia o 2 mandarini', kcal:60 },
+        { qty:'2 fette (30g)', food:'Bresaola', kcal:40 }
+      ]},
+      { icon:'🐚', name:'Cena — Cozze al pomodoro', time:'20:00', tip:'🐚 Le cozze sono proteine pure! Il sughetto col pane è un classico.', items:[
+        { qty:'500g', food:'Cozze in umido con pomodoro, aglio e prezzemolo', kcal:350 },
+        { qty:'300g', food:'Cicoria ripassata con aglio e olio EVO', kcal:180 },
+        { qty:'30g', food:'Pane di segale per il sughetto', kcal:80 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]}
+    ]
+  },
+  { label: '1 Mer', total: 1840, warn: null,
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'Caffè', food:'Nero', kcal:30 }
+      ]},
+      { icon:'🥩', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'100g', food:'Ricotta di pecora', kcal:120 },
+        { qty:'3 fette (50g)', food:'Prosciutto crudo', kcal:50 }
+      ]},
+      { icon:'🍽️', name:'Pranzo — Pollo e lenticchie', time:'13:00', tip:'🍲 Le lenticchie nel sugo del pollo assorbono tutto il sapore!', items:[
+        { qty:'220g', food:'Pollo a pezzi con pomodoro, cipolla e rosmarino', kcal:300 },
+        { qty:'100g', food:'Lenticchie rosse nel sugo del pollo', kcal:120 },
+        { qty:'300g', food:'Spinaci al vapore con olio EVO', kcal:170 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]},
+      { icon:'🍓', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'200g', food:'Fragole fresche', kcal:60 },
+        { qty:'80g', food:'Yogurt greco 0%', kcal:60 }
+      ]},
+      { icon:'🌙', name:'Cena — Bistecca e cicoria', time:'20:00', items:[
+        { qty:'220g', food:'Bistecca di maiale alla piastra con sale grosso e salvia', kcal:340 },
+        { qty:'300g', food:'Cicoria ripassata con aglio, olio EVO e peperoncino', kcal:180 },
+        { qty:'100g', food:'Fagioli cannellini al pomodoro con soia', kcal:110 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]}
+    ]
+  },
+  { label: '2 Gio', total: 1850, warn: null,
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'Caffè', food:'Nero', kcal:30 }
+      ]},
+      { icon:'🧀', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'100g', food:'Fiocchi di latte', kcal:80 },
+        { qty:'3 fette (50g)', food:'Coppa o prosciutto crudo', kcal:60 }
+      ]},
+      { icon:'🦐', name:'Pranzo — Gamberi e verza', time:'13:00', items:[
+        { qty:'250g', food:'Gamberi saltati con aglio, olio EVO e soia', kcal:250 },
+        { qty:'100g', food:'Lenticchie nere al pomodoro e soia', kcal:120 },
+        { qty:'300g', food:'Verza stufata con aglio e peperoncino', kcal:150 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]},
+      { icon:'🍊', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'1 grande', food:'Arancia', kcal:70 },
+        { qty:'2 fette (30g)', food:'Bresaola', kcal:40 }
+      ]},
+      { icon:'🌙', name:'Cena — Macinato e spinaci', time:'20:00', items:[
+        { qty:'220g', food:'Macinato di manzo in padella con pomodoro, aglio e soia', kcal:340 },
+        { qty:'350g', food:'Spinaci saltati con aglio e olio EVO', kcal:200 },
+        { qty:'100g', food:'Fagioli cannellini al pomodoro', kcal:110 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]}
+    ]
+  },
+  { label: '3 Ven', total: 1820, warn: '🎉 Ultimo giorno! Stasera leggero — domani si parte!',
+    meals: [
+      { icon:'☕', name:'Colazione', time:'07:30', items:[
+        { qty:'Caffè', food:'Nero — ultimo pre-vacanza!', kcal:30 }
+      ]},
+      { icon:'🧀', name:'Spuntino mattina', time:'10:30', items:[
+        { qty:'100g', food:'Fiocchi di latte', kcal:80 },
+        { qty:'4 fette (60g)', food:'Prosciutto cotto', kcal:80 }
+      ]},
+      { icon:'🦐', name:'Pranzo — Gamberi e lenticchie', time:'13:00', items:[
+        { qty:'250g', food:'Gamberi saltati con aglio, olio EVO e soia', kcal:250 },
+        { qty:'100g', food:'Lenticchie nere al pomodoro e soia', kcal:120 },
+        { qty:'300g', food:'Verza stufata con aglio e peperoncino', kcal:150 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]},
+      { icon:'🍊', name:'Spuntino pomeriggio', time:'16:30', items:[
+        { qty:'1 grande', food:'Arancia', kcal:70 },
+        { qty:'2 fette (30g)', food:'Bresaola', kcal:40 }
+      ]},
+      { icon:'🌙', name:'Ultima cena', time:'20:00', tip:'🎒 Buona vacanza Alessio! Al rientro si riparte più forti 💪', items:[
+        { qty:'3 uova', food:'Frittata con spinaci e primo sale', kcal:280 },
+        { qty:'300g', food:'Broccoletti ripassati all\'aglio', kcal:150 },
+        { qty:'100g', food:'Fagioli cannellini al pomodoro e basilico', kcal:110 },
+        { qty:'1 cucchiaio', food:'Olio EVO', kcal:90 }
+      ]}
+    ]
+  }
+];
+
+const mealNames = ['☕ Colazione','🧀 Spuntino mattina','🍽️ Pranzo','🍓 Spuntino','🌙 Cena'];
+const START = new Date(2026,2,26);
+let currentDay = 0;
+
+// ============================================================
+// STORAGE
+// ============================================================
+function getState() {
+  try { return JSON.parse(localStorage.getItem('ale_v5') || '{}'); } catch(e) { return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem('ale_v5', JSON.stringify(s)); } catch(e) {}
+}
+
+// ============================================================
+// BUILD HTML
+// ============================================================
+function buildDays() {
+  const main = document.getElementById('mainContent');
+  DAYS.forEach((day, di) => {
+    const panel = document.createElement('div');
+    panel.className = 'panel' + (di === 0 ? ' active' : '');
+    panel.id = `p${di}`;
+
+    let html = `<div class="day-totals">
+      <div class="dtbox"><span class="num">${day.total}</span><span class="lbl">Kcal</span></div>
+      <div class="dtbox"><span class="num">~${Math.round(day.total*0.08)}g</span><span class="lbl">Proteine</span></div>
+      <div class="dtbox"><span class="num">~${Math.round(day.total*0.03)}g</span><span class="lbl">Carb</span></div>
+      <div class="dtbox"><span class="num">~${Math.round(day.total*0.055)}g</span><span class="lbl">Grassi</span></div>
+    </div>`;
+
+    if (day.warn) html += `<div class="warn">${day.warn}</div>`;
+
+    day.meals.forEach((meal, mi) => {
+      const mealId = `d${di}m${mi}`;
+      const totalKcal = meal.items.reduce((s,i) => s+i.kcal, 0);
+
+      html += `<div class="meal" id="${mealId}">
+        <div class="mh">
+          <div class="mico">${meal.icon}</div>
+          <div class="minfo">
+            <div class="mn">${meal.name}</div>
+            <div class="mt">⏰ ${meal.time}</div>
+          </div>
+          <div class="mkcal-badge" id="badge-${mealId}">${totalKcal} kcal</div>
+          <button class="meal-check" id="mcheck-${mealId}" onclick="toggleMeal('${mealId}',${di},${mi})">○ Fatto</button>
+        </div>
+        <div class="mb">`;
+
+      if (meal.warn) html += `<div class="warn" style="margin:4px 12px 4px;">${meal.warn}</div>`;
+
+      meal.items.forEach((item, ii) => {
+        const itemId = `${mealId}i${ii}`;
+        html += `<div class="item-row" id="${itemId}">
+          <button class="item-check-btn" id="ibtn-${itemId}" onclick="toggleItem('${itemId}',${di},${mi},${ii})">○</button>
+          <div class="item-content">
+            <span class="qty">${item.qty}</span>
+            <span class="food">${item.food}</span>
+          </div>
+          <span class="item-kcal">${item.kcal} kcal</span>
+        </div>`;
+      });
+
+      if (meal.tip) html += `<div class="tip">${meal.tip}</div>`;
+
+      html += `</div></div>`;
+    });
+
+    html += `<button class="reset-btn" onclick="resetDay(${di})">↺ Reset giorno</button>`;
+    panel.innerHTML = html;
+
+    // Inserisci prima del div p9
+    const p9 = document.getElementById('p9');
+    main.insertBefore(panel, p9);
+  });
+}
+
+// ============================================================
+// TOGGLE ITEM singolo
+// ============================================================
+function toggleItem(itemId, di, mi, ii) {
+  const s = getState();
+  s[itemId] = !s[itemId];
+  saveState(s);
+  applyItemState(itemId);
+  // aggiorna badge kcal del pasto
+  updateMealBadge(di, mi);
+  // aggiorna totale giorno
+  updateKcal(di);
+  // controlla se tutti gli item del pasto sono spuntati → spunta "Fatto" automaticamente
+  autoCheckMeal(di, mi);
+  updateDots();
+}
+
+function applyItemState(itemId) {
+  const s = getState();
+  const row = document.getElementById(itemId);
+  const btn = document.getElementById('ibtn-' + itemId);
+  if (!row || !btn) return;
+  if (s[itemId]) {
+    row.classList.add('item-eaten');
+    btn.classList.add('checked');
+    btn.textContent = '✓';
+  } else {
+    row.classList.remove('item-eaten');
+    btn.classList.remove('checked');
+    btn.textContent = '○';
+  }
+}
+
+// ============================================================
+// TOGGLE MEAL intero (segna/deseleziona tutti gli item)
+// ============================================================
+function toggleMeal(mealId, di, mi) {
+  const s = getState();
+  const meal = DAYS[di].meals[mi];
+  // se tutti gli item sono già spuntati → togli tutto, altrimenti spunta tutto
+  const allDone = meal.items.every((_, ii) => s[`${mealId}i${ii}`]);
+  meal.items.forEach((_, ii) => {
+    s[`${mealId}i${ii}`] = !allDone;
+  });
+  saveState(s);
+  meal.items.forEach((_, ii) => applyItemState(`${mealId}i${ii}`));
+  updateMealBadge(di, mi);
+  updateMealHeader(mealId, di, mi);
+  updateKcal(di);
+  updateDots();
+}
+
+// ============================================================
+// AUTO-CHECK: se tutti gli item sono spuntati → segna "Fatto"
+// ============================================================
+function autoCheckMeal(di, mi) {
+  const mealId = `d${di}m${mi}`;
+  const s = getState();
+  const meal = DAYS[di].meals[mi];
+  const allDone = meal.items.every((_, ii) => s[`${mealId}i${ii}`]);
+  updateMealHeader(mealId, di, mi, allDone);
+}
+
+function updateMealHeader(mealId, di, mi, forceDone) {
+  const s = getState();
+  const meal = DAYS[di].meals[mi];
+  const allDone = forceDone !== undefined ? forceDone : meal.items.every((_, ii) => s[`${mealId}i${ii}`]);
+  const mealEl = document.getElementById(mealId);
+  const btn = document.getElementById('mcheck-' + mealId);
+  if (!mealEl || !btn) return;
+  if (allDone) {
+    mealEl.classList.add('all-eaten');
+    btn.classList.add('checked');
+    btn.textContent = '✓ Fatto';
+  } else {
+    mealEl.classList.remove('all-eaten');
+    btn.classList.remove('checked');
+    btn.textContent = '○ Fatto';
+  }
+}
+
+// ============================================================
+// BADGE KCAL del pasto (si riduce man mano che spunti item)
+// ============================================================
+function updateMealBadge(di, mi) {
+  const mealId = `d${di}m${mi}`;
+  const s = getState();
+  const meal = DAYS[di].meals[mi];
+  const remaining = meal.items.reduce((sum, item, ii) => {
+    return s[`${mealId}i${ii}`] ? sum : sum + item.kcal;
+  }, 0);
+  const badge = document.getElementById('badge-' + mealId);
+  if (badge) badge.textContent = remaining + ' kcal';
+}
+
+// ============================================================
+// KCAL TOTALI GIORNO
+// ============================================================
+function updateKcal(day) {
+  if (day === undefined) day = currentDay;
+  if (day >= DAYS.length) return;
+  const total = DAYS[day].total;
+  const s = getState();
+  let eaten = 0;
+  DAYS[day].meals.forEach((meal, mi) => {
+    meal.items.forEach((item, ii) => {
+      if (s[`d${day}m${mi}i${ii}`]) eaten += item.kcal;
+    });
+  });
+  const rem = Math.max(0, total - eaten);
+  const pct = Math.min(100, Math.round(eaten / total * 100));
+  document.getElementById('kcalNum').textContent = rem;
+  document.getElementById('kcalSub').textContent = `${eaten} / ${total}`;
+  const bar = document.getElementById('progressBar');
+  const box = document.getElementById('kcalBox');
+  bar.style.width = pct + '%';
+  box.className = 'kcal-box';
+  bar.className = 'progress-bar';
+  if (rem === 0) { box.classList.add('over'); bar.classList.add('over'); }
+  else if (pct >= 75) { box.classList.add('warning'); bar.classList.add('warning'); }
+}
+
+// ============================================================
+// DOTS SUI TAB
+// ============================================================
+function updateDots() {
+  const s = getState();
+  for (let d = 0; d < DAYS.length; d++) {
+    let total = 0, eaten = 0;
+    DAYS[d].meals.forEach((meal, mi) => {
+      meal.items.forEach((_, ii) => {
+        total++;
+        if (s[`d${d}m${mi}i${ii}`]) eaten++;
+      });
+    });
+    const tab = document.querySelectorAll('.tab')[d];
+    if (!tab) continue;
+    tab.classList.remove('partial','complete');
+    if (eaten === total && total > 0) tab.classList.add('complete');
+    else if (eaten > 0) tab.classList.add('partial');
+  }
+}
+
+// ============================================================
+// RESET GIORNO
+// ============================================================
+function resetDay(day) {
+  if (!confirm('Resetta tutti i pasti di oggi?')) return;
+  const s = getState();
+  DAYS[day].meals.forEach((meal, mi) => {
+    meal.items.forEach((_, ii) => delete s[`d${day}m${mi}i${ii}`]);
+  });
+  saveState(s);
+  applyAllState();
+  updateKcal(day);
+  updateDots();
+}
+
+// ============================================================
+// APPLICA TUTTO LO STATO
+// ============================================================
+function applyAllState() {
+  const s = getState();
+  DAYS.forEach((day, di) => {
+    day.meals.forEach((meal, mi) => {
+      const mealId = `d${di}m${mi}`;
+      meal.items.forEach((_, ii) => {
+        applyItemState(`${mealId}i${ii}`);
+      });
+      updateMealBadge(di, mi);
+      updateMealHeader(mealId, di, mi);
+    });
+  });
+}
+
+// ============================================================
+// NEXT MEAL
+// ============================================================
+function updateNextMeal(day) {
+  const el = document.getElementById('nextMeal');
+  if (day >= DAYS.length) { el.textContent = '🏖️ Sei in vacanza!'; return; }
+  const s = getState();
+  for (let mi = 0; mi < DAYS[day].meals.length; mi++) {
+    const meal = DAYS[day].meals[mi];
+    const allDone = meal.items.every((_, ii) => s[`d${day}m${mi}i${ii}`]);
+    if (!allDone) {
+      el.innerHTML = `⏰ Prossimo: <strong>${meal.name}</strong> alle ${meal.time}`;
+      return;
+    }
+  }
+  el.innerHTML = `✅ <strong>Tutti i pasti completati oggi!</strong>`;
+}
+
+// ============================================================
+// SHOW TAB
+// ============================================================
+function show(i) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', i===j));
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', i===j));
+  currentDay = i;
+  updateKcal(i);
+  updateNextMeal(i);
+}
+
+// ============================================================
+// AUTO-SELECT TODAY
+// ============================================================
+function autoSelectToday() {
+  const now = new Date();
+  const diff = Math.floor((now - START) / 86400000);
+  const day = (diff >= 0 && diff <= 8) ? diff : 0;
+  show(day);
+  const tab = document.querySelectorAll('.tab')[day];
+  if (tab) tab.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildDays();
+applyAllState();
+autoSelectToday();
+updateDots();
+</script>
 </body>
 </html>
+Visualizzazione di piano-alessio-v5.html.
