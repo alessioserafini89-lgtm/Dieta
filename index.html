@@ -54,8 +54,7 @@ h1 em { font-style: italic; color: var(--green); }
 .tab.complete .dot { display: block; background: var(--green); }
 
 .main { padding: 11px 13px 80px; max-width: 580px; margin: 0 auto; }
-.panel { display: none; }
-.panel.active { display: block; }
+.panel { display: none; } .panel.active { display: block; }
 
 .day-totals { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; margin-bottom: 11px; }
 .dtbox { background: var(--green-dim); border: 1px solid #3a5020; border-radius: 8px; padding: 7px 4px; text-align: center; }
@@ -79,6 +78,7 @@ h1 em { font-style: italic; color: var(--green); }
 
 .mb { padding: 4px 0 8px; }
 
+/* ITEM ROW con editing */
 .item-row {
   display: grid;
   grid-template-columns: 26px 1fr auto;
@@ -110,6 +110,7 @@ h1 em { font-style: italic; color: var(--green); }
 
 .item-main { display: flex; flex-direction: column; gap: 2px; padding: 6px 0 6px 9px; min-width: 0; }
 
+/* Riga quantità editabile */
 .item-qty-row { display: flex; align-items: center; gap: 5px; }
 .qty-input {
   width: 52px;
@@ -154,8 +155,10 @@ h1 em { font-style: italic; color: var(--green); }
 .vacanza p { font-size: 12px; color: #e8c87a; line-height: 1.5; }
 footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); }
 
+/* info editing */
 .edit-hint { font-size: 10px; color: var(--muted); text-align: center; padding: 4px 12px; font-style: italic; }
 
+/* AI CHAT */
 .ai-wrap { display: flex; flex-direction: column; height: calc(100vh - 200px); min-height: 400px; }
 .ai-messages { flex: 1; overflow-y: auto; padding: 10px 0; display: flex; flex-direction: column; gap: 10px; }
 .ai-msg { max-width: 88%; padding: 9px 12px; border-radius: 12px; font-size: 13px; line-height: 1.55; }
@@ -172,6 +175,7 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
 .ai-chip { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 11px; color: var(--muted); cursor: pointer; transition: all .15s; }
 .ai-chip:active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
 
+/* SOSTITUZIONE */
 .sub-btn { background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); font-size: 10px; padding: 2px 7px; cursor: pointer; flex-shrink: 0; transition: all .15s; white-space: nowrap; }
 .sub-btn:active { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
 .sub-btn.loading { color: var(--amber); border-color: var(--amber); animation: pulse 1s infinite; }
@@ -179,6 +183,7 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
 .item-row.substituted { background: rgba(232,150,42,0.07); border-left: 2px solid var(--amber); }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
+/* POPUP SOSTITUZIONE */
 .sub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; display: flex; align-items: flex-end; justify-content: center; }
 .sub-popup { background: var(--surface); border: 1px solid var(--border); border-radius: 16px 16px 0 0; padding: 16px 14px 30px; width: 100%; max-width: 580px; }
 .sub-popup-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--text); margin-bottom: 4px; }
@@ -191,10 +196,20 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
 .sub-option-kcal { font-size: 12px; color: var(--amber); font-weight: 700; white-space: nowrap; }
 .sub-cancel { width: 100%; margin-top: 4px; padding: 10px; background: transparent; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); font-size: 12px; font-family: 'Source Sans 3', sans-serif; cursor: pointer; }
 
+/* CATEGORIE */
 .sub-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
 .sub-cat { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all .15s; }
 .sub-cat:active { background: var(--green-dim); border-color: var(--green); }
 .sub-cat-name { font-size: 12px; font-weight: 600; color: var(--text); text-align: center; }
+
+/* RICERCA LIBERA */
+.sub-search-wrap { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+.sub-search-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.sub-search-row { display: flex; gap: 8px; }
+.sub-search-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: var(--text); font-size: 13px; font-family: 'Source Sans 3', sans-serif; outline: none; }
+.sub-search-input:focus { border-color: var(--green); }
+.sub-search-btn { background: var(--green); border: none; border-radius: 8px; padding: 8px 14px; color: #0f1a08; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: 'Source Sans 3', sans-serif; }
+.sub-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -243,6 +258,7 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
 
 <div class="main" id="mainContent">
 
+<!-- REGOLE -->
 <div class="panel" id="p9">
   <p class="stitle">📋 Regole del piano</p>
   <div class="ri"><div class="rn">1</div><div class="rt"><strong>Acqua:</strong> 2–2,5 litri al giorno. Un bicchiere grande prima del caffè.</div></div>
@@ -266,6 +282,7 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
   <div class="ri"><div class="ra">→</div><div class="rt">Considera 30 min di cammino al giorno</div></div>
 </div>
 
+<!-- FUORI -->
 <div class="panel" id="p10">
   <div class="warn">🍽️ Vai a cena fuori? Ecco come orientarti.</div>
   <p class="stitle">🐟 Pesce / Frutti di mare</p>
@@ -283,8 +300,10 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
   <div class="tip" style="margin-top:10px;">💡 Regola d'oro: <strong>un secondo proteico + un contorno di verdure</strong>.</div>
 </div>
 
+<!-- AI PANEL -->
 <div class="panel" id="p11">
   <div class="ai-wrap">
+    <!-- SEZIONE CHIAVE API -->
     <div id="apiKeySection" style="display:none; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:12px;">
       <div style="font-size:12px; color:var(--text); font-weight:600; margin-bottom:4px;">🔑 Chiave API Anthropic</div>
       <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">La chiave viene salvata solo sul tuo telefono, mai su GitHub.</div>
@@ -294,6 +313,7 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
       </div>
     </div>
 
+    <!-- STATO CHIAVE -->
     <div id="apiKeyStatus" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
       <span id="apiKeyLabel" style="font-size:11px; color:var(--muted);">🔑 Nessuna chiave API impostata</span>
       <button onclick="toggleApiKeySection()" id="apiKeyToggleBtn" style="background:transparent; border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--muted); font-size:10px; cursor:pointer;">Imposta</button>
@@ -307,11 +327,9 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
       <div class="ai-chip" onclick="aiChip(this)">Cosa evitare al ristorante?</div>
       <div class="ai-chip" onclick="aiChip(this)">Quante proteine oggi?</div>
     </div>
-
     <div class="ai-messages" id="aiMessages">
       <div class="ai-msg assistant">👋 Ciao Alessio! Sono il tuo assistente dieta. Conosco tutto il tuo piano alimentare e i tuoi obiettivi.<br><br>Chiedimi quello che vuoi — sostituzioni, consigli, come recuperare dopo uno sgarro, cosa ordinare fuori... 💪</div>
     </div>
-
     <div class="ai-input-row">
       <input class="ai-input" id="aiInput" type="text" placeholder="Scrivi un messaggio..." onkeydown="if(event.key==='Enter')sendAI()">
       <button class="ai-send" id="aiSendBtn" onclick="sendAI()">➤</button>
@@ -325,10 +343,10 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
   <h2>🏖️ Dal 4 aprile: VACANZA!</h2>
   <p>Goditi ogni pasto liberamente — niente conteggi.<br>Hai lavorato bene, te la meriti tutta!</p>
 </div>
-
 <footer>Piano indicativo · Non sostituisce il parere di un medico o nutrizionista<br>Alessio · 26 marzo – 3 aprile 2026</footer>
 
 <script>
+
 const DAYS = [
   { label: '26 Gio', total: 1840, warn: null, meals: [
     { icon:'☕', name:'Colazione', time:'07:30', items:[
@@ -548,7 +566,7 @@ const DAYS = [
 ];
 
 let currentDay = 0;
-const START = new Date(2026, 2, 26);
+const START = new Date(2026,2,26);
 
 function escapeHtml(str) {
   return String(str)
@@ -557,6 +575,22 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+function getResponseText(data) {
+  if (!data || !Array.isArray(data.content) || !data.content.length) {
+    throw new Error('Risposta vuota');
+  }
+  const textBlock = data.content.find(function(x){ return x.type === 'text'; }) || data.content[0];
+  if (!textBlock || !textBlock.text) throw new Error('Testo non trovato');
+  return textBlock.text;
+}
+
+function extractJsonArray(text) {
+  const start = text.indexOf('[');
+  const end = text.lastIndexOf(']');
+  if (start === -1 || end === -1 || end <= start) throw new Error('JSON array non trovato');
+  return JSON.parse(text.slice(start, end + 1));
 }
 
 function getState() {
@@ -573,83 +607,63 @@ function calcKcal(item, qty) {
 
 function buildDays() {
   const main = document.getElementById('mainContent');
-  const p9 = document.getElementById('p9');
-  if (!main || !p9) return;
-
   DAYS.forEach(function(day, di) {
     const panel = document.createElement('div');
     panel.className = 'panel' + (di === 0 ? ' active' : '');
     panel.id = 'p' + di;
 
-    let html = `
-      <div class="day-totals">
-        <div class="dtbox"><span class="num" id="dt-kcal-${di}">${day.total}</span><span class="lbl">Kcal tot</span></div>
-        <div class="dtbox"><span class="num">~${Math.round(day.total * 0.08)}g</span><span class="lbl">Proteine</span></div>
-        <div class="dtbox"><span class="num">~${Math.round(day.total * 0.03)}g</span><span class="lbl">Carb</span></div>
-        <div class="dtbox"><span class="num">~${Math.round(day.total * 0.055)}g</span><span class="lbl">Grassi</span></div>
-      </div>
-    `;
+    let html = '<div class="day-totals">' +
+      '<div class="dtbox"><span class="num" id="dt-kcal-' + di + '">' + day.total + '</span><span class="lbl">Kcal tot</span></div>' +
+      '<div class="dtbox"><span class="num">~' + Math.round(day.total*0.08) + 'g</span><span class="lbl">Proteine</span></div>' +
+      '<div class="dtbox"><span class="num">~' + Math.round(day.total*0.03) + 'g</span><span class="lbl">Carb</span></div>' +
+      '<div class="dtbox"><span class="num">~' + Math.round(day.total*0.055) + 'g</span><span class="lbl">Grassi</span></div>' +
+      '</div>';
 
-    if (day.warn) html += `<div class="warn">${escapeHtml(day.warn)}</div>`;
-    html += `<div class="edit-hint">✏️ Tocca la quantità per modificarla — le kcal si aggiornano in tempo reale</div>`;
+    if (day.warn) html += '<div class="warn">' + day.warn + '</div>';
+    html += '<div class="edit-hint">✏️ Tocca la quantità per modificarla — le kcal si aggiornano in tempo reale</div>';
 
     day.meals.forEach(function(meal, mi) {
-      const mealId = `d${di}m${mi}`;
-      const totalKcal = meal.items.reduce(function(sum, item) { return sum + item.kcal; }, 0);
+      const mealId = 'd' + di + 'm' + mi;
+      const totalKcal = meal.items.reduce(function(s,i){ return s+i.kcal; }, 0);
 
-      html += `
-        <div class="meal" id="${mealId}">
-          <div class="mh">
-            <div class="mico">${escapeHtml(meal.icon)}</div>
-            <div class="minfo">
-              <div class="mn">${escapeHtml(meal.name)}</div>
-              <div class="mt">⏰ ${escapeHtml(meal.time)}</div>
-            </div>
-            <div class="mkcal-badge" id="badge-${mealId}">${totalKcal} kcal</div>
-            <button class="meal-check" id="mcheck-${mealId}" onclick="toggleMeal('${mealId}', ${di}, ${mi})">○ Fatto</button>
-          </div>
-          <div class="mb">
-      `;
+      html += '<div class="meal" id="' + mealId + '">' +
+        '<div class="mh">' +
+        '<div class="mico">' + meal.icon + '</div>' +
+        '<div class="minfo"><div class="mn">' + meal.name + '</div><div class="mt">⏰ ' + meal.time + '</div></div>' +
+        '<div class="mkcal-badge" id="badge-' + mealId + '">' + totalKcal + ' kcal</div>' +
+        '<button class="meal-check" id="mcheck-' + mealId + '" onclick="toggleMeal(\'' + mealId + '\',' + di + ',' + mi + ')">○ Fatto</button>' +
+        '</div><div class="mb">';
 
-      if (meal.warn) html += `<div class="warn" style="margin:4px 12px 4px;">${escapeHtml(meal.warn)}</div>`;
+      if (meal.warn) html += '<div class="warn" style="margin:4px 12px 4px;">' + meal.warn + '</div>';
 
       meal.items.forEach(function(item, ii) {
-        const itemId = `${mealId}i${ii}`;
+        const itemId = mealId + 'i' + ii;
         const canEdit = item.kcalPer100 !== null;
-
         const qtyField = canEdit
-          ? `<input class="qty-input" id="qtyinput-${itemId}" type="number" min="1" max="2000" value="${item.qty}" onchange="onQtyChange('${itemId}', ${di}, ${mi}, ${ii}, this.value)" oninput="onQtyChange('${itemId}', ${di}, ${mi}, ${ii}, this.value)">`
-          : `<span class="qty-input" style="border-bottom:1px dashed var(--muted);color:var(--muted);">${item.qty}</span>`;
+          ? '<input class="qty-input" id="qtyinput-' + itemId + '" type="number" min="1" max="2000" value="' + item.qty + '" onchange="onQtyChange(\'' + itemId + '\',' + di + ',' + mi + ',' + ii + ',this.value)" oninput="onQtyChange(\'' + itemId + '\',' + di + ',' + mi + ',' + ii + ',this.value)">'
+          : '<span class="qty-input" style="border-bottom:1px dashed var(--muted);color:var(--muted)">' + item.qty + '</span>';
+        const kpuField = canEdit ? '<span class="kcal-per-unit" id="kpu-' + itemId + '">' + item.kcalPer100 + ' kcal/100' + (item.unit === 'g' ? 'g' : 'u') + '</span>' : '';
 
-        const kpuField = canEdit
-          ? `<span class="kcal-per-unit" id="kpu-${itemId}">${item.kcalPer100} kcal/100${item.unit === 'g' ? 'g' : 'u'}</span>`
-          : `<span class="kcal-per-unit" id="kpu-${itemId}"></span>`;
-
-        html += `
-          <div class="item-row" id="${itemId}">
-            <button class="item-check-btn" id="ibtn-${itemId}" onclick="toggleItem('${itemId}', ${di}, ${mi}, ${ii})">○</button>
-            <div class="item-main">
-              <div class="item-qty-row">
-                ${qtyField}
-                <span class="qty-unit">${escapeHtml(item.unit)}</span>
-              </div>
-              <span class="food" id="food-${itemId}">${escapeHtml(item.food)}</span>
-            </div>
-            <div class="item-kcal-col">
-              <span class="item-kcal" id="ikcal-${itemId}">${item.kcal} kcal</span>
-              ${kpuField}
-              <button class="sub-btn" id="subbtn-${itemId}" onclick="substituteItem('${itemId}', ${di}, ${mi}, ${ii})">↺ Sost.</button>
-            </div>
-          </div>
-        `;
+        html += '<div class="item-row" id="' + itemId + '">' +
+          '<button class="item-check-btn" id="ibtn-' + itemId + '" onclick="toggleItem(\'' + itemId + '\',' + di + ',' + mi + ',' + ii + ')">○</button>' +
+          '<div class="item-main">' +
+          '<div class="item-qty-row">' + qtyField + '<span class="qty-unit">' + item.unit + '</span></div>' +
+          '<span class="food" id="food-' + itemId + '">' + item.food + '</span>' +
+          '</div>' +
+          '<div class="item-kcal-col">' +
+          '<span class="item-kcal" id="ikcal-' + itemId + '">' + item.kcal + ' kcal</span>' +
+          kpuField +
+          '<button class="sub-btn" id="subbtn-' + itemId + '" onclick="substituteItem(\'' + itemId + '\',' + di + ',' + mi + ',' + ii + ')">↺ Sost.</button>' +
+          '</div></div>';
       });
 
-      if (meal.tip) html += `<div class="tip">${escapeHtml(meal.tip)}</div>`;
-      html += `</div></div>`;
+      if (meal.tip) html += '<div class="tip">' + meal.tip + '</div>';
+      html += '</div></div>';
     });
 
-    html += `<button class="reset-btn" onclick="resetDay(${di})">↺ Reset giorno</button>`;
+    html += '<button class="reset-btn" onclick="resetDay(' + di + ')">↺ Reset giorno</button>';
     panel.innerHTML = html;
+    const p9 = document.getElementById('p9');
     main.insertBefore(panel, p9);
   });
 }
@@ -672,10 +686,8 @@ function getItemKcal(di, mi, ii) {
   const item = DAYS[di].meals[mi].items[ii];
   const s = getState();
   const customQty = s['qty_d' + di + 'm' + mi + 'i' + ii];
-  const customQty2 = s['qty_' + 'd' + di + 'm' + mi + 'i' + ii];
-  const finalQty = customQty2 !== undefined ? customQty2 : customQty;
-  if (finalQty !== undefined && item.kcalPer100 !== null) {
-    return calcKcal(item, finalQty);
+  if (customQty !== undefined && item.kcalPer100 !== null) {
+    return calcKcal(item, customQty);
   }
   return item.kcal;
 }
@@ -752,7 +764,7 @@ function updateMealBadge(di, mi) {
   const meal = DAYS[di].meals[mi];
   const remaining = meal.items.reduce(function(sum, item, ii) {
     if (s[mealId + 'i' + ii]) return sum;
-    return sum + getItemKcal(di, mi, ii);
+    return sum + item.kcal;
   }, 0);
   const badge = document.getElementById('badge-' + mealId);
   if (badge) badge.textContent = remaining + ' kcal';
@@ -805,9 +817,7 @@ function resetDay(day) {
   const s = getState();
   DAYS[day].meals.forEach(function(meal, mi) {
     meal.items.forEach(function(_, ii) {
-      const itemId = 'd' + day + 'm' + mi + 'i' + ii;
-      delete s[itemId];
-      delete s['qty_' + itemId];
+      delete s['d' + day + 'm' + mi + 'i' + ii];
       delete s['qty_d' + day + 'm' + mi + 'i' + ii];
     });
   });
@@ -847,7 +857,7 @@ function updateNextMeal(day) {
     const meal = DAYS[day].meals[mi];
     const allDone = meal.items.every(function(_, ii){ return s['d' + day + 'm' + mi + 'i' + ii]; });
     if (!allDone) {
-      el.innerHTML = '⏰ Prossimo: <strong>' + escapeHtml(meal.name) + '</strong> alle ' + escapeHtml(meal.time);
+      el.innerHTML = '⏰ Prossimo: <strong>' + meal.name + '</strong> alle ' + meal.time;
       return;
     }
   }
@@ -871,80 +881,47 @@ function autoSelectToday() {
   if (tab) tab.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
 }
 
-function getResponseText(data) {
-  if (!data || !Array.isArray(data.content) || !data.content.length) {
-    throw new Error('Risposta vuota');
-  }
-  const textBlock = data.content.find(function(x){ return x.type === 'text'; }) || data.content[0];
-  if (!textBlock || !textBlock.text) {
-    throw new Error('Testo risposta non trovato');
-  }
-  return textBlock.text;
-}
+buildDays();
+applyAllState();
+autoSelectToday();
+updateDots();
 
-function extractJsonArray(text) {
-  const start = text.indexOf('[');
-  const end = text.lastIndexOf(']');
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error('Array JSON non trovato');
-  }
-  return JSON.parse(text.slice(start, end + 1));
-}
-
+// ============================================================
+// SOSTITUZIONE — step 1: categorie, step 2: opzioni
+// ============================================================
 window._subData = {};
 
 async function substituteItem(itemId, di, mi, ii) {
   const btn = document.getElementById('subbtn-' + itemId);
   if (!btn || btn.classList.contains('loading')) return;
-
   const item = DAYS[di].meals[mi].items[ii];
   const mealName = DAYS[di].meals[mi].name;
   const key = getApiKey();
-
   if (!key) {
     alert('Imposta prima la chiave API nella tab 🤖 AI');
     return;
   }
-
   btn.classList.add('loading');
   btn.textContent = '⏳';
 
   try {
     const data = await callAPI(key, {
-      model: 'claude-haiku-4-5',
-      max_tokens: 180,
-      messages: [{
-        role: 'user',
-        content:
-          'Alimento: "' + item.food + '". ' +
-          'Pasto: "' + mealName + '". ' +
-          'Dieta low-carb alta proteina. ' +
-          'Genera 4 categorie di sostituti compatibili. ' +
-          'Rispondi SOLO con un JSON array valido, senza testo extra, nel formato: ' +
-          '[{"emoji":"🐟","name":"Pesce"}]'
-      }]
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 150,
+      messages: [{ role: 'user', content: 'Alimento: "' + item.food + '" pasto: "' + mealName + '" dieta low-carb alta proteina. Genera 3-4 categorie di sostituti. Rispondi SOLO con JSON array: [{"emoji":"🐟","name":"Pesce"}]' }]
     });
-
-    const raw = getResponseText(data);
-    const cats = extractJsonArray(raw);
+    if (data.error) throw new Error(data.error.message);
+    const raw = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    const m = raw.match(/\[[\s\S]*\]/);
+    if (!m) throw new Error('No categories');
+    const cats = JSON.parse(m[0]);
 
     btn.classList.remove('loading');
     btn.textContent = '↺ Sost.';
 
-    window._subData = {
-      item: item,
-      itemId: itemId,
-      di: di,
-      mi: mi,
-      ii: ii,
-      key: key,
-      mealName: mealName,
-      cats: cats
-    };
-
+    window._subData = { item: item, itemId: itemId, di: di, mi: mi, ii: ii, key: key, mealName: mealName, cats: cats };
     showCategoryPopup();
-
-  } catch (e) {
+  } catch(e) {
     btn.classList.remove('loading');
     btn.textContent = '↺ Sost.';
     alert('Errore: ' + e.message);
@@ -975,86 +952,84 @@ function showCategoryPopup() {
   popup.appendChild(subtitle);
 
   const content = document.createElement('div');
+  content.className = 'sub-popup-content';
   content.id = 'subPopupContent';
 
   const catsDiv = document.createElement('div');
   catsDiv.className = 'sub-cats';
-
   d.cats.forEach(function(cat, idx) {
     const el = document.createElement('div');
     el.className = 'sub-cat';
-    el.innerHTML =
-      '<span style="font-size:24px">' + escapeHtml(cat.emoji || '🍽️') + '</span>' +
-      '<span class="sub-cat-name">' + escapeHtml(cat.name || 'Altro') + '</span>';
+    el.innerHTML = '<span style="font-size:24px">' + cat.emoji + '</span><span class="sub-cat-name">' + cat.name + '</span>';
     el.onclick = function() { loadCatOptions(idx); };
     catsDiv.appendChild(el);
   });
-
   content.appendChild(catsDiv);
   popup.appendChild(content);
 
+  // Campo ricerca libera
+  const searchWrap = document.createElement('div');
+  searchWrap.className = 'sub-search-wrap';
+  const searchLabel = document.createElement('div');
+  searchLabel.className = 'sub-search-label';
+  searchLabel.textContent = '🔍 Oppure scrivi cosa vorresti mangiare:';
+  searchWrap.appendChild(searchLabel);
+  const searchRow = document.createElement('div');
+  searchRow.className = 'sub-search-row';
+  const searchInput = document.createElement('input');
+  searchInput.className = 'sub-search-input';
+  searchInput.id = 'subSearchInput';
+  searchInput.type = 'text';
+  searchInput.placeholder = 'es. tonno, formaggio, pollo...';
+  searchInput.onkeydown = function(e) { if (e.key === 'Enter') searchCustomFood(); };
+  const searchBtn = document.createElement('button');
+  searchBtn.className = 'sub-search-btn';
+  searchBtn.id = 'subSearchBtn';
+  searchBtn.textContent = 'Cerca';
+  searchBtn.onclick = searchCustomFood;
+  searchRow.appendChild(searchInput);
+  searchRow.appendChild(searchBtn);
+  searchWrap.appendChild(searchRow);
+  popup.appendChild(searchWrap);
+
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'sub-cancel';
+  cancelBtn.style.marginTop = '8px';
   cancelBtn.textContent = '✕ Annulla';
-  cancelBtn.onclick = function() {
-    const ov = document.getElementById('subOverlay');
-    if (ov) ov.remove();
-  };
+  cancelBtn.onclick = function() { document.getElementById('subOverlay').remove(); };
   popup.appendChild(cancelBtn);
 
   overlay.appendChild(popup);
   document.body.appendChild(overlay);
-
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) overlay.remove();
-  });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
 }
 
 async function loadCatOptions(catIdx) {
   const overlay = document.getElementById('subOverlay');
   if (!overlay) return;
-
   const d = window._subData;
   const cat = d.cats[catIdx];
   const content = document.getElementById('subPopupContent');
-
-  content.innerHTML =
-    '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">⏳ ' +
-    escapeHtml(cat.emoji || '🍽️') + ' ' + escapeHtml(cat.name || 'Categoria') + '...</div>';
+  content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">⏳ ' + cat.emoji + ' ' + cat.name + '...</div>';
 
   try {
     const data = await callAPI(d.key, {
-      model: 'claude-haiku-4-5',
-      max_tokens: 320,
-      messages: [{
-        role: 'user',
-        content:
-          'Sostituisci "' + d.item.food + '" (' + d.item.qty + ' ' + d.item.unit + ', ' + d.item.kcal + ' kcal) ' +
-          'con qualcosa della categoria "' + cat.name + '". ' +
-          'Dieta low-carb alta proteina. ' +
-          'Permessi: pollo, maiale, pesce, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure. ' +
-          'Non usare: frutta secca, ceci, branzino, orata, alcol. ' +
-          'Dammi 4 opzioni con calorie simili. ' +
-          'Rispondi SOLO con JSON array valido nel formato: ' +
-          '[{"food":"nome","qty":100,"unit":"g","kcal":120,"kcalPer100":120}]'
-      }]
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      messages: [{ role: 'user', content: 'Sostituisci "' + d.item.food + '" (' + d.item.qty + d.item.unit + ', ' + d.item.kcal + ' kcal) con categoria "' + cat.name + '". Dieta low-carb, alta proteina. OK: pollo,maiale,pesce,gamberi,cozze,polpo,merluzzo,salmone,uova,ricotta,fiocchi latte,stracchino,affettati,legumi,riso basmati,verdure. NO: frutta secca,ceci,branzino,alcol. 4 opzioni, kcal simili. SOLO JSON: [{"food":"nome","qty":100,"unit":"g","kcal":120,"kcalPer100":120}]' }]
     });
-
-    const raw = getResponseText(data);
-    const opts = extractJsonArray(raw);
+    if (data.error) throw new Error(data.error.message);
+    const raw = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    const m = raw.match(/\[[\s\S]*\]/);
+    if (!m) throw new Error('No options');
+    const opts = JSON.parse(m[0]);
     overlay._options = opts;
 
     content.innerHTML = '';
-
     opts.forEach(function(opt, idx) {
       const el = document.createElement('div');
       el.className = 'sub-option';
-      el.innerHTML =
-        '<div class="sub-option-info">' +
-          '<div class="sub-option-food">' + escapeHtml(opt.food || 'Opzione') + '</div>' +
-          '<div class="sub-option-qty">' + escapeHtml(String(opt.qty || '')) + ' ' + escapeHtml(opt.unit || '') + '</div>' +
-        '</div>' +
-        '<div class="sub-option-kcal">' + escapeHtml(String(opt.kcal || '')) + ' kcal</div>';
+      el.innerHTML = '<div class="sub-option-info"><div class="sub-option-food">' + opt.food + '</div><div class="sub-option-qty">' + opt.qty + opt.unit + '</div></div><div class="sub-option-kcal">' + opt.kcal + ' kcal</div>';
       el.onclick = function() { applySubstitution(idx); };
       content.appendChild(el);
     });
@@ -1063,20 +1038,15 @@ async function loadCatOptions(catIdx) {
     backBtn.className = 'sub-cancel';
     backBtn.style.marginTop = '6px';
     backBtn.textContent = '← Categorie';
-    backBtn.onclick = function() { showCategoryPopup(); };
+    backBtn.onclick = showCategoryPopup;
     content.appendChild(backBtn);
 
-  } catch (e) {
-    content.innerHTML =
-      '<div style="padding:14px;color:var(--red);font-size:12px;text-align:center;">Errore: ' + escapeHtml(e.message) + '</div>';
-
+  } catch(e) {
+    content.innerHTML = '<div style="padding:14px;color:var(--red);font-size:12px;text-align:center;">Errore: ' + e.message + '</div>';
     const closeBtn = document.createElement('button');
     closeBtn.className = 'sub-cancel';
     closeBtn.textContent = 'Chiudi';
-    closeBtn.onclick = function() {
-      const ov = document.getElementById('subOverlay');
-      if (ov) ov.remove();
-    };
+    closeBtn.onclick = function() { document.getElementById('subOverlay').remove(); };
     content.appendChild(closeBtn);
   }
 }
@@ -1084,20 +1054,15 @@ async function loadCatOptions(catIdx) {
 function applySubstitution(optIdx) {
   const overlay = document.getElementById('subOverlay');
   if (!overlay) return;
-
   const sub = overlay._options[optIdx];
   const d = window._subData;
   overlay.remove();
 
   DAYS[d.di].meals[d.mi].items[d.ii] = {
-    qty: Number(sub.qty) || d.item.qty,
-    unit: sub.unit || d.item.unit,
-    food: sub.food || d.item.food,
-    kcal: Number(sub.kcal) || d.item.kcal,
-    kcalPer100: sub.kcalPer100 != null ? Number(sub.kcalPer100) : null
+    qty: sub.qty, unit: sub.unit || 'g',
+    food: sub.food, kcal: sub.kcal, kcalPer100: sub.kcalPer100 || null
   };
 
-  const item = DAYS[d.di].meals[d.mi].items[d.ii];
   const foodEl = document.getElementById('food-' + d.itemId);
   const kcalEl = document.getElementById('ikcal-' + d.itemId);
   const kpuEl  = document.getElementById('kpu-' + d.itemId);
@@ -1105,67 +1070,43 @@ function applySubstitution(optIdx) {
   const btn    = document.getElementById('subbtn-' + d.itemId);
   const row    = document.getElementById(d.itemId);
 
-  if (foodEl) foodEl.textContent = item.food;
-  if (kcalEl) kcalEl.textContent = item.kcal + ' kcal';
-  if (kpuEl) kpuEl.textContent = item.kcalPer100 != null ? item.kcalPer100 + ' kcal/100g' : '';
-  if (qtyEl) qtyEl.value = item.qty;
+  if (foodEl) foodEl.textContent = sub.food;
+  if (kcalEl) kcalEl.textContent = sub.kcal + ' kcal';
+  if (kpuEl && sub.kcalPer100) kpuEl.textContent = sub.kcalPer100 + ' kcal/100g';
+  if (qtyEl) qtyEl.value = sub.qty;
   if (row) row.classList.add('substituted');
-  if (btn) {
-    btn.classList.add('done');
-    btn.textContent = '✓ Sost.';
-  }
-
-  const s = getState();
-  s['qty_' + d.itemId] = item.qty;
-  saveState(s);
+  if (btn) { btn.classList.add('done'); btn.textContent = '✓ Sost.'; }
 
   updateMealBadge(d.di, d.mi);
   updateKcal(d.di);
 }
 
+// ============================================================
+// BRIDGE ANDROID
+// ============================================================
 const _pendingCallbacks = {};
 let _cbCounter = 0;
 
-window.__androidBridgeReceive = function(obj) {
-  try {
-    const callback = _pendingCallbacks[obj.callbackId];
-    if (!callback) return;
-    delete _pendingCallbacks[obj.callbackId];
-    callback(obj.payload);
-  } catch (e) {
-    console.error('Bridge receive error', e, obj);
-  }
-};
-
 window.androidCallback = function(callbackId, rawJson) {
-  const callback = _pendingCallbacks[callbackId];
-  if (!callback) return;
-  delete _pendingCallbacks[callbackId];
-  callback(rawJson);
+  const resolve = _pendingCallbacks[callbackId];
+  if (resolve) {
+    delete _pendingCallbacks[callbackId];
+    resolve(rawJson);
+  }
 };
 
 function callAPI(apiKey, bodyObj) {
   return new Promise(function(resolve, reject) {
-    if (window.AndroidBridge && typeof window.AndroidBridge.callAnthropic === 'function') {
+    if (window.AndroidBridge) {
       const cbId = 'cb_' + (++_cbCounter);
-
       _pendingCallbacks[cbId] = function(raw) {
         try {
-          const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-          if (data.error) reject(new Error(data.error.message || 'Errore API'));
+          const data = JSON.parse(raw);
+          if (data.error) reject(new Error(data.error.message));
           else resolve(data);
-        } catch (e) {
-          reject(new Error('JSON bridge non valido: ' + e.message));
-        }
+        } catch(e) { reject(e); }
       };
-
-      try {
-        window.AndroidBridge.callAnthropic(apiKey, JSON.stringify(bodyObj), cbId);
-      } catch (e) {
-        delete _pendingCallbacks[cbId];
-        reject(e);
-      }
-
+      window.AndroidBridge.callAnthropic(apiKey, JSON.stringify(bodyObj), cbId);
     } else {
       fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -1176,30 +1117,88 @@ function callAPI(apiKey, bodyObj) {
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify(bodyObj)
-      })
-      .then(async function(r) {
-        const data = await r.json();
-        if (!r.ok || data.error) reject(new Error((data && data.error && data.error.message) || ('HTTP ' + r.status)));
+      }).then(function(r){ return r.json(); }).then(function(data) {
+        if (data.error) reject(new Error(data.error.message));
         else resolve(data);
-      })
-      .catch(reject);
+      }).catch(reject);
     }
   });
 }
 
+// ============================================================
+// AI CHAT
+// ============================================================
 function getApiKey() {
   return localStorage.getItem('ale_api_key') || '';
 }
 
 function saveApiKey() {
   const val = document.getElementById('apiKeyInput').value.trim();
-  if (!val.startsWith('sk-ant-')) {
-    alert('La chiave deve iniziare con sk-ant-');
-    return;
-  }
+  if (!val.startsWith('sk-ant-')) { alert('La chiave deve iniziare con sk-ant-'); return; }
   localStorage.setItem('ale_api_key', val);
   document.getElementById('apiKeyInput').value = '';
-  updateApiKeyStatus();
+  async function searchCustomFood() {
+  const input = document.getElementById('subSearchInput');
+  const btn = document.getElementById('subSearchBtn');
+  if (!input || !btn) return;
+  const query = input.value.trim();
+  if (!query) { input.focus(); return; }
+
+  const d = window._subData;
+  const content = document.getElementById('subPopupContent');
+  if (!content) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">⏳ Cerco "' + query + '"...</div>';
+
+  try {
+    const data = await callAPI(d.key, {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 320,
+      messages: [{
+        role: 'user',
+        content: 'Alessio vuole mangiare "' + query + '" al posto di "' + d.item.food + '" (' + d.item.kcal + ' kcal). Dieta low-carb alta proteina ~1850 kcal/die. Calcola le calorie e suggerisci la quantità ideale. Dammi 3-4 varianti/preparazioni diverse. Rispondi SOLO con JSON array: [{"food":"nome con preparazione","qty":100,"unit":"g","kcal":120,"kcalPer100":120}]'
+      }]
+    });
+
+    const raw = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    const start = raw.indexOf('['); const end = raw.lastIndexOf(']');
+    const opts = JSON.parse(raw.slice(start, end + 1));
+
+    const overlay = document.getElementById('subOverlay');
+    if (overlay) overlay._options = opts;
+
+    content.innerHTML = '';
+    opts.forEach(function(opt, idx) {
+      const el = document.createElement('div');
+      el.className = 'sub-option';
+      el.innerHTML = '<div class="sub-option-info"><div class="sub-option-food">' + (opt.food || query) + '</div><div class="sub-option-qty">' + (opt.qty || '') + ' ' + (opt.unit || 'g') + '</div></div><div class="sub-option-kcal">' + (opt.kcal || '') + ' kcal</div>';
+      el.onclick = function() { applySubstitution(idx); };
+      content.appendChild(el);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'sub-cancel';
+    backBtn.style.marginTop = '6px';
+    backBtn.textContent = '← Categorie';
+    backBtn.onclick = showCategoryPopup;
+    content.appendChild(backBtn);
+
+  } catch(e) {
+    content.innerHTML = '<div style="padding:14px;color:var(--red);font-size:12px;text-align:center;">Errore: ' + e.message + '</div>';
+    const backBtn = document.createElement('button');
+    backBtn.className = 'sub-cancel';
+    backBtn.textContent = '← Indietro';
+    backBtn.onclick = showCategoryPopup;
+    content.appendChild(backBtn);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Cerca';
+}
+
+updateApiKeyStatus();
   document.getElementById('apiKeySection').style.display = 'none';
   addMessage('assistant', '✅ Chiave API salvata! Ora puoi usare l\'assistente.');
 }
@@ -1229,6 +1228,23 @@ function updateApiKeyStatus() {
   }
 }
 
+function buildSystemPrompt() {
+  const s = getState();
+  const today = currentDay < DAYS.length ? DAYS[currentDay] : null;
+  let eaten = [], remaining = [];
+  if (today) {
+    today.meals.forEach(function(meal, mi) {
+      meal.items.forEach(function(item, ii) {
+        if (s['d' + currentDay + 'm' + mi + 'i' + ii]) eaten.push(item.qty + item.unit + ' ' + item.food);
+        else remaining.push(item.qty + item.unit + ' ' + item.food + ' (' + meal.name + ')');
+      });
+    });
+  }
+  const kcalEaten = getEatenKcal(currentDay);
+  const kcalLeft = today ? today.total - kcalEaten : 0;
+  return 'Sei un assistente nutrizionale personale per Alessio.\n\nPROFILO:\n- Peso: ~145kg, obiettivo: 100-110kg\n- Dieta: low-carb, ~1850 kcal/die, alta proteina\n- Gradisce: pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta di pecora, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure cotte, soia\n- NON mangia: frutta secca, ceci, branzino/orata, alcol\n\nOGGI (' + (today ? today.label : 'N/D') + '):\n- Kcal consumate: ' + kcalEaten + ' / ' + (today ? today.total : '—') + '\n- Kcal rimanenti: ' + kcalLeft + '\n- Già mangiato: ' + (eaten.length > 0 ? eaten.join(', ') : 'niente') + '\n- Da mangiare: ' + (remaining.length > 0 ? remaining.join(', ') : 'tutto completato') + '\n\nRispondi in italiano, amichevole e pratico. Max 3-4 righe.';
+}
+
 function getEatenKcal(day) {
   const s = getState();
   let eaten = 0;
@@ -1241,45 +1257,11 @@ function getEatenKcal(day) {
   return eaten;
 }
 
-function buildSystemPrompt() {
-  const s = getState();
-  const today = currentDay < DAYS.length ? DAYS[currentDay] : null;
-  let eaten = [], remaining = [];
-
-  if (today) {
-    today.meals.forEach(function(meal, mi) {
-      meal.items.forEach(function(item, ii) {
-        const text = item.qty + item.unit + ' ' + item.food;
-        if (s['d' + currentDay + 'm' + mi + 'i' + ii]) eaten.push(text);
-        else remaining.push(text + ' (' + meal.name + ')');
-      });
-    });
-  }
-
-  const kcalEaten = getEatenKcal(currentDay);
-  const kcalLeft = today ? today.total - kcalEaten : 0;
-
-  return 'Sei un assistente nutrizionale personale per Alessio.\n\n' +
-    'PROFILO:\n' +
-    '- Peso: ~145kg, obiettivo: 100-110kg\n' +
-    '- Dieta: low-carb, ~1850 kcal/die, alta proteina\n' +
-    '- Gradisce: pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta di pecora, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure cotte, soia\n' +
-    '- NON mangia: frutta secca, ceci, branzino/orata, alcol\n\n' +
-    'OGGI (' + (today ? today.label : 'N/D') + '):\n' +
-    '- Kcal consumate: ' + kcalEaten + ' / ' + (today ? today.total : '—') + '\n' +
-    '- Kcal rimanenti: ' + kcalLeft + '\n' +
-    '- Già mangiato: ' + (eaten.length ? eaten.join(', ') : 'niente') + '\n' +
-    '- Da mangiare: ' + (remaining.length ? remaining.join(', ') : 'tutto completato') + '\n\n' +
-    'Rispondi in italiano, amichevole e pratico. Max 3-4 righe.';
-}
-
 function addMessage(role, text) {
   const box = document.getElementById('aiMessages');
   const div = document.createElement('div');
   div.className = 'ai-msg ' + role;
-  div.innerHTML = escapeHtml(text)
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
+  div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
   return div;
@@ -1310,13 +1292,12 @@ async function sendAI() {
 
   try {
     const data = await callAPI(key, {
-      model: 'claude-haiku-4-5',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 400,
       system: buildSystemPrompt(),
       messages: aiHistory
     });
-
-    const reply = getResponseText(data);
+    const reply = data.content[0].text;
     thinking.remove();
     addMessage('assistant', reply);
     aiHistory.push({ role: 'assistant', content: reply });
@@ -1325,7 +1306,6 @@ async function sendAI() {
     thinking.remove();
     addMessage('assistant', '❌ Errore: ' + e.message);
   }
-
   btn.disabled = false;
   input.focus();
 }
@@ -1335,11 +1315,8 @@ function aiChip(el) {
   sendAI();
 }
 
-buildDays();
-applyAllState();
-autoSelectToday();
-updateDots();
 updateApiKeyStatus();
+
 </script>
 </body>
 </html>
