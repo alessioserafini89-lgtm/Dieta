@@ -195,6 +195,12 @@ footer { text-align: center; padding: 12px; font-size: 10px; color: var(--muted)
 .sub-option-qty { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .sub-option-kcal { font-size: 12px; color: var(--amber); font-weight: 700; white-space: nowrap; }
 .sub-cancel { width: 100%; margin-top: 4px; padding: 10px; background: transparent; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); font-size: 12px; font-family: 'Source Sans 3', sans-serif; cursor: pointer; }
+
+/* CATEGORIE */
+.sub-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
+.sub-cat { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all .15s; }
+.sub-cat:active { background: var(--green-dim); border-color: var(--green); }
+.sub-cat-name { font-size: 12px; font-weight: 600; color: var(--text); text-align: center; }
 </style>
 </head>
 <body>
@@ -901,18 +907,15 @@ autoSelectToday();
 updateDots();
 
 // ============================================================
-// SOSTITUZIONE ITEM CON AI — mostra 3-5 opzioni
+// SOSTITUZIONE ITEM — step 1: categorie dinamiche, step 2: opzioni
 // ============================================================
 async function substituteItem(itemId, di, mi, ii) {
   const btn = document.getElementById('subbtn-' + itemId);
   if (!btn || btn.classList.contains('loading')) return;
-
   const item = DAYS[di].meals[mi].items[ii];
   const mealName = DAYS[di].meals[mi].name;
-
   btn.classList.add('loading');
   btn.textContent = '⏳';
-
   const key = getApiKey();
   if (!key) {
     btn.classList.remove('loading');
@@ -920,105 +923,91 @@ async function substituteItem(itemId, di, mi, ii) {
     alert('Imposta prima la chiave API nella tab 🤖 AI');
     return;
   }
-
-  const prompt = `Alessio non può mangiare "${item.food}" (${item.qty}${item.unit}, ~${item.kcal} kcal) nel pasto "${mealName}".
-
-Dieta: low-carb, alta proteina, ~1850 kcal/die.
-Alimenti OK: pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta di pecora, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure cotte, soia.
-NON usare: frutta secca, ceci, branzino, orata, alcol.
-
-Rispondi UNICAMENTE con questo JSON, senza testo prima o dopo, senza markdown, senza backtick:
-[{"food":"nome con breve preparazione","qty":100,"unit":"g","kcal":120,"kcalPer100":120},{"food":"secondo sostituto","qty":100,"unit":"g","kcal":110,"kcalPer100":110},{"food":"terzo sostituto","qty":100,"unit":"g","kcal":130,"kcalPer100":130},{"food":"quarto sostituto","qty":100,"unit":"g","kcal":115,"kcalPer100":115}]
-
-Sostituisci i valori con alternative reali simili a "${item.food}". Rispondi SOLO con il JSON.`;
-
+  const promptCat = 'L'alimento da sostituire è: "' + item.food + '" nel pasto "' + mealName + '" (dieta low-carb alta proteina).\nGenera 3-4 categorie di sostituti adatte. Ogni categoria deve avere emoji e nome breve.\nRispondi SOLO con questo JSON senza testo extra:\n[{"emoji":"🐟","name":"Pesce"},{"emoji":"🥩","name":"Carne"}]';
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        messages: [{ role: 'user', content: prompt }]
-      })
+    const data = await callAPI(key, {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 150,
+      messages: [{ role: 'user', content: promptCat }]
     });
-
-    const data = await res.json();
-    console.log('RAW RESPONSE:', JSON.stringify(data));
     if (data.error) throw new Error(data.error.message);
     const raw = data.content?.[0]?.text || '';
-    console.log('RAW TEXT:', raw);
-    // prova prima array, poi oggetto singolo
-    let options = null;
-    const arrMatch = raw.match(/\[[\s\S]*?\]/);
-    console.log('ARR MATCH:', arrMatch);
-    if (arrMatch) {
-      try { options = JSON.parse(arrMatch[0]); } catch(e) { console.log('PARSE ERR:', e); }
-    }
-    if (!options) {
-      const objs = [];
-      const re = /\{[\s\S]*?\}/g;
-      let m;
-      while ((m = re.exec(raw)) !== null) {
-        try { objs.push(JSON.parse(m[0])); } catch(e) {}
-      }
-      if (objs.length > 0) options = objs;
-    }
-    console.log('OPTIONS:', options);
-    if (!options || options.length === 0) throw new Error('Nessuna opzione trovata');
-
+    let cats = null;
+    const m = raw.match(/\[[\s\S]*\]/);
+    if (m) { try { cats = JSON.parse(m[0]); } catch(e) {} }
+    if (!cats || cats.length === 0) throw new Error('Categorie non trovate');
     btn.classList.remove('loading');
     btn.textContent = '↺ Sost.';
-
-    showSubPopup(options, item, itemId, di, mi, ii);
-
+    showCategoryPopup(cats, item, itemId, di, mi, ii, key, mealName);
   } catch(e) {
-    console.log('SUBSTITUTE ERROR:', e);
     btn.classList.remove('loading');
     btn.textContent = '↺ Sost.';
     alert('Errore: ' + e.message);
   }
 }
 
-function showSubPopup(options, originalItem, itemId, di, mi, ii) {
-  // rimuovi popup precedenti
-  const existing = document.getElementById('subOverlay');
-  if (existing) existing.remove();
-
+function showCategoryPopup(cats, item, itemId, di, mi, ii, key, mealName) {
+  window._subCats = cats;
+  window._subItem = item;
+  window._subIds = {itemId:itemId, di:di, mi:mi, ii:ii, key:key, mealName:mealName};
+  const ex = document.getElementById('subOverlay');
+  if (ex) ex.remove();
   const overlay = document.createElement('div');
   overlay.className = 'sub-overlay';
   overlay.id = 'subOverlay';
-
-  let optionsHtml = options.map((opt, idx) => `
-    <div class="sub-option" onclick="applySubstitution(${idx}, '${itemId}', ${di}, ${mi}, ${ii})">
-      <div class="sub-option-info">
-        <div class="sub-option-food">${opt.food}</div>
-        <div class="sub-option-qty">${opt.qty}${opt.unit}</div>
-      </div>
-      <div class="sub-option-kcal">${opt.kcal} kcal</div>
-    </div>
-  `).join('');
-
-  overlay.innerHTML = `
-    <div class="sub-popup">
-      <div class="sub-popup-title">Sostituisci "${originalItem.food}"</div>
-      <div class="sub-popup-sub">Scegli un'alternativa compatibile con la tua dieta</div>
-      ${optionsHtml}
-      <button class="sub-cancel" onclick="document.getElementById('subOverlay').remove()">✕ Annulla</button>
-    </div>
-  `;
-
-  // salva opzioni temporaneamente nel DOM
-  overlay._options = options;
+  overlay._options = [];
+  const catsHtml = cats.map(function(cat, idx) {
+    return '<div class="sub-cat" onclick="loadCatOptions(' + idx + ')">' +
+      '<span style="font-size:24px;line-height:1;">' + cat.emoji + '</span>' +
+      '<span class="sub-cat-name">' + cat.name + '</span></div>';
+  }).join('');
+  overlay.innerHTML =
+    '<div class="sub-popup">' +
+    '<div class="sub-popup-title">Sostituisci</div>' +
+    '<div class="sub-popup-sub">"' + item.food + '" — scegli una categoria</div>' +
+    '<div class="sub-popup-content"><div class="sub-cats">' + catsHtml + '</div></div>' +
+    '<button class="sub-cancel" onclick="document.getElementById('subOverlay').remove()">✕ Annulla</button>' +
+    '</div>';
   document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+}
 
-  // chiudi toccando fuori
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+async function loadCatOptions(catIdx) {
+  const overlay = document.getElementById('subOverlay');
+  if (!overlay) return;
+  const ids = window._subIds;
+  const item = window._subItem;
+  const cat = window._subCats[catIdx];
+  const content = overlay.querySelector('.sub-popup-content');
+  content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">⏳ Carico opzioni ' + cat.emoji + ' ' + cat.name + '...</div>';
+  const prompt = 'Alessio vuole sostituire "' + item.food + '" (' + item.qty + item.unit + ', ~' + item.kcal + ' kcal) nel pasto "' + ids.mealName + '" con categoria "' + cat.name + '".\nDieta: low-carb, alta proteina. OK: pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure cotte, soia. NO: frutta secca, ceci, branzino, orata, alcol.\nProponi 4 sostituti categoria "' + cat.name + '" con kcal simili (~' + item.kcal + ' ±100).\nRispondi SOLO con JSON: [{"food":"nome preparazione","qty":100,"unit":"g","kcal":120,"kcalPer100":120}]';
+  try {
+    const data = await callAPI(ids.key, {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content?.[0]?.text || '';
+    let opts = null;
+    const m = raw.match(/\[[\s\S]*\]/);
+    if (m) { try { opts = JSON.parse(m[0]); } catch(e) {} }
+    if (!opts || opts.length === 0) throw new Error('Nessuna opzione');
+    overlay._options = opts;
+    const backBtn = '<button class="sub-cancel" style="margin-top:6px;" onclick="showCategoryPopup(window._subCats,window._subItem,'' + ids.itemId + '',' + ids.di + ',' + ids.mi + ',' + ids.ii + ','' + ids.key + '','' + ids.mealName + '')">← Categorie</button>';
+    content.innerHTML = opts.map(function(opt, idx) {
+      return '<div class="sub-option" onclick="applySubstitution(' + idx + ','' + ids.itemId + '',' + ids.di + ',' + ids.mi + ',' + ids.ii + ')">' +
+        '<div class="sub-option-info">' +
+        '<div class="sub-option-food">' + opt.food + '</div>' +
+        '<div class="sub-option-qty">' + opt.qty + opt.unit + '</div>' +
+        '</div>' +
+        '<div class="sub-option-kcal">' + opt.kcal + ' kcal</div>' +
+        '</div>';
+    }).join('') + backBtn;
+  } catch(e) {
+    content.innerHTML = '<div style="padding:14px;color:var(--red);font-size:12px;text-align:center;">Errore: ' + e.message + '</div>' +
+      '<button class="sub-cancel" onclick="document.getElementById('subOverlay').remove()">Chiudi</button>';
+  }
 }
 
 function applySubstitution(optIdx, itemId, di, mi, ii) {
@@ -1179,22 +1168,12 @@ async function sendAI() {
   thinking.classList.add('thinking');
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        system: buildSystemPrompt(),
-        messages: aiHistory
-      })
+    const data = await callAPI(key, {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      system: buildSystemPrompt(),
+      messages: aiHistory
     });
-    const data = await res.json();
     const reply = data.content?.[0]?.text || 'Errore nella risposta.';
     thinking.remove();
     addMessage('assistant', reply);
@@ -1202,7 +1181,7 @@ async function sendAI() {
     if (aiHistory.length > 10) aiHistory.splice(0, 2);
   } catch(e) {
     thinking.remove();
-    addMessage('assistant', '❌ Errore di connessione. Controlla la chiave API e la connessione.');
+    addMessage('assistant', '❌ Errore: ' + e.message);
   }
   btn.disabled = false;
   input.focus();
@@ -1215,6 +1194,50 @@ function aiChip(el) {
 
 const aiHistory = [];
 updateApiKeyStatus();
+
+// ============================================================
+// BRIDGE ANDROID — chiama API tramite Java se disponibile, altrimenti fetch
+// ============================================================
+const _pendingCallbacks = {};
+let _cbCounter = 0;
+
+window.androidCallback = function(callbackId, rawJson) {
+  const resolve = _pendingCallbacks[callbackId];
+  if (resolve) {
+    delete _pendingCallbacks[callbackId];
+    resolve(rawJson);
+  }
+};
+
+function callAPI(apiKey, bodyObj) {
+  return new Promise((resolve, reject) => {
+    if (window.AndroidBridge) {
+      const cbId = 'cb_' + (++_cbCounter);
+      _pendingCallbacks[cbId] = (raw) => {
+        try {
+          const data = JSON.parse(raw);
+          if (data.error) reject(new Error(data.error.message));
+          else resolve(data);
+        } catch(e) { reject(e); }
+      };
+      window.AndroidBridge.callAnthropic(apiKey, JSON.stringify(bodyObj), cbId);
+    } else {
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify(bodyObj)
+      }).then(r => r.json()).then(data => {
+        if (data.error) reject(new Error(data.error.message));
+        else resolve(data);
+      }).catch(reject);
+    }
+  });
+}
 </script>
 </body>
 </html>
