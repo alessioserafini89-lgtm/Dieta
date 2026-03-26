@@ -1087,6 +1087,21 @@ function applySubstitution(optIdx) {
 const _pendingCallbacks = {};
 let _cbCounter = 0;
 
+// Riceve risposta dal bridge Java (formato: {callbackId, payload})
+window.__androidBridgeReceive = function(obj) {
+  try {
+    const callbackId = obj.callbackId;
+    const raw = obj.payload;
+    const resolve = _pendingCallbacks[callbackId];
+    if (!resolve) return;
+    delete _pendingCallbacks[callbackId];
+    resolve(raw);
+  } catch(e) {
+    console.error('Bridge receive error', e);
+  }
+};
+
+// Compatibilità con vecchio sistema
 window.androidCallback = function(callbackId, rawJson) {
   const resolve = _pendingCallbacks[callbackId];
   if (resolve) {
@@ -1097,14 +1112,14 @@ window.androidCallback = function(callbackId, rawJson) {
 
 function callAPI(apiKey, bodyObj) {
   return new Promise(function(resolve, reject) {
-    if (window.AndroidBridge) {
+    if (window.AndroidBridge && typeof window.AndroidBridge.callAnthropic === 'function') {
       const cbId = 'cb_' + (++_cbCounter);
       _pendingCallbacks[cbId] = function(raw) {
         try {
-          const data = JSON.parse(raw);
-          if (data.error) reject(new Error(data.error.message));
+          const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          if (data.error) reject(new Error(data.error.message || 'Errore API'));
           else resolve(data);
-        } catch(e) { reject(e); }
+        } catch(e) { reject(new Error('JSON non valido: ' + e.message)); }
       };
       window.AndroidBridge.callAnthropic(apiKey, JSON.stringify(bodyObj), cbId);
     } else {
