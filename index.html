@@ -949,16 +949,18 @@ Sostituisci i valori con alternative reali simili a "${item.food}". Rispondi SOL
     });
 
     const data = await res.json();
+    console.log('RAW RESPONSE:', JSON.stringify(data));
     if (data.error) throw new Error(data.error.message);
     const raw = data.content?.[0]?.text || '';
+    console.log('RAW TEXT:', raw);
     // prova prima array, poi oggetto singolo
     let options = null;
     const arrMatch = raw.match(/\[[\s\S]*?\]/);
+    console.log('ARR MATCH:', arrMatch);
     if (arrMatch) {
-      try { options = JSON.parse(arrMatch[0]); } catch(e) {}
+      try { options = JSON.parse(arrMatch[0]); } catch(e) { console.log('PARSE ERR:', e); }
     }
     if (!options) {
-      // fallback: cerca oggetti singoli e raccoglili
       const objs = [];
       const re = /\{[\s\S]*?\}/g;
       let m;
@@ -967,6 +969,7 @@ Sostituisci i valori con alternative reali simili a "${item.food}". Rispondi SOL
       }
       if (objs.length > 0) options = objs;
     }
+    console.log('OPTIONS:', options);
     if (!options || options.length === 0) throw new Error('Nessuna opzione trovata');
 
     btn.classList.remove('loading');
@@ -975,9 +978,10 @@ Sostituisci i valori con alternative reali simili a "${item.food}". Rispondi SOL
     showSubPopup(options, item, itemId, di, mi, ii);
 
   } catch(e) {
+    console.log('SUBSTITUTE ERROR:', e);
     btn.classList.remove('loading');
     btn.textContent = '↺ Sost.';
-    alert('Errore nella sostituzione. Controlla la chiave API.');
+    alert('Errore: ' + e.message);
   }
 }
 
