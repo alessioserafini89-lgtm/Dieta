@@ -1152,7 +1152,12 @@ function saveApiKey() {
   if (!val.startsWith('sk-ant-')) { alert('La chiave deve iniziare con sk-ant-'); return; }
   localStorage.setItem('ale_api_key', val);
   document.getElementById('apiKeyInput').value = '';
-  async function searchCustomFood() {
+  updateApiKeyStatus();
+  document.getElementById('apiKeySection').style.display = 'none';
+  addMessage('assistant', "✅ Chiave API salvata! Ora puoi usare l'assistente.");
+}
+
+async function searchCustomFood() {
   const input = document.getElementById('subSearchInput');
   const btn = document.getElementById('subSearchBtn');
   if (!input || !btn) return;
@@ -1213,10 +1218,6 @@ function saveApiKey() {
   btn.textContent = 'Cerca';
 }
 
-updateApiKeyStatus();
-  document.getElementById('apiKeySection').style.display = 'none';
-  addMessage('assistant', '✅ Chiave API salvata! Ora puoi usare l\'assistente.');
-}
 
 function toggleApiKeySection() {
   const sec = document.getElementById('apiKeySection');
