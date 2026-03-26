@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Dieta AI</title>
+  <title>Piano Alessio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
       --bg:#1a1a18;
@@ -11,269 +12,2022 @@
       --card:#2a2a26;
       --border:#383832;
       --green:#7ab648;
-      --text:#f0ede6;
-      --muted:#9a998f;
+      --green-dim:#1e2d12;
+      --amber:#e8962a;
+      --amber-dim:#332310;
       --red:#e05a3a;
+      --red-dim:#2e1410;
+      --text:#f0ede6;
+      --muted:#888878;
+      --done-bg:#141f0c;
+      --done-text:#88b55e;
     }
-    *{box-sizing:border-box}
-    body{
+
+    *{
+      box-sizing:border-box;
       margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    body{
       background:var(--bg);
       color:var(--text);
-      font-family:Arial,sans-serif;
-      padding:16px;
+      font-family:'Source Sans 3',sans-serif;
+      min-height:100vh;
     }
-    .wrap{
-      max-width:700px;
-      margin:0 auto;
+
+    header{
+      background:linear-gradient(155deg,#1c2e10 0%,#0d1808 100%);
+      padding:18px 16px 13px;
+      padding-top:max(env(safe-area-inset-top),18px);
+      border-bottom:1px solid #304018;
+      position:sticky;
+      top:0;
+      z-index:100;
     }
-    .card{
+
+    .header-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .eyebrow{
+      font-size:9px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      color:var(--green);
+      margin-bottom:2px;
+      font-weight:600;
+    }
+
+    h1{
+      font-family:'Playfair Display',serif;
+      font-size:1.3rem;
+      font-weight:700;
+      color:#f0ede6;
+    }
+
+    h1 em{
+      font-style:italic;
+      color:var(--green);
+    }
+
+    .next-meal{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:3px;
+    }
+
+    .next-meal strong{
+      color:var(--amber);
+    }
+
+    .kcal-box{
+      background:var(--green-dim);
+      border:1px solid #3a5020;
+      border-radius:10px;
+      padding:7px 10px;
+      text-align:center;
+      min-width:92px;
+      flex-shrink:0;
+    }
+
+    .kcal-box.warning{
+      background:var(--amber-dim);
+      border-color:#5a3a10;
+    }
+
+    .kcal-box.over{
+      background:var(--red-dim);
+      border-color:#5a2010;
+    }
+
+    .kcal-num{
+      display:block;
+      font-family:'Playfair Display',serif;
+      font-size:1.4rem;
+      color:var(--green);
+      line-height:1;
+    }
+
+    .kcal-box.warning .kcal-num{ color:var(--amber); }
+    .kcal-box.over .kcal-num{ color:var(--red); }
+
+    .kcal-lbl{
+      font-size:9px;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+      color:var(--muted);
+      display:block;
+      margin-top:1px;
+    }
+
+    .kcal-sub{
+      font-size:10px;
+      color:var(--muted);
+      display:block;
+      margin-top:1px;
+    }
+
+    .progress-wrap{
+      margin-top:9px;
+      background:#1a2810;
+      border-radius:4px;
+      height:4px;
+      overflow:hidden;
+    }
+
+    .progress-bar{
+      height:100%;
+      background:var(--green);
+      border-radius:4px;
+      transition:width .3s ease;
+      width:0%;
+    }
+
+    .progress-bar.warning{ background:var(--amber); }
+    .progress-bar.over{ background:var(--red); }
+
+    .pills{
+      display:flex;
+      gap:6px;
+      padding:9px 14px;
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      overflow-x:auto;
+      scrollbar-width:none;
+    }
+
+    .pills::-webkit-scrollbar,
+    .tab-wrap::-webkit-scrollbar{
+      display:none;
+    }
+
+    .pill{
+      flex-shrink:0;
+      border-radius:20px;
+      padding:3px 10px;
+      font-size:10px;
+      font-weight:600;
+      white-space:nowrap;
+    }
+
+    .pill.g{
+      background:var(--green-dim);
+      border:1px solid #3a5420;
+      color:var(--green);
+    }
+
+    .pill.a{
+      background:var(--amber-dim);
+      border:1px solid #5a3a10;
+      color:var(--amber);
+    }
+
+    .pill.n{
       background:var(--card);
       border:1px solid var(--border);
-      border-radius:14px;
-      padding:16px;
-      margin-bottom:14px;
-    }
-    h1{
-      margin:0 0 8px;
-      font-size:24px;
-    }
-    p{
       color:var(--muted);
+    }
+
+    .tab-wrap{
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      overflow-x:auto;
+      scrollbar-width:none;
+      position:sticky;
+      top:104px;
+      z-index:90;
+    }
+
+    .tabs{
+      display:flex;
+      min-width:max-content;
+      padding:0 10px;
+    }
+
+    .tab{
+      flex-shrink:0;
+      padding:8px 12px 7px;
+      cursor:pointer;
+      border-bottom:2px solid transparent;
+      margin-bottom:-1px;
+      text-align:center;
+      transition:all .15s;
+      color:var(--muted);
+      position:relative;
+    }
+
+    .tab .dn{
+      display:block;
+      font-family:'Playfair Display',serif;
+      font-size:1.1rem;
+      line-height:1;
+      margin-bottom:1px;
+    }
+
+    .tab .dl{
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:.8px;
+      text-transform:uppercase;
+    }
+
+    .tab.active{
+      color:var(--green);
+      border-bottom-color:var(--green);
+    }
+
+    .tab .dot{
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      position:absolute;
+      top:4px;
+      right:4px;
+      display:none;
+    }
+
+    .tab.partial .dot{
+      display:block;
+      background:var(--amber);
+    }
+
+    .tab.complete .dot{
+      display:block;
+      background:var(--green);
+    }
+
+    .main{
+      padding:11px 13px 80px;
+      max-width:580px;
+      margin:0 auto;
+    }
+
+    .panel{ display:none; }
+    .panel.active{ display:block; }
+
+    .day-totals{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:5px;
+      margin-bottom:11px;
+    }
+
+    .dtbox{
+      background:var(--green-dim);
+      border:1px solid #3a5020;
+      border-radius:8px;
+      padding:7px 4px;
+      text-align:center;
+    }
+
+    .dtbox .num{
+      display:block;
+      font-family:'Playfair Display',serif;
+      font-size:1.05rem;
+      color:var(--green);
+      line-height:1;
+      margin-bottom:1px;
+    }
+
+    .dtbox .lbl{
+      font-size:8px;
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      color:var(--muted);
+    }
+
+    .meal{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:11px;
+      margin-bottom:8px;
+      overflow:hidden;
+    }
+
+    .meal.all-eaten{
+      background:var(--done-bg);
+      border-color:#252e1a;
+    }
+
+    .mh{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .meal.all-eaten .mh{
+      border-bottom-color:#252e1a;
+    }
+
+    .mico{
+      font-size:16px;
+      width:30px;
+      height:30px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--bg);
+      border-radius:7px;
+      flex-shrink:0;
+    }
+
+    .minfo{
+      flex:1;
+      min-width:0;
+    }
+
+    .mn{
+      font-size:12px;
+      font-weight:600;
+    }
+
+    .meal.all-eaten .mn{
+      color:var(--done-text);
+    }
+
+    .mt{
+      font-size:10px;
+      color:var(--muted);
+      margin-top:1px;
+    }
+
+    .mkcal-badge{
+      font-size:11px;
+      font-weight:700;
+      color:var(--amber);
+      background:var(--amber-dim);
+      padding:2px 8px;
+      border-radius:20px;
+      flex-shrink:0;
+      white-space:nowrap;
+    }
+
+    .meal.all-eaten .mkcal-badge{
+      color:var(--done-text);
+      background:#1a2510;
+    }
+
+    .meal-check{
+      cursor:pointer;
+      padding:5px 9px;
+      border-radius:20px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--muted);
+      font-size:11px;
+      font-family:'Source Sans 3',sans-serif;
+      font-weight:600;
+      transition:all .15s;
+      flex-shrink:0;
+      white-space:nowrap;
+    }
+
+    .meal-check:active{ transform:scale(.93); }
+
+    .meal-check.checked{
+      background:var(--green-dim);
+      border-color:var(--green);
+      color:var(--green);
+    }
+
+    .mb{
+      padding:4px 0 8px;
+    }
+
+    .item-row{
+      display:grid;
+      grid-template-columns:26px 1fr auto;
+      align-items:center;
+      gap:0;
+      padding:0 10px 0 12px;
+      border-bottom:1px solid var(--border);
+      min-height:44px;
+      transition:background .15s;
+    }
+
+    .item-row:last-child{ border-bottom:none; }
+
+    .item-row.item-eaten{
+      background:rgba(20,31,12,.5);
+    }
+
+    .item-row.substituted{
+      background:rgba(232,150,42,.07);
+      border-left:2px solid var(--amber);
+    }
+
+    .item-check-btn{
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      border:1.5px solid var(--border);
+      background:transparent;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      flex-shrink:0;
+      transition:all .15s;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .item-check-btn:active{ transform:scale(.88); }
+
+    .item-check-btn.checked{
+      background:var(--green-dim);
+      border-color:var(--green);
+      color:var(--green);
+    }
+
+    .item-row.item-eaten .item-check-btn.checked{
+      background:#1a2810;
+      border-color:#3a5020;
+    }
+
+    .item-main{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      padding:6px 0 6px 9px;
+      min-width:0;
+    }
+
+    .item-qty-row{
+      display:flex;
+      align-items:center;
+      gap:5px;
+    }
+
+    .qty-input{
+      width:52px;
+      background:transparent;
+      border:none;
+      border-bottom:1px dashed var(--green);
+      color:var(--green);
+      font-size:11px;
+      font-weight:700;
+      font-family:'Source Sans 3',sans-serif;
+      padding:1px 2px;
+      outline:none;
+      -webkit-appearance:none;
+    }
+
+    .qty-input:focus{
+      border-bottom-color:var(--amber);
+      color:var(--amber);
+    }
+
+    .item-row.item-eaten .qty-input{
+      color:var(--done-text);
+      border-bottom-color:var(--done-text);
+    }
+
+    .qty-unit{
+      font-size:10px;
+      color:var(--muted);
+    }
+
+    .food{
+      font-size:12px;
+      line-height:1.4;
+      color:var(--text);
+    }
+
+    .item-row.item-eaten .food{
+      color:var(--done-text);
+      text-decoration:line-through;
+      text-decoration-color:#3a5020;
+    }
+
+    .item-kcal-col{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:2px;
+      padding-left:6px;
+    }
+
+    .item-kcal{
+      font-size:11px;
+      color:var(--amber);
+      font-weight:600;
+      white-space:nowrap;
+    }
+
+    .item-row.item-eaten .item-kcal{
+      color:var(--done-text);
+    }
+
+    .kcal-per-unit{
+      font-size:9px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    .tip{
+      background:var(--green-dim);
+      border-left:2px solid var(--green);
+      border-radius:0 5px 5px 0;
+      padding:6px 10px;
+      font-size:11px;
+      color:#9dcc6a;
+      margin:4px 12px 4px;
       line-height:1.5;
     }
-    input, textarea, button{
+
+    .warn{
+      background:var(--amber-dim);
+      border-left:2px solid var(--amber);
+      border-radius:0 5px 5px 0;
+      padding:6px 10px;
+      font-size:11px;
+      color:#e8b66a;
+      margin-bottom:10px;
+      line-height:1.5;
+    }
+
+    .reset-btn{
       width:100%;
-      border-radius:10px;
-      border:1px solid var(--border);
-      background:var(--surface);
-      color:var(--text);
-      padding:12px;
-      font-size:14px;
-    }
-    textarea{
-      min-height:120px;
-      resize:vertical;
-    }
-    button{
-      background:var(--green);
-      color:#10200b;
-      border:none;
-      font-weight:700;
+      margin-top:10px;
+      padding:9px;
+      background:transparent;
+      border:1px dashed var(--border);
+      border-radius:8px;
+      color:var(--muted);
+      font-size:12px;
+      font-family:'Source Sans 3',sans-serif;
       cursor:pointer;
     }
-    .row{
+
+    .reset-btn:active{
+      background:var(--red-dim);
+      border-color:var(--red);
+      color:var(--red);
+    }
+
+    .stitle{
+      font-family:'Playfair Display',serif;
+      font-size:1rem;
+      color:var(--text);
+      margin:13px 0 7px;
+      padding-bottom:5px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .ri{
       display:flex;
-      gap:10px;
-      margin-top:10px;
+      gap:8px;
+      padding:5px 0;
+      border-bottom:1px solid var(--border);
+      font-size:12px;
+      line-height:1.5;
+      align-items:flex-start;
     }
-    .row > *{
+
+    .ri:last-child{ border-bottom:none; }
+
+    .rn{
+      width:19px;
+      height:19px;
+      border-radius:50%;
+      background:var(--green);
+      color:#0f1a08;
+      font-size:9px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      margin-top:1px;
+    }
+
+    .ra{
+      color:var(--amber);
+      flex-shrink:0;
+      margin-top:2px;
+    }
+
+    .rt strong{
+      color:var(--text);
+    }
+
+    .vacanza{
+      background:linear-gradient(135deg,#7a4e10 0%,#3d2508 100%);
+      border:1px solid #a06020;
+      border-radius:11px;
+      padding:15px 13px;
+      margin:0 13px 18px;
+      text-align:center;
+    }
+
+    .vacanza h2{
+      font-family:'Playfair Display',serif;
+      font-size:1.15rem;
+      color:var(--amber);
+      margin-bottom:4px;
+    }
+
+    .vacanza p{
+      font-size:12px;
+      color:#e8c87a;
+      line-height:1.5;
+    }
+
+    footer{
+      text-align:center;
+      padding:12px;
+      font-size:10px;
+      color:var(--muted);
+      border-top:1px solid var(--border);
+    }
+
+    .edit-hint{
+      font-size:10px;
+      color:var(--muted);
+      text-align:center;
+      padding:4px 12px;
+      font-style:italic;
+    }
+
+    .ai-wrap{
+      display:flex;
+      flex-direction:column;
+      min-height:400px;
+    }
+
+    .ai-messages{
       flex:1;
+      overflow-y:auto;
+      padding:10px 0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
-    .msg{
-      white-space:pre-wrap;
-      line-height:1.6;
+
+    .ai-msg{
+      max-width:88%;
+      padding:9px 12px;
+      border-radius:12px;
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .ai-msg.user{
+      background:var(--green-dim);
+      border:1px solid #3a5020;
+      color:#c8e8a0;
+      align-self:flex-end;
+      border-bottom-right-radius:3px;
+    }
+
+    .ai-msg.assistant{
+      background:var(--card);
+      border:1px solid var(--border);
+      color:var(--text);
+      align-self:flex-start;
+      border-bottom-left-radius:3px;
+    }
+
+    .ai-msg.assistant strong{
+      color:var(--green);
+    }
+
+    .ai-msg.thinking{
+      color:var(--muted);
+      font-style:italic;
+    }
+
+    .ai-input-row{
+      display:flex;
+      gap:8px;
+      padding-top:10px;
+      border-top:1px solid var(--border);
+      margin-top:6px;
+    }
+
+    .ai-input{
+      flex:1;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:9px 14px;
+      color:var(--text);
+      font-size:13px;
+      font-family:'Source Sans 3',sans-serif;
+      outline:none;
+    }
+
+    .ai-input:focus{
+      border-color:var(--green);
+    }
+
+    .ai-send{
+      background:var(--green);
+      border:none;
+      border-radius:50%;
+      width:38px;
+      height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      flex-shrink:0;
+      font-size:16px;
+      transition:opacity .15s;
+    }
+
+    .ai-send:disabled{
+      opacity:.4;
+      cursor:not-allowed;
+    }
+
+    .ai-chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      padding-bottom:10px;
+    }
+
+    .ai-chip{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:4px 10px;
+      font-size:11px;
+      color:var(--muted);
+      cursor:pointer;
+      transition:all .15s;
+    }
+
+    .ai-chip:active{
+      background:var(--green-dim);
+      border-color:var(--green);
+      color:var(--green);
+    }
+
+    .sub-btn{
+      background:transparent;
+      border:1px solid var(--border);
+      border-radius:20px;
+      color:var(--muted);
+      font-size:10px;
+      padding:2px 7px;
+      cursor:pointer;
+      flex-shrink:0;
+      transition:all .15s;
+      white-space:nowrap;
+    }
+
+    .sub-btn:active{
+      background:var(--amber-dim);
+      border-color:var(--amber);
+      color:var(--amber);
+    }
+
+    .sub-btn.loading{
+      color:var(--amber);
+      border-color:var(--amber);
+      animation:pulse 1s infinite;
+    }
+
+    .sub-btn.done{
+      color:var(--green);
+      border-color:var(--green);
+    }
+
+    @keyframes pulse{
+      0%,100%{ opacity:1; }
+      50%{ opacity:.4; }
+    }
+
+    .sub-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.7);
+      z-index:999;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+    }
+
+    .sub-popup{
       background:var(--surface);
       border:1px solid var(--border);
-      border-radius:12px;
-      padding:12px;
-      min-height:120px;
+      border-radius:16px 16px 0 0;
+      padding:16px 14px 30px;
+      width:100%;
+      max-width:580px;
     }
-    .error{
-      color:#ffb3a3;
+
+    .sub-popup-title{
+      font-family:'Playfair Display',serif;
+      font-size:1rem;
+      color:var(--text);
+      margin-bottom:4px;
     }
-    .small{
-      font-size:12px;
+
+    .sub-popup-sub{
+      font-size:11px;
       color:var(--muted);
-      margin-top:8px;
+      margin-bottom:14px;
+    }
+
+    .sub-cats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-bottom:4px;
+    }
+
+    .sub-cat{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      padding:14px 8px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:10px;
+      cursor:pointer;
+      transition:all .15s;
+    }
+
+    .sub-cat:active{
+      background:var(--green-dim);
+      border-color:var(--green);
+    }
+
+    .sub-cat-name{
+      font-size:12px;
+      font-weight:600;
+      color:var(--text);
+      text-align:center;
+    }
+
+    .sub-option{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:10px;
+      margin-bottom:8px;
+      cursor:pointer;
+      transition:all .15s;
+    }
+
+    .sub-option:active{
+      background:var(--green-dim);
+      border-color:var(--green);
+    }
+
+    .sub-option-info{ flex:1; }
+
+    .sub-option-food{
+      font-size:13px;
+      color:var(--text);
+      font-weight:600;
+    }
+
+    .sub-option-qty{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+
+    .sub-option-kcal{
+      font-size:12px;
+      color:var(--amber);
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .sub-cancel{
+      width:100%;
+      margin-top:4px;
+      padding:10px;
+      background:transparent;
+      border:1px dashed var(--border);
+      border-radius:10px;
+      color:var(--muted);
+      font-size:12px;
+      font-family:'Source Sans 3',sans-serif;
+      cursor:pointer;
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Dieta AI</h1>
-      <p>Assistente semplice per il piano alimentare con supporto Anthropic.</p>
+
+<header>
+  <div class="header-top">
+    <div>
+      <div class="eyebrow">Piano Alimentare · Alessio</div>
+      <h1>Ciao <em>Alessio</em> 👋</h1>
+      <div class="next-meal" id="nextMeal">Caricamento...</div>
     </div>
 
-    <div class="card">
-      <label for="apiKey">Chiave API Anthropic</label>
-      <input id="apiKey" type="password" placeholder="sk-ant-..." />
-      <div class="row">
-        <button onclick="saveApiKey()">Salva chiave</button>
-        <button onclick="clearApiKey()">Cancella</button>
-      </div>
-      <div class="small" id="apiStatus">Nessuna chiave salvata.</div>
-    </div>
-
-    <div class="card">
-      <label for="prompt">Messaggio</label>
-      <textarea id="prompt" placeholder="Esempio: Cosa mangio stasera restando alto in proteine e low-carb?"></textarea>
-      <div class="row">
-        <button id="sendBtn" onclick="sendPrompt()">Invia</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <label>Risposta</label>
-      <div id="output" class="msg">Pronto.</div>
+    <div class="kcal-box" id="kcalBox">
+      <span class="kcal-num" id="kcalNum">1840</span>
+      <span class="kcal-lbl">kcal rimaste</span>
+      <span class="kcal-sub" id="kcalSub">0/1840</span>
     </div>
   </div>
 
-  <script>
-    const STORAGE_KEY = "anthropic_api_key_v1";
-    const pendingCallbacks = {};
-    let callbackCounter = 0;
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+</header>
 
-    function $(id) {
-      return document.getElementById(id);
+<div class="pills">
+  <div class="pill g">⚡ ~1850 kcal</div>
+  <div class="pill g">🥩 Alta proteina</div>
+  <div class="pill g">🥬 Verdure cotte</div>
+  <div class="pill a">🍚 Low-carb + riso</div>
+  <div class="pill a">🫘 Legumi sì</div>
+  <div class="pill n">3 pasti + 2 spuntini</div>
+</div>
+
+<div class="tab-wrap">
+  <div class="tabs" id="tabs">
+    <div class="tab active" onclick="show(0)"><span class="dn">26</span><span class="dl">Gio</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(1)"><span class="dn">27</span><span class="dl">Ven</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(2)"><span class="dn">28</span><span class="dl">Sab</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(3)"><span class="dn">29</span><span class="dl">Dom</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(4)"><span class="dn">30</span><span class="dl">Lun</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(5)"><span class="dn">31</span><span class="dl">Mar</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(6)"><span class="dn">1</span><span class="dl">Mer</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(7)"><span class="dn">2</span><span class="dl">Gio</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(8)"><span class="dn">3</span><span class="dl">Ven</span><span class="dot"></span></div>
+    <div class="tab" onclick="show(9)"><span class="dn"></span><span class="dl">Regole</span></div>
+    <div class="tab" onclick="show(10)"><span class="dn"></span><span class="dl">Fuori</span></div>
+    <div class="tab" onclick="show(11)"><span class="dn"></span><span class="dl">AI</span></div>
+  </div>
+</div>
+
+<div class="main" id="mainContent">
+  <div class="panel" id="p9">
+    <p class="stitle">Regole del piano</p>
+    <div class="ri"><div class="rn">1</div><div class="rt"><strong>Acqua</strong> 2–2,5 litri al giorno. Un bicchiere grande prima del caffè.</div></div>
+    <div class="ri"><div class="rn">2</div><div class="rt"><strong>Carboidrati</strong> Solo riso basmati nei giorni previsti, legumi e verdure. Niente pane bianco o dolci.</div></div>
+    <div class="ri"><div class="rn">3</div><div class="rt"><strong>Proteine ad ogni pasto</strong> Pollo, macinato, maiale, pesce, frutti di mare, uova, formaggi magri.</div></div>
+    <div class="ri"><div class="rn">4</div><div class="rt"><strong>Verdure cotte</strong> Broccoli, broccoletti, spinaci, cicoria, verza, cavolfiore abbondanti ogni giorno.</div></div>
+    <div class="ri"><div class="rn">5</div><div class="rt"><strong>Legumi</strong> Ogni giorno fagioli e lenticchie. Fonte di fibre e proteine.</div></div>
+    <div class="ri"><div class="rn">6</div><div class="rt"><strong>Soia</strong> Salsa di soia leggera per insaporire.</div></div>
+    <div class="ri"><div class="rn">7</div><div class="rt"><strong>Cotture</strong> Griglia, padella, forno, vapore. Evita la frittura.</div></div>
+    <div class="ri"><div class="rn">8</div><div class="rt"><strong>Alcol</strong> Zero: grande vantaggio per il dimagrimento.</div></div>
+    <div class="ri"><div class="rn">9</div><div class="rt"><strong>Frutta</strong> 1–2 frutti al giorno come spuntino: fragole, mirtilli, mela, arancia.</div></div>
+    <div class="ri"><div class="rn">10</div><div class="rt"><strong>Spuntini</strong> Ricotta di pecora, fiocchi di latte, yogurt greco, bresaola, prosciutto.</div></div>
+
+    <p class="stitle">I tuoi numeri</p>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>1820–1870 kcal</strong> al giorno</div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>140–152 g proteine</strong> al giorno</div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt">Perdita stimata <strong>0,5–1 kg/settimana</strong></div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt">Obiettivo lungo termine <strong>100–110 kg</strong></div></div>
+
+    <p class="stitle">Dopo la vacanza</p>
+    <div class="ri"><div class="ra">•</div><div class="rt">Riparti da questo schema senza sensi di colpa.</div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt">Se hai esagerato: 2–3 giorni a 1600 kcal, poi ritorna a 1850.</div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt">Considera 30 minuti di cammino al giorno.</div></div>
+  </div>
+
+  <div class="panel" id="p10">
+    <div class="warn">Vai a cena fuori? Ecco come orientarti.</div>
+
+    <p class="stitle">Pesce / Frutti di mare</p>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>Ordina</strong> grigliata, polpo, gamberi, seppie, verdure grigliate.</div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>Evita</strong> fritti, pasta al mare intera, risotto.</div></div>
+
+    <p class="stitle">Grill / Braceria</p>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>Ordina</strong> bistecca, pollo, maiale alla brace, verdure grigliate.</div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>Evita</strong> patate fritte, panini, salse pesanti.</div></div>
+
+    <p class="stitle">Pizzeria / Trattoria</p>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>Ordina</strong> secondo + contorno. Se vuoi pizza, una margherita piccola.</div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>Evita</strong> antipasto fritto + primo + pizza + dolce insieme.</div></div>
+
+    <p class="stitle">Orientale</p>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>Ordina</strong> carne o gamberi saltati, verdure miste, miso soup.</div></div>
+    <div class="ri"><div class="ra">•</div><div class="rt"><strong>Evita</strong> riso in grandi quantità, tempura, noodles abbondanti.</div></div>
+
+    <div class="tip" style="margin-top:10px;">Regola d’oro: <strong>un secondo proteico + un contorno di verdure</strong>.</div>
+  </div>
+
+  <div class="panel" id="p11">
+    <div class="ai-wrap">
+      <div id="apiKeySection" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
+        <div style="font-size:12px;color:var(--text);font-weight:600;margin-bottom:4px;">Chiave API Anthropic</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">La chiave viene salvata solo sul tuo telefono, mai su GitHub.</div>
+        <div style="display:flex;gap:8px;">
+          <input id="apiKeyInput" type="password" placeholder="sk-ant-..." style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'Source Sans 3',sans-serif;outline:none;" />
+          <button onclick="saveApiKey()" style="background:var(--green);border:none;border-radius:8px;padding:7px 12px;color:#0f1a08;font-size:12px;font-weight:700;cursor:pointer;">Salva</button>
+        </div>
+      </div>
+
+      <div id="apiKeyStatus" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span id="apiKeyLabel" style="font-size:11px;color:var(--muted);">Nessuna chiave API impostata</span>
+        <button onclick="toggleApiKeySection()" id="apiKeyToggleBtn" style="background:transparent;border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--muted);font-size:10px;cursor:pointer;">Imposta</button>
+      </div>
+
+      <div class="ai-chips">
+        <div class="ai-chip" onclick="aiChip(this)">Cosa mangio stasera?</div>
+        <div class="ai-chip" onclick="aiChip(this)">Ho sgarrato, come recupero?</div>
+        <div class="ai-chip" onclick="aiChip(this)">Sostituire il salmone?</div>
+        <div class="ai-chip" onclick="aiChip(this)">Sono a target oggi?</div>
+        <div class="ai-chip" onclick="aiChip(this)">Cosa evitare al ristorante?</div>
+        <div class="ai-chip" onclick="aiChip(this)">Quante proteine oggi?</div>
+      </div>
+
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-msg assistant">
+          Ciao Alessio! Sono il tuo assistente dieta. Conosco il tuo piano alimentare e i tuoi obiettivi.<br><br>
+          Chiedimi sostituzioni, consigli pratici, come recuperare dopo uno sgarro o cosa ordinare fuori.
+        </div>
+      </div>
+
+      <div class="ai-input-row">
+        <input class="ai-input" id="aiInput" type="text" placeholder="Scrivi un messaggio..." onkeydown="if(event.key==='Enter') sendAI()" />
+        <button class="ai-send" id="aiSendBtn" onclick="sendAI()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="vacanza">
+  <h2>Dal 4 aprile · VACANZA!</h2>
+  <p>Goditi ogni pasto liberamente, niente conteggi.<br>Hai lavorato bene, te la meriti tutta.</p>
+</div>
+
+<footer>
+  Piano indicativo · Non sostituisce il parere di un medico o nutrizionista<br>
+  Alessio · 26 marzo – 3 aprile 2026
+</footer>
+
+<script>
+const DAYS = [
+  {
+    label:"26 Gio",
+    total:1840,
+    warn:null,
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[
+        { qty:2, unit:"tazze", food:"Caffè nero senza zucchero", kcal:30, kcalPer100:null }
+      ]},
+      { icon:"🧀", name:"Spuntino mattina", time:"10:30", items:[
+        { qty:100, unit:"g", food:"Ricotta di pecora con sale e pepe", kcal:120, kcalPer100:120 },
+        { qty:60, unit:"g", food:"Bresaola (3 fette)", kcal:50, kcalPer100:83 }
+      ]},
+      { icon:"🥬", name:"Pranzo — Involtini di verza", time:"13:00", tip:"Esattamente quello che hai mangiato oggi: ottimo!", items:[
+        { qty:270, unit:"g", food:"Verza ripiena di macinato + uovo + olio", kcal:480, kcalPer100:178 },
+        { qty:300, unit:"g", food:"Broccoletti ripassati con aglio e olio EVO", kcal:200, kcalPer100:67 }
+      ]},
+      { icon:"🍓", name:"Spuntino pomeriggio", time:"16:30", items:[
+        { qty:150, unit:"g", food:"Fragole o mirtilli freschi", kcal:120, kcalPer100:80 }
+      ]},
+      { icon:"🍔", name:"Cena — Hamburger", time:"20:00", warn:"Con panino salta lo spuntino pomeriggio. Senza panino tutto ok.", items:[
+        { qty:1, unit:"pz", food:"Hamburger con/senza panino", kcal:600, kcalPer100:null },
+        { qty:150, unit:"g", food:"Verdure grigliate, evita patatine", kcal:80, kcalPer100:53 }
+      ]}
+    ]
+  },
+  {
+    label:"27 Ven",
+    total:1820,
+    warn:null,
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[{ qty:1, unit:"tazza", food:"Caffè nero senza zucchero", kcal:30, kcalPer100:null }]},
+      { icon:"🧀", name:"Spuntino mattina", time:"10:30", items:[{ qty:100, unit:"g", food:"Ricotta di pecora", kcal:120, kcalPer100:120 },{ qty:50, unit:"g", food:"Coppa o prosciutto crudo", kcal:50, kcalPer100:100 }]},
+      { icon:"🍤", name:"Pranzo — Gamberi e broccoletti", time:"13:00", tip:"Gamberi surgelati: 10 minuti in padella con aglio e olio.", items:[{ qty:250, unit:"g", food:"Gamberi saltati con aglio, olio EVO e prezzemolo", kcal:250, kcalPer100:100 },{ qty:300, unit:"g", food:"Broccoletti ripassati con aglio e peperoncino", kcal:150, kcalPer100:50 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]},
+      { icon:"🍓", name:"Spuntino pomeriggio", time:"16:30", items:[{ qty:150, unit:"g", food:"Fragole o mirtilli", kcal:60, kcalPer100:40 },{ qty:80, unit:"g", food:"Yogurt greco 0%", kcal:60, kcalPer100:75 }]},
+      { icon:"🐙", name:"Cena — Polpo e cavolfiore", time:"20:00", items:[{ qty:250, unit:"g", food:"Polpo lessato con olio EVO, limone e prezzemolo", kcal:300, kcalPer100:120 },{ qty:300, unit:"g", food:"Cavolfiore al forno con olio EVO e pepe", kcal:180, kcalPer100:60 },{ qty:100, unit:"g", food:"Fagioli cannellini al pomodoro e soia", kcal:110, kcalPer100:110 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]}
+    ]
+  },
+  {
+    label:"28 Sab",
+    total:1870,
+    warn:"Sabato! Più tempo: grigliata e riso.",
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[{ qty:1, unit:"tazza", food:"Caffè nero", kcal:30, kcalPer100:null }]},
+      { icon:"🍳", name:"Spuntino mattina", time:"10:30", items:[{ qty:2, unit:"uova", food:"Uova all’occhio di bue con filo d’olio EVO", kcal:150, kcalPer100:null },{ qty:50, unit:"g", food:"Prosciutto crudo", kcal:50, kcalPer100:100 }]},
+      { icon:"🥩", name:"Pranzo — Grigliata + riso", time:"13:00", tip:"Riso basmati: lessalo e scolalo bene.", items:[{ qty:250, unit:"g", food:"Bistecca di maiale alla brace", kcal:300, kcalPer100:120 },{ qty:70, unit:"g", food:"Riso basmati secco", kcal:250, kcalPer100:357 },{ qty:100, unit:"g", food:"Fagioli neri al pomodoro e soia", kcal:110, kcalPer100:110 },{ qty:200, unit:"g", food:"Peperoni e melanzane grigliate", kcal:100, kcalPer100:50 }]},
+      { icon:"🍎", name:"Spuntino pomeriggio", time:"16:30", items:[{ qty:1, unit:"pz", food:"Mela media", kcal:70, kcalPer100:null },{ qty:100, unit:"g", food:"Fiocchi di latte", kcal:80, kcalPer100:80 }]},
+      { icon:"🐟", name:"Cena — Salmone e spinaci", time:"20:00", items:[{ qty:220, unit:"g", food:"Salmone al forno con limone, aglio e prezzemolo", kcal:420, kcalPer100:191 },{ qty:350, unit:"g", food:"Spinaci saltati con aglio e olio EVO", kcal:200, kcalPer100:57 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]}
+    ]
+  },
+  {
+    label:"29 Dom",
+    total:1860,
+    warn:"Domenica! Riso con ragù: te lo sei guadagnato.",
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[{ qty:1, unit:"tazza", food:"Caffè nero", kcal:30, kcalPer100:null }]},
+      { icon:"🧀", name:"Spuntino mattina", time:"10:30", items:[{ qty:100, unit:"g", food:"Stracchino su 1 fettina di pane di segale 30g", kcal:160, kcalPer100:160 }]},
+      { icon:"🍚", name:"Pranzo — Riso e ragù di maiale", time:"13:00", tip:"Domenica è domenica: riso basmati col ragù.", items:[{ qty:80, unit:"g", food:"Riso basmati secco", kcal:280, kcalPer100:350 },{ qty:150, unit:"g", food:"Ragù di maiale magro", kcal:250, kcalPer100:167 },{ qty:300, unit:"g", food:"Broccoli al vapore con olio EVO", kcal:150, kcalPer100:50 }]},
+      { icon:"🍓", name:"Spuntino pomeriggio", time:"16:30", items:[{ qty:200, unit:"g", food:"Fragole fresche con menta", kcal:100, kcalPer100:50 }]},
+      { icon:"🍳", name:"Cena — Frittata e lenticchie", time:"20:00", items:[{ qty:3, unit:"uova", food:"Frittata con zucchine e primo sale", kcal:280, kcalPer100:null },{ qty:300, unit:"g", food:"Broccoli al vapore con olio e limone", kcal:150, kcalPer100:50 },{ qty:100, unit:"g", food:"Lenticchie rosse in umido al pomodoro", kcal:110, kcalPer100:110 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]}
+    ]
+  },
+  {
+    label:"30 Lun",
+    total:1840,
+    warn:null,
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[{ qty:1, unit:"tazza", food:"Caffè nero", kcal:30, kcalPer100:null }]},
+      { icon:"🧀", name:"Spuntino mattina", time:"10:30", items:[{ qty:100, unit:"g", food:"Ricotta di pecora", kcal:120, kcalPer100:120 },{ qty:50, unit:"g", food:"Prosciutto crudo", kcal:50, kcalPer100:100 }]},
+      { icon:"🍗", name:"Pranzo — Pollo, fagioli e soia", time:"13:00", tip:"Tutto in una padella: la tua combo preferita.", items:[{ qty:220, unit:"g", food:"Pollo con fagioli cannellini, pomodoro e soia", kcal:380, kcalPer100:173 },{ qty:100, unit:"g", food:"Fagioli cannellini nel sugo", kcal:80, kcalPer100:80 },{ qty:300, unit:"g", food:"Verza stufata con aglio e olio EVO", kcal:150, kcalPer100:50 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]},
+      { icon:"🍓", name:"Spuntino pomeriggio", time:"16:30", items:[{ qty:150, unit:"g", food:"Fragole o mirtilli", kcal:60, kcalPer100:40 },{ qty:80, unit:"g", food:"Yogurt greco 0%", kcal:60, kcalPer100:75 }]},
+      { icon:"🐟", name:"Cena — Merluzzo e spinaci", time:"20:00", items:[{ qty:220, unit:"g", food:"Merluzzo al forno con pomodorini, olive e capperi", kcal:280, kcalPer100:127 },{ qty:350, unit:"g", food:"Spinaci saltati con aglio e olio EVO", kcal:200, kcalPer100:57 },{ qty:100, unit:"g", food:"Fagioli borlotti al pomodoro e basilico", kcal:110, kcalPer100:110 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]}
+    ]
+  },
+  {
+    label:"31 Mar",
+    total:1850,
+    warn:null,
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[{ qty:1, unit:"tazza", food:"Caffè nero", kcal:30, kcalPer100:null }]},
+      { icon:"🧀", name:"Spuntino mattina", time:"10:30", items:[{ qty:100, unit:"g", food:"Fiocchi di latte con pepe nero", kcal:80, kcalPer100:80 },{ qty:60, unit:"g", food:"Bresaola 4 fette", kcal:70, kcalPer100:117 }]},
+      { icon:"🍚", name:"Pranzo — Riso e macinato", time:"13:00", tip:"Bowl completa in 20 minuti.", items:[{ qty:70, unit:"g", food:"Riso basmati secco", kcal:250, kcalPer100:357 },{ qty:180, unit:"g", food:"Macinato di manzo con soia, aglio e pomodoro", kcal:280, kcalPer100:156 },{ qty:300, unit:"g", food:"Broccoletti ripassati in padella", kcal:150, kcalPer100:50 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]},
+      { icon:"🍊", name:"Spuntino pomeriggio", time:"16:30", items:[{ qty:1, unit:"pz", food:"Arancia o 2 mandarini", kcal:60, kcalPer100:null },{ qty:30, unit:"g", food:"Bresaola 2 fette", kcal:40, kcalPer100:133 }]},
+      { icon:"🦪", name:"Cena — Cozze al pomodoro", time:"20:00", tip:"Il sughetto col pane è il classico.", items:[{ qty:500, unit:"g", food:"Cozze in umido con pomodoro, aglio e prezzemolo", kcal:350, kcalPer100:70 },{ qty:300, unit:"g", food:"Cicoria ripassata con aglio e olio EVO", kcal:180, kcalPer100:60 },{ qty:30, unit:"g", food:"Pane di segale per il sughetto", kcal:80, kcalPer100:267 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]}
+    ]
+  },
+  {
+    label:"1 Mer",
+    total:1840,
+    warn:null,
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[{ qty:1, unit:"tazza", food:"Caffè nero", kcal:30, kcalPer100:null }]},
+      { icon:"🧀", name:"Spuntino mattina", time:"10:30", items:[{ qty:100, unit:"g", food:"Ricotta di pecora", kcal:120, kcalPer100:120 },{ qty:50, unit:"g", food:"Prosciutto crudo", kcal:50, kcalPer100:100 }]},
+      { icon:"🍗", name:"Pranzo — Pollo e lenticchie", time:"13:00", tip:"Le lenticchie nel sugo del pollo assorbono tutto il sapore.", items:[{ qty:220, unit:"g", food:"Pollo a pezzi con pomodoro, cipolla e rosmarino", kcal:300, kcalPer100:136 },{ qty:100, unit:"g", food:"Lenticchie rosse nel sugo del pollo", kcal:120, kcalPer100:120 },{ qty:300, unit:"g", food:"Spinaci al vapore con olio EVO", kcal:170, kcalPer100:57 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]},
+      { icon:"🍓", name:"Spuntino pomeriggio", time:"16:30", items:[{ qty:200, unit:"g", food:"Fragole fresche", kcal:60, kcalPer100:30 },{ qty:80, unit:"g", food:"Yogurt greco 0%", kcal:60, kcalPer100:75 }]},
+      { icon:"🥩", name:"Cena — Bistecca e cicoria", time:"20:00", items:[{ qty:220, unit:"g", food:"Bistecca di maiale alla piastra con sale grosso e salvia", kcal:340, kcalPer100:155 },{ qty:300, unit:"g", food:"Cicoria ripassata con aglio, olio EVO e peperoncino", kcal:180, kcalPer100:60 },{ qty:100, unit:"g", food:"Fagioli cannellini al pomodoro con soia", kcal:110, kcalPer100:110 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]}
+    ]
+  },
+  {
+    label:"2 Gio",
+    total:1850,
+    warn:null,
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[{ qty:1, unit:"tazza", food:"Caffè nero", kcal:30, kcalPer100:null }]},
+      { icon:"🧀", name:"Spuntino mattina", time:"10:30", items:[{ qty:100, unit:"g", food:"Fiocchi di latte", kcal:80, kcalPer100:80 },{ qty:50, unit:"g", food:"Coppa o prosciutto crudo", kcal:60, kcalPer100:120 }]},
+      { icon:"🍤", name:"Pranzo — Gamberi e verza", time:"13:00", items:[{ qty:250, unit:"g", food:"Gamberi saltati con aglio, olio EVO e soia", kcal:250, kcalPer100:100 },{ qty:100, unit:"g", food:"Lenticchie nere al pomodoro e soia", kcal:120, kcalPer100:120 },{ qty:300, unit:"g", food:"Verza stufata con aglio e peperoncino", kcal:150, kcalPer100:50 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]},
+      { icon:"🍊", name:"Spuntino pomeriggio", time:"16:30", items:[{ qty:1, unit:"pz", food:"Arancia grande", kcal:70, kcalPer100:null },{ qty:30, unit:"g", food:"Bresaola 2 fette", kcal:40, kcalPer100:133 }]},
+      { icon:"🥩", name:"Cena — Macinato e spinaci", time:"20:00", items:[{ qty:220, unit:"g", food:"Macinato di manzo con pomodoro, aglio e soia", kcal:340, kcalPer100:155 },{ qty:350, unit:"g", food:"Spinaci saltati con aglio e olio EVO", kcal:200, kcalPer100:57 },{ qty:100, unit:"g", food:"Fagioli cannellini al pomodoro", kcal:110, kcalPer100:110 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]}
+    ]
+  },
+  {
+    label:"3 Ven",
+    total:1820,
+    warn:"Ultimo giorno! Stasera leggero, domani si parte!",
+    meals:[
+      { icon:"☕", name:"Colazione", time:"07:30", items:[{ qty:1, unit:"tazza", food:"Caffè nero ultimo pre-vacanza!", kcal:30, kcalPer100:null }]},
+      { icon:"🧀", name:"Spuntino mattina", time:"10:30", items:[{ qty:100, unit:"g", food:"Fiocchi di latte", kcal:80, kcalPer100:80 },{ qty:60, unit:"g", food:"Prosciutto cotto 4 fette", kcal:80, kcalPer100:133 }]},
+      { icon:"🍤", name:"Pranzo — Gamberi e lenticchie", time:"13:00", items:[{ qty:250, unit:"g", food:"Gamberi saltati con aglio, olio EVO e soia", kcal:250, kcalPer100:100 },{ qty:100, unit:"g", food:"Lenticchie nere al pomodoro e soia", kcal:120, kcalPer100:120 },{ qty:300, unit:"g", food:"Verza stufata con aglio e peperoncino", kcal:150, kcalPer100:50 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]},
+      { icon:"🍊", name:"Spuntino pomeriggio", time:"16:30", items:[{ qty:1, unit:"pz", food:"Arancia grande", kcal:70, kcalPer100:null },{ qty:30, unit:"g", food:"Bresaola 2 fette", kcal:40, kcalPer100:133 }]},
+      { icon:"🍳", name:"Ultima cena", time:"20:00", tip:"Buona vacanza Alessio! Al rientro si riparte più forti 💪", items:[{ qty:3, unit:"uova", food:"Frittata con spinaci e primo sale", kcal:280, kcalPer100:null },{ qty:300, unit:"g", food:"Broccoletti ripassati all'aglio", kcal:150, kcalPer100:50 },{ qty:100, unit:"g", food:"Fagioli cannellini al pomodoro e basilico", kcal:110, kcalPer100:110 },{ qty:10, unit:"g", food:"Olio EVO", kcal:90, kcalPer100:900 }]}
+    ]
+  }
+];
+
+let currentDay = 0;
+const START = new Date(2026, 2, 26);
+
+function getState(){
+  try{
+    return JSON.parse(localStorage.getItem("alev6")) || {};
+  }catch(e){
+    return {};
+  }
+}
+
+function saveState(s){
+  try{
+    localStorage.setItem("alev6", JSON.stringify(s));
+  }catch(e){}
+}
+
+function calcKcal(item, qty){
+  if(item.kcalPer100 == null) return item.kcal;
+  return Math.round(item.kcalPer100 * qty / 100);
+}
+
+function getQtyKey(di, mi, ii){
+  return `qty_d${di}_m${mi}_i${ii}`;
+}
+
+function getDoneKey(di, mi, ii){
+  return `d${di}_m${mi}_i${ii}`;
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function buildDays(){
+  const main = document.getElementById("mainContent");
+  const refRules = document.getElementById("p9");
+
+  DAYS.forEach((day, di) => {
+    const panel = document.createElement("div");
+    panel.className = `panel ${di === 0 ? "active" : ""}`;
+    panel.id = `p${di}`;
+
+    let html = `
+      <div class="day-totals">
+        <div class="dtbox"><span class="num" id="dt-kcal-${di}">${day.total}</span><span class="lbl">Kcal tot</span></div>
+        <div class="dtbox"><span class="num">~${Math.round(day.total * 0.08)}g</span><span class="lbl">Proteine</span></div>
+        <div class="dtbox"><span class="num">~${Math.round(day.total * 0.03)}g</span><span class="lbl">Carb</span></div>
+        <div class="dtbox"><span class="num">~${Math.round(day.total * 0.055)}g</span><span class="lbl">Grassi</span></div>
+      </div>
+    `;
+
+    if(day.warn){
+      html += `<div class="warn">${escapeHtml(day.warn)}</div>`;
     }
 
-    function setOutput(text, isError = false) {
-      const el = $("output");
-      el.textContent = text;
-      el.className = isError ? "msg error" : "msg";
-    }
+    html += `<div class="edit-hint">✏️ Tocca la quantità per modificarla — le kcal si aggiornano in tempo reale</div>`;
 
-    function updateApiStatus() {
-      const key = localStorage.getItem(STORAGE_KEY);
-      $("apiStatus").textContent = key
-        ? "Chiave salvata sul dispositivo."
-        : "Nessuna chiave salvata.";
-      $("apiKey").value = key || "";
-    }
+    day.meals.forEach((meal, mi) => {
+      const mealId = `d${di}m${mi}`;
+      const totalKcal = meal.items.reduce((sum, item) => sum + item.kcal, 0);
 
-    function saveApiKey() {
-      const key = $("apiKey").value.trim();
-      if (!key) {
-        setOutput("Inserisci una chiave API valida.", true);
-        return;
+      html += `
+        <div class="meal" id="${mealId}">
+          <div class="mh">
+            <div class="mico">${meal.icon}</div>
+            <div class="minfo">
+              <div class="mn">${escapeHtml(meal.name)}</div>
+              <div class="mt">⏰ ${escapeHtml(meal.time)}</div>
+            </div>
+            <div class="mkcal-badge" id="badge-${mealId}">${totalKcal} kcal</div>
+            <button class="meal-check" id="mcheck-${mealId}" onclick="toggleMeal('${mealId}', ${di}, ${mi})">Fatto</button>
+          </div>
+          <div class="mb">
+      `;
+
+      if(meal.warn){
+        html += `<div class="warn" style="margin:4px 12px 4px;">${escapeHtml(meal.warn)}</div>`;
       }
-      localStorage.setItem(STORAGE_KEY, key);
-      updateApiStatus();
-      setOutput("Chiave API salvata.");
-    }
 
-    function clearApiKey() {
-      localStorage.removeItem(STORAGE_KEY);
-      updateApiStatus();
-      setOutput("Chiave API cancellata.");
-    }
+      meal.items.forEach((item, ii) => {
+        const itemId = `${mealId}i${ii}`;
+        const canEdit = item.kcalPer100 != null;
 
-    function getApiKey() {
-      return localStorage.getItem(STORAGE_KEY) || "";
-    }
+        const qtyField = canEdit
+          ? `<input class="qty-input" id="qtyinput-${itemId}" type="number" min="1" max="2000" value="${item.qty}" onchange="onQtyChange('${itemId}', ${di}, ${mi}, ${ii}, this.value)" oninput="onQtyChange('${itemId}', ${di}, ${mi}, ${ii}, this.value)">`
+          : `<span class="qty-input" style="border-bottom:1px dashed var(--muted);color:var(--muted);">${item.qty}</span>`;
 
-    window.androidCallback = function(callbackId, rawJson) {
-      const callback = pendingCallbacks[callbackId];
-      if (!callback) return;
-      delete pendingCallbacks[callbackId];
-      callback(rawJson);
-    };
+        const kpuField = canEdit
+          ? `<span class="kcal-per-unit" id="kpu-${itemId}">${item.kcalPer100} kcal/100${item.unit === "g" ? "g" : "u"}</span>`
+          : `<span class="kcal-per-unit" id="kpu-${itemId}"></span>`;
 
-    async function callAnthropic(apiKey, bodyObj) {
-      if (window.AndroidBridge && typeof window.AndroidBridge.callAnthropic === "function") {
-        return new Promise((resolve, reject) => {
-          const callbackId = "cb_" + (++callbackCounter);
-
-          pendingCallbacks[callbackId] = function(rawJson) {
-            try {
-              const data = JSON.parse(rawJson);
-              if (data.error) {
-                reject(new Error(data.error.message || "Errore API"));
-                return;
-              }
-              resolve(data);
-            } catch (e) {
-              reject(new Error("Risposta bridge non valida: " + e.message));
-            }
-          };
-
-          try {
-            window.AndroidBridge.callAnthropic(
-              apiKey,
-              JSON.stringify(bodyObj),
-              callbackId
-            );
-          } catch (e) {
-            delete pendingCallbacks[callbackId];
-            reject(e);
-          }
-        });
-      }
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true"
-        },
-        body: JSON.stringify(bodyObj)
+        html += `
+          <div class="item-row" id="${itemId}">
+            <button class="item-check-btn" id="ibtn-${itemId}" onclick="toggleItem('${itemId}', ${di}, ${mi}, ${ii})">○</button>
+            <div class="item-main">
+              <div class="item-qty-row">
+                ${qtyField}
+                <span class="qty-unit">${escapeHtml(item.unit)}</span>
+              </div>
+              <span class="food" id="food-${itemId}">${escapeHtml(item.food)}</span>
+            </div>
+            <div class="item-kcal-col">
+              <span class="item-kcal" id="ikcal-${itemId}">${item.kcal} kcal</span>
+              ${kpuField}
+              <button class="sub-btn" id="subbtn-${itemId}" onclick="substituteItem('${itemId}', ${di}, ${mi}, ${ii})">Sost.</button>
+            </div>
+          </div>
+        `;
       });
 
-      const data = await response.json();
-
-      if (!response.ok || data.error) {
-        throw new Error(data?.error?.message || ("HTTP " + response.status));
+      if(meal.tip){
+        html += `<div class="tip">${escapeHtml(meal.tip)}</div>`;
       }
 
-      return data;
+      html += `
+          </div>
+        </div>
+      `;
+    });
+
+    html += `<button class="reset-btn" onclick="resetDay(${di})">Reset giorno</button>`;
+    panel.innerHTML = html;
+    main.insertBefore(panel, refRules);
+  });
+}
+
+function onQtyChange(itemId, di, mi, ii, rawVal){
+  const val = parseFloat(rawVal);
+  if(isNaN(val) || val <= 0) return;
+
+  const item = DAYS[di].meals[mi].items[ii];
+  const newKcal = calcKcal(item, val);
+
+  const kcalEl = document.getElementById(`ikcal-${itemId}`);
+  if(kcalEl) kcalEl.textContent = `${newKcal} kcal`;
+
+  const s = getState();
+  s[getQtyKey(di, mi, ii)] = val;
+  saveState(s);
+
+  updateMealBadge(di, mi);
+  updateKcal(di);
+}
+
+function getItemKcal(di, mi, ii){
+  const item = DAYS[di].meals[mi].items[ii];
+  const s = getState();
+  const customQty = s[getQtyKey(di, mi, ii)];
+
+  if(customQty !== undefined && item.kcalPer100 != null){
+    return calcKcal(item, customQty);
+  }
+  return item.kcal;
+}
+
+function toggleItem(itemId, di, mi, ii){
+  const s = getState();
+  const key = getDoneKey(di, mi, ii);
+  s[key] = !s[key];
+  saveState(s);
+
+  applyItemState(itemId, di, mi, ii);
+  updateMealBadge(di, mi);
+  updateKcal(di);
+  autoCheckMeal(di, mi);
+  updateDots();
+}
+
+function applyItemState(itemId, di, mi, ii){
+  const s = getState();
+  const row = document.getElementById(itemId);
+  const btn = document.getElementById(`ibtn-${itemId}`);
+  if(!row || !btn) return;
+
+  if(s[getDoneKey(di, mi, ii)]){
+    row.classList.add("item-eaten");
+    btn.classList.add("checked");
+    btn.textContent = "✓";
+  }else{
+    row.classList.remove("item-eaten");
+    btn.classList.remove("checked");
+    btn.textContent = "○";
+  }
+}
+
+function toggleMeal(mealId, di, mi){
+  const s = getState();
+  const meal = DAYS[di].meals[mi];
+  const allDone = meal.items.every((_, ii) => s[getDoneKey(di, mi, ii)]);
+
+  meal.items.forEach((_, ii) => {
+    s[getDoneKey(di, mi, ii)] = !allDone;
+  });
+  saveState(s);
+
+  meal.items.forEach((_, ii) => applyItemState(`${mealId}i${ii}`, di, mi, ii));
+  updateMealBadge(di, mi);
+  updateMealHeader(mealId, di, mi);
+  updateKcal(di);
+  updateDots();
+}
+
+function autoCheckMeal(di, mi){
+  const mealId = `d${di}m${mi}`;
+  const s = getState();
+  const meal = DAYS[di].meals[mi];
+  const allDone = meal.items.every((_, ii) => s[getDoneKey(di, mi, ii)]);
+  updateMealHeader(mealId, di, mi, allDone);
+}
+
+function updateMealHeader(mealId, di, mi, forceDone){
+  const s = getState();
+  const meal = DAYS[di].meals[mi];
+  const allDone = forceDone !== undefined ? forceDone : meal.items.every((_, ii) => s[getDoneKey(di, mi, ii)]);
+
+  const mealEl = document.getElementById(mealId);
+  const btn = document.getElementById(`mcheck-${mealId}`);
+  if(!mealEl || !btn) return;
+
+  if(allDone){
+    mealEl.classList.add("all-eaten");
+    btn.classList.add("checked");
+    btn.textContent = "Fatto";
+  }else{
+    mealEl.classList.remove("all-eaten");
+    btn.classList.remove("checked");
+    btn.textContent = "Fatto";
+  }
+}
+
+function updateMealBadge(di, mi){
+  const mealId = `d${di}m${mi}`;
+  const s = getState();
+  const meal = DAYS[di].meals[mi];
+  const remaining = meal.items.reduce((sum, item, ii) => {
+    if(s[getDoneKey(di, mi, ii)]) return sum;
+    return sum + getItemKcal(di, mi, ii);
+  }, 0);
+
+  const badge = document.getElementById(`badge-${mealId}`);
+  if(badge) badge.textContent = `${remaining} kcal`;
+}
+
+function getEatenKcal(day){
+  const s = getState();
+  let eaten = 0;
+  if(day >= DAYS.length) return 0;
+
+  DAYS[day].meals.forEach((meal, mi) => {
+    meal.items.forEach((item, ii) => {
+      if(s[getDoneKey(day, mi, ii)]) eaten += getItemKcal(day, mi, ii);
+    });
+  });
+
+  return eaten;
+}
+
+function updateKcal(day){
+  if(day === undefined) day = currentDay;
+  if(day >= DAYS.length) return;
+
+  const dayTotal = DAYS[day].total;
+  const eaten = getEatenKcal(day);
+  const rem = Math.max(0, dayTotal - eaten);
+  const pct = Math.min(100, Math.round(eaten / dayTotal * 100));
+
+  document.getElementById("kcalNum").textContent = rem;
+  document.getElementById("kcalSub").textContent = `${eaten}/${dayTotal}`;
+
+  const bar = document.getElementById("progressBar");
+  const box = document.getElementById("kcalBox");
+  bar.style.width = `${pct}%`;
+  box.className = "kcal-box";
+  bar.className = "progress-bar";
+
+  if(rem <= 0){
+    box.classList.add("over");
+    bar.classList.add("over");
+  }else if(pct >= 75){
+    box.classList.add("warning");
+    bar.classList.add("warning");
+  }
+}
+
+function updateDots(){
+  const s = getState();
+
+  for(let d = 0; d < DAYS.length; d++){
+    let total = 0;
+    let eaten = 0;
+
+    DAYS[d].meals.forEach((meal, mi) => {
+      meal.items.forEach((_, ii) => {
+        total++;
+        if(s[getDoneKey(d, mi, ii)]) eaten++;
+      });
+    });
+
+    const tab = document.querySelectorAll(".tab")[d];
+    if(!tab) continue;
+
+    tab.classList.remove("partial", "complete");
+
+    if(eaten === total && total > 0) tab.classList.add("complete");
+    else if(eaten > 0) tab.classList.add("partial");
+  }
+}
+
+function resetDay(day){
+  if(!confirm("Resetta tutti i pasti e le quantità di oggi?")) return;
+
+  const s = getState();
+
+  DAYS[day].meals.forEach((meal, mi) => {
+    meal.items.forEach((item, ii) => {
+      delete s[getDoneKey(day, mi, ii)];
+      delete s[getQtyKey(day, mi, ii)];
+    });
+  });
+
+  saveState(s);
+  applyAllState();
+  updateKcal(day);
+  updateDots();
+}
+
+function applyAllState(){
+  const s = getState();
+
+  DAYS.forEach((day, di) => {
+    day.meals.forEach((meal, mi) => {
+      const mealId = `d${di}m${mi}`;
+
+      meal.items.forEach((item, ii) => {
+        const itemId = `${mealId}i${ii}`;
+        const customQty = s[getQtyKey(di, mi, ii)];
+
+        if(customQty !== undefined && item.kcalPer100 != null){
+          const input = document.getElementById(`qtyinput-${itemId}`);
+          if(input) input.value = customQty;
+
+          const kcalEl = document.getElementById(`ikcal-${itemId}`);
+          if(kcalEl) kcalEl.textContent = `${calcKcal(item, customQty)} kcal`;
+        }
+
+        applyItemState(itemId, di, mi, ii);
+      });
+
+      updateMealBadge(di, mi);
+      updateMealHeader(mealId, di, mi);
+    });
+  });
+}
+
+function updateNextMeal(day){
+  const el = document.getElementById("nextMeal");
+
+  if(day >= DAYS.length){
+    el.textContent = "Sei in vacanza!";
+    return;
+  }
+
+  const s = getState();
+
+  for(let mi = 0; mi < DAYS[day].meals.length; mi++){
+    const meal = DAYS[day].meals[mi];
+    const allDone = meal.items.every((_, ii) => s[getDoneKey(day, mi, ii)]);
+    if(!allDone){
+      el.innerHTML = `⏰ Prossimo: <strong>${escapeHtml(meal.name)}</strong> alle ${escapeHtml(meal.time)}`;
+      return;
     }
+  }
 
-    function extractText(data) {
-      if (!data || !Array.isArray(data.content) || !data.content.length) {
-        throw new Error("Risposta vuota");
+  el.innerHTML = "<strong>Tutti i pasti completati oggi!</strong>";
+}
+
+function show(i){
+  document.querySelectorAll(".panel").forEach((p, j) => p.classList.toggle("active", i === j));
+  document.querySelectorAll(".tab").forEach((t, j) => t.classList.toggle("active", i === j));
+  currentDay = i;
+  updateKcal(i);
+  updateNextMeal(i);
+}
+
+function autoSelectToday(){
+  const now = new Date();
+  const diff = Math.floor((now - START) / 86400000);
+  const day = (diff >= 0 && diff <= 8) ? diff : 0;
+  show(day);
+
+  const tab = document.querySelectorAll(".tab")[day];
+  if(tab) tab.scrollIntoView({ behavior:"smooth", block:"nearest", inline:"center" });
+}
+
+/* ---------- Bridge Android + API ---------- */
+
+const pendingCallbacks = {};
+let cbCounter = 0;
+
+window.androidCallback = function(callbackId, rawJson){
+  const callback = pendingCallbacks[callbackId];
+  if(!callback) return;
+  delete pendingCallbacks[callbackId];
+  callback(rawJson);
+};
+
+async function callAPI(apiKey, bodyObj){
+  return new Promise((resolve, reject) => {
+    if(window.AndroidBridge && typeof window.AndroidBridge.callAnthropic === "function"){
+      const cbId = `cb_${cbCounter++}`;
+
+      pendingCallbacks[cbId] = function(raw){
+        try{
+          const data = JSON.parse(raw);
+          if(data.error) reject(new Error(data.error.message || "Errore API"));
+          else resolve(data);
+        }catch(e){
+          reject(new Error("JSON bridge non valido: " + e.message));
+        }
+      };
+
+      try{
+        window.AndroidBridge.callAnthropic(apiKey, JSON.stringify(bodyObj), cbId);
+      }catch(e){
+        delete pendingCallbacks[cbId];
+        reject(e);
       }
-      const textBlock = data.content.find(x => x.type === "text") || data.content[0];
-      if (!textBlock || !textBlock.text) {
-        throw new Error("Testo non presente nella risposta");
-      }
-      return textBlock.text;
+    }else{
+      fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "x-api-key":apiKey,
+          "anthropic-version":"2023-06-01",
+          "anthropic-dangerous-direct-browser-access":"true"
+        },
+        body:JSON.stringify(bodyObj)
+      })
+      .then(async (r) => {
+        const data = await r.json();
+        if(!r.ok || data.error){
+          reject(new Error(data?.error?.message || `HTTP ${r.status}`));
+        }else{
+          resolve(data);
+        }
+      })
+      .catch(reject);
     }
+  });
+}
 
-    async function sendPrompt() {
-      const apiKey = getApiKey().trim();
-      const prompt = $("prompt").value.trim();
+function getResponseText(data){
+  if(!data || !Array.isArray(data.content) || !data.content.length){
+    throw new Error("Risposta vuota");
+  }
+  const textBlock = data.content.find(x => x.type === "text") || data.content[0];
+  if(!textBlock || !textBlock.text){
+    throw new Error("Testo risposta non trovato");
+  }
+  return textBlock.text;
+}
 
-      if (!apiKey) {
-        setOutput("Salva prima la chiave API.", true);
-        return;
-      }
+function extractJsonArray(text){
+  const start = text.indexOf("[");
+  const end = text.lastIndexOf("]");
+  if(start === -1 || end === -1 || end <= start){
+    throw new Error("Array JSON non trovato");
+  }
+  return JSON.parse(text.slice(start, end + 1));
+}
 
-      if (!prompt) {
-        setOutput("Scrivi un messaggio prima di inviare.", true);
-        return;
-      }
+/* ---------- AI key ---------- */
 
-      const btn = $("sendBtn");
-      btn.disabled = true;
-      setOutput("Attendo risposta...");
+function getApiKey(){
+  return localStorage.getItem("aleapikey") || "";
+}
 
-      try {
-        const body = {
-          model: "claude-sonnet-4-5",
-          max_tokens: 500,
-          messages: [
-            {
-              role: "user",
-              content: prompt
-            }
-          ]
-        };
+function saveApiKey(){
+  const val = document.getElementById("apiKeyInput").value.trim();
+  if(!val.startsWith("sk-ant-")){
+    alert("La chiave deve iniziare con sk-ant-");
+    return;
+  }
 
-        const data = await callAnthropic(apiKey, body);
-        const text = extractText(data);
-        setOutput(text);
-      } catch (e) {
-        setOutput("Errore: " + e.message, true);
-      } finally {
-        btn.disabled = false;
-      }
+  localStorage.setItem("aleapikey", val);
+  document.getElementById("apiKeyInput").value = "";
+  updateApiKeyStatus();
+  document.getElementById("apiKeySection").style.display = "none";
+  addMessage("assistant", "Chiave API salvata. Ora puoi usare l’assistente.");
+}
+
+function toggleApiKeySection(){
+  const sec = document.getElementById("apiKeySection");
+  sec.style.display = sec.style.display === "none" ? "block" : "none";
+}
+
+function updateApiKeyStatus(){
+  const key = getApiKey();
+  const label = document.getElementById("apiKeyLabel");
+  const btn = document.getElementById("apiKeyToggleBtn");
+  if(!label || !btn) return;
+
+  if(key){
+    label.textContent = "Chiave API impostata";
+    label.style.color = "var(--green)";
+    btn.textContent = "Cambia";
+    btn.style.borderColor = "var(--green)";
+    btn.style.color = "var(--green)";
+  }else{
+    label.textContent = "Nessuna chiave API: tocca Imposta";
+    label.style.color = "var(--amber)";
+    btn.textContent = "Imposta";
+    btn.style.borderColor = "var(--amber)";
+    btn.style.color = "var(--amber)";
+  }
+}
+
+/* ---------- Sostituzioni ---------- */
+
+window.subData = null;
+
+async function substituteItem(itemId, di, mi, ii){
+  const btn = document.getElementById(`subbtn-${itemId}`);
+  if(!btn || btn.classList.contains("loading")) return;
+
+  const item = DAYS[di].meals[mi].items[ii];
+  const mealName = DAYS[di].meals[mi].name;
+  const key = getApiKey();
+
+  if(!key){
+    alert("Imposta prima la chiave API nella tab AI.");
+    return;
+  }
+
+  btn.classList.add("loading");
+  btn.textContent = "…";
+
+  try{
+    const data = await callAPI(key, {
+      model:"claude-haiku-4-5-20251001",
+      max_tokens:150,
+      messages:[{
+        role:"user",
+        content:`Alimento: ${item.food}. Pasto: ${mealName}. Dieta low-carb alta proteina. Genera 3-4 categorie di sostituti. Rispondi SOLO con JSON array [{"emoji":"🐟","name":"Pesce"}].`
+      }]
+    });
+
+    const raw = getResponseText(data);
+    const cats = extractJsonArray(raw);
+
+    btn.classList.remove("loading");
+    btn.textContent = "Sost.";
+
+    window.subData = { item, itemId, di, mi, ii, key, mealName, cats };
+    showCategoryPopup();
+  }catch(e){
+    btn.classList.remove("loading");
+    btn.textContent = "Sost.";
+    alert("Errore: " + e.message);
+  }
+}
+
+function showCategoryPopup(){
+  const existing = document.getElementById("subOverlay");
+  if(existing) existing.remove();
+
+  const d = window.subData;
+  const overlay = document.createElement("div");
+  overlay.className = "sub-overlay";
+  overlay.id = "subOverlay";
+
+  const popup = document.createElement("div");
+  popup.className = "sub-popup";
+
+  const title = document.createElement("div");
+  title.className = "sub-popup-title";
+  title.textContent = "Sostituisci";
+  popup.appendChild(title);
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "sub-popup-sub";
+  subtitle.textContent = `${d.item.food} · scegli una categoria`;
+  popup.appendChild(subtitle);
+
+  const content = document.createElement("div");
+  content.id = "subPopupContent";
+
+  const catsDiv = document.createElement("div");
+  catsDiv.className = "sub-cats";
+
+  d.cats.forEach((cat, idx) => {
+    const el = document.createElement("div");
+    el.className = "sub-cat";
+    el.innerHTML = `<span style="font-size:24px">${escapeHtml(cat.emoji || "🍽️")}</span><span class="sub-cat-name">${escapeHtml(cat.name || "Altro")}</span>`;
+    el.onclick = function(){ loadCatOptions(idx); };
+    catsDiv.appendChild(el);
+  });
+
+  content.appendChild(catsDiv);
+  popup.appendChild(content);
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "sub-cancel";
+  cancelBtn.textContent = "Annulla";
+  cancelBtn.onclick = function(){ document.getElementById("subOverlay").remove(); };
+  popup.appendChild(cancelBtn);
+
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener("click", function(e){
+    if(e.target === overlay) overlay.remove();
+  });
+}
+
+async function loadCatOptions(catIdx){
+  const overlay = document.getElementById("subOverlay");
+  if(!overlay) return;
+
+  const d = window.subData;
+  const cat = d.cats[catIdx];
+  const content = document.getElementById("subPopupContent");
+
+  content.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">${escapeHtml(cat.emoji || "🍽️")} ${escapeHtml(cat.name || "Categoria")} ...</div>`;
+
+  try{
+    const data = await callAPI(d.key, {
+      model:"claude-haiku-4-5-20251001",
+      max_tokens:300,
+      messages:[{
+        role:"user",
+        content:`Sostituisci ${d.item.food}, ${d.item.qty} ${d.item.unit}, ${d.item.kcal} kcal, con categoria ${cat.name}. Dieta low-carb alta proteina. OK pollo, maiale, pesce, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure. NO frutta secca, ceci, branzino/orata, alcol. Dammi 4 opzioni con kcal simili. Rispondi SOLO con JSON array [{"food":"nome","qty":100,"unit":"g","kcal":120,"kcalPer100":120}].`
+      }]
+    });
+
+    const raw = getResponseText(data);
+    const opts = extractJsonArray(raw);
+
+    overlay.options = opts;
+    content.innerHTML = "";
+
+    opts.forEach((opt, idx) => {
+      const el = document.createElement("div");
+      el.className = "sub-option";
+      el.innerHTML = `
+        <div class="sub-option-info">
+          <div class="sub-option-food">${escapeHtml(opt.food || "Sostituzione")}</div>
+          <div class="sub-option-qty">${escapeHtml(String(opt.qty || ""))} ${escapeHtml(opt.unit || "")}</div>
+        </div>
+        <div class="sub-option-kcal">${escapeHtml(String(opt.kcal || ""))} kcal</div>
+      `;
+      el.onclick = function(){ applySubstitution(idx); };
+      content.appendChild(el);
+    });
+
+    const backBtn = document.createElement("button");
+    backBtn.className = "sub-cancel";
+    backBtn.style.marginTop = "6px";
+    backBtn.textContent = "Categorie";
+    backBtn.onclick = showCategoryPopup;
+    content.appendChild(backBtn);
+
+  }catch(e){
+    content.innerHTML = `<div style="padding:14px;color:var(--red);font-size:12px;text-align:center;">Errore: ${escapeHtml(e.message)}</div>`;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "sub-cancel";
+    closeBtn.textContent = "Chiudi";
+    closeBtn.onclick = function(){ document.getElementById("subOverlay").remove(); };
+    content.appendChild(closeBtn);
+  }
+}
+
+function applySubstitution(optIdx){
+  const overlay = document.getElementById("subOverlay");
+  if(!overlay) return;
+
+  const sub = overlay.options[optIdx];
+  const d = window.subData;
+  overlay.remove();
+
+  DAYS[d.di].meals[d.mi].items[d.ii] = {
+    qty: Number(sub.qty) || d.item.qty,
+    unit: sub.unit || d.item.unit,
+    food: sub.food || d.item.food,
+    kcal: Number(sub.kcal) || d.item.kcal,
+    kcalPer100: sub.kcalPer100 != null ? Number(sub.kcalPer100) : null
+  };
+
+  const newItem = DAYS[d.di].meals[d.mi].items[d.ii];
+  const foodEl = document.getElementById(`food-${d.itemId}`);
+  const kcalEl = document.getElementById(`ikcal-${d.itemId}`);
+  const kpuEl = document.getElementById(`kpu-${d.itemId}`);
+  const qtyEl = document.getElementById(`qtyinput-${d.itemId}`);
+  const btn = document.getElementById(`subbtn-${d.itemId}`);
+  const row = document.getElementById(d.itemId);
+
+  if(foodEl) foodEl.textContent = newItem.food;
+  if(kcalEl) kcalEl.textContent = `${newItem.kcal} kcal`;
+
+  if(kpuEl){
+    kpuEl.textContent = newItem.kcalPer100 != null ? `${newItem.kcalPer100} kcal/100g` : "";
+  }
+
+  if(qtyEl) qtyEl.value = newItem.qty;
+  if(row) row.classList.add("substituted");
+  if(btn){
+    btn.classList.add("done");
+    btn.textContent = "Sost.✓";
+  }
+
+  const s = getState();
+  s[getQtyKey(d.di, d.mi, d.ii)] = newItem.qty;
+  saveState(s);
+
+  updateMealBadge(d.di, d.mi);
+  updateKcal(d.di);
+}
+
+/* ---------- AI chat ---------- */
+
+const aiHistory = [];
+
+function buildSystemPrompt(){
+  const s = getState();
+  const today = currentDay < DAYS.length ? DAYS[currentDay] : null;
+  const eaten = [];
+  const remaining = [];
+
+  if(today){
+    today.meals.forEach((meal, mi) => {
+      meal.items.forEach((item, ii) => {
+        const label = `${item.qty} ${item.unit} ${item.food}`;
+        if(s[getDoneKey(currentDay, mi, ii)]) eaten.push(label);
+        else remaining.push(`${label} (${meal.name})`);
+      });
+    });
+  }
+
+  const kcalEaten = getEatenKcal(currentDay);
+  const kcalLeft = today ? today.total - kcalEaten : 0;
+
+  return `Sei un assistente nutrizionale personale per Alessio.
+- Peso 145 kg, obiettivo 100-110 kg
+- Dieta low-carb, 1850 kcal/die, alta proteina
+- Gradisce pollo, macinato, maiale, gamberi, cozze, polpo, merluzzo, salmone, uova, ricotta di pecora, fiocchi di latte, stracchino, affettati, legumi, riso basmati, verdure cotte, soia
+- NON mangia frutta secca, ceci, branzino/orata, alcol
+- Oggi: ${today ? today.label : "ND"}
+- Kcal consumate: ${kcalEaten}
+- Kcal rimanenti: ${kcalLeft}
+- Già mangiato: ${eaten.length ? eaten.join(", ") : "niente"}
+- Da mangiare: ${remaining.length ? remaining.join(", ") : "tutto completato"}
+Rispondi in italiano, amichevole e pratico. Max 3-4 righe.`;
+}
+
+function addMessage(role, text){
+  const box = document.getElementById("aiMessages");
+  const div = document.createElement("div");
+  div.className = `ai-msg ${role}`;
+  div.innerHTML = escapeHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\n/g, "<br>");
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+async function sendAI(){
+  const input = document.getElementById("aiInput");
+  const btn = document.getElementById("aiSendBtn");
+  const text = input.value.trim();
+  if(!text || btn.disabled) return;
+
+  const key = getApiKey();
+  if(!key){
+    addMessage("assistant", "Imposta prima la chiave API toccando Imposta qui sopra.");
+    document.getElementById("apiKeySection").style.display = "block";
+    return;
+  }
+
+  input.value = "";
+  btn.disabled = true;
+  addMessage("user", text);
+  aiHistory.push({ role:"user", content:text });
+
+  const thinking = addMessage("assistant", "Sto pensando...");
+  thinking.classList.add("thinking");
+
+  try{
+    const data = await callAPI(key, {
+      model:"claude-haiku-4-5-20251001",
+      max_tokens:400,
+      system: buildSystemPrompt(),
+      messages: aiHistory
+    });
+
+    const reply = getResponseText(data);
+    thinking.remove();
+    addMessage("assistant", reply);
+    aiHistory.push({ role:"assistant", content:reply });
+
+    if(aiHistory.length > 10){
+      aiHistory.splice(0, 2);
     }
+  }catch(e){
+    thinking.remove();
+    addMessage("assistant", "Errore: " + e.message);
+  }finally{
+    btn.disabled = false;
+    input.focus();
+  }
+}
 
-    updateApiStatus();
-  </script>
+function aiChip(el){
+  document.getElementById("aiInput").value = el.textContent;
+  sendAI();
+}
+
+/* ---------- Init ---------- */
+
+buildDays();
+applyAllState();
+autoSelectToday();
+updateDots();
+updateApiKeyStatus();
+</script>
+
 </body>
 </html>
