@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet v19 - Robot Fixed</title>
+    <title>Alessio Diet v20 - Smart Keto</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #1a1a18; --surface: #222220; --card: #2a2a26; --border: #383832; --green: #7ab648; --green-dim: #1e2d12; --amber: #e8962a; --text: #f0ede6; --muted: #888878; }
@@ -17,32 +17,29 @@
         .tab.active { color: var(--green); border-bottom: 2px solid var(--green); font-weight: 600; }
         .main { padding: 15px; max-width: 600px; margin: 0 auto; }
         
-        .meal-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; overflow: hidden; transition: all 0.3s; }
-        .meal-group.all-done { border: 1px solid var(--green); }
+        .meal-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; overflow: hidden; transition: border 0.3s; }
+        .meal-group.is-complete { border: 2px solid var(--green); }
         .group-header { background: rgba(255,255,255,0.03); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .btn-fatto-all { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .btn-fatto-all { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
         
         .ingredient-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 10px; }
-        .ingredient-row.done { opacity: 0.3; }
+        .ingredient-row.done { opacity: 0.4; }
         .check-mini { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: transparent; font-weight: bold; }
         .check-mini.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
         
-        /* Input Grammi senza frecce */
         .weight-input { 
             background: #1a1a18; border: 1px solid var(--border); color: var(--amber); 
-            width: 50px; padding: 4px; border-radius: 4px; text-align: center; font-size: 13px; font-weight: bold; 
-            appearance: textfield; -webkit-appearance: none; margin: 0; 
+            width: 55px; padding: 5px; border-radius: 6px; text-align: center; font-size: 13px; font-weight: bold; 
+            appearance: textfield; -webkit-appearance: none; margin: 0;
         }
         .weight-input::-webkit-outer-spin-button, .weight-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-        .sub-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; margin-top: 5px; }
-        
-        /* PULSANTE ROBOT */
+        .sub-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 10px; border-radius: 6px; font-size: 10px; cursor: pointer; margin-top: 6px; }
         .ai-fab { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #000; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; z-index: 200; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; }
         
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 400; display: none; flex-direction: column; justify-content: flex-end; }
-        .popup { background: var(--surface); border-top: 2px solid var(--green); border-radius: 20px 20px 0 0; padding: 20px; max-height: 80vh; overflow-y: auto; }
-        .option-card { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 400; display: none; flex-direction: column; justify-content: flex-end; }
+        .popup { background: var(--surface); border-top: 3px solid var(--green); border-radius: 24px 24px 0 0; padding: 24px; max-height: 80vh; overflow-y: auto; }
+        .option-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; }
 
         #loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .spinner { border: 4px solid var(--surface); border-top: 4px solid var(--green); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
@@ -60,7 +57,7 @@
 
 <div id="subOverlay" class="overlay" onclick="this.style.display='none'">
     <div class="popup" onclick="event.stopPropagation()">
-        <h3 style="margin-bottom:15px; font-family:'Playfair Display'">Scegli Alternativa</h3>
+        <h3 style="margin-bottom:15px; font-family:'Playfair Display'">Sostituisci Alimento</h3>
         <div id="optionsContainer"></div>
     </div>
 </div>
@@ -75,10 +72,7 @@ let currentSubId = null;
 
 function setApiKey() {
     const key = prompt("Configura Chiave Claude (sk-ant...):", localStorage.getItem('ale_api_key') || "");
-    if (key) {
-        localStorage.setItem('ale_api_key', key);
-        alert("Chiave configurata! Ora puoi usare Sostituisci.");
-    }
+    if (key) { localStorage.setItem('ale_api_key', key); alert("Chiave Salvata! Prova ora a sostituire."); }
 }
 
 async function loadData() {
@@ -90,7 +84,7 @@ async function loadData() {
         renderTabs(uniqueDates);
         renderApp();
         document.getElementById('loader').style.display = 'none';
-    } catch (e) { document.getElementById('loader').innerHTML = "Errore connessione!"; }
+    } catch (e) { document.getElementById('loader').innerHTML = "Errore caricamento dati!"; }
 }
 
 function renderTabs(dates) {
@@ -114,15 +108,14 @@ function renderApp() {
 
     let kcalConsumate = 0;
     for (const [mealName, items] of Object.entries(groups)) {
-        const isGroupAllDone = items.every(i => i.Fatto === "TRUE" || i.Fatto === true);
+        const isAllDone = items.every(i => i.Fatto === "TRUE" || i.Fatto === true);
         const groupEl = document.createElement('div');
-        groupEl.className = `meal-group ${isGroupAllDone ? 'all-done' : ''}`;
+        groupEl.className = `meal-group ${isAllDone ? 'is-complete' : ''}`;
         
-        let groupHtml = `
-            <div class="group-header">
-                <span style="color:var(--amber); font-family:'Playfair Display'; font-size:1.1rem">${mealName}</span>
-                <button class="btn-fatto-all" onclick="toggleGroup('${mealName}', ${isGroupAllDone})">${isGroupAllDone ? 'Disfai' : 'Fatto'}</button>
-            </div>`;
+        let groupHtml = `<div class="group-header">
+            <span style="color:var(--amber); font-family:'Playfair Display'; font-size:1.1rem">${mealName}</span>
+            <button class="btn-fatto-all" onclick="toggleGroup('${mealName}', ${isAllDone})">${isAllDone ? 'Disfai' : 'Fatto'}</button>
+        </div>`;
         
         items.forEach(item => {
             const isDone = item.Fatto === "TRUE" || item.Fatto === true;
@@ -131,10 +124,8 @@ function renderApp() {
             
             groupHtml += `<div class="ingredient-row ${isDone ? 'done' : ''}">
                 <div class="check-mini ${isDone ? 'active' : ''}" onclick="toggleIngredient('${item.ID}', ${isDone})">✓</div>
-                <div style="flex:1; font-size:14px">
-                    ${item.Alimento} 
-                    <br><button class="sub-btn" onclick="openSubPopup('${item.ID}', '${item.Alimento}', ${kcal})">Sostituisci</button>
-                </div>
+                <div style="flex:1; font-size:14px">${item.Alimento} <br>
+                <button class="sub-btn" onclick="openSubPopup('${item.ID}', '${item.Alimento}', ${kcal})">Sostituisci</button></div>
                 <input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updateWeight('${item.ID}', this.value, ${item['Peso gr']}, ${item.Calorie})">
                 <div style="font-size:11px; color:var(--muted); min-width:45px; text-align:right">${kcal} kcal</div>
             </div>`;
@@ -144,19 +135,29 @@ function renderApp() {
     document.getElementById('remKcal').textContent = 2000 - kcalConsumate;
 }
 
+async function toggleGroup(mealName, currentlyAllDone) {
+    const newStatus = currentlyAllDone ? "FALSE" : "TRUE";
+    const items = allData.filter(r => r.Data === selectedDate && r['Tipologia Pasto'] === mealName);
+    for (let item of items) {
+        item.Fatto = newStatus;
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: item.ID, value: newStatus }) });
+    }
+    renderApp();
+}
+
 async function openSubPopup(id, food, kcal) {
     const key = localStorage.getItem('ale_api_key');
-    if(!key) return alert("Clicca sul Robot 🤖 e inserisci la chiave API!");
+    if(!key) return alert("Clicca sul Robot 🤖 per configurare la chiave!");
     currentSubId = id;
     document.getElementById('subOverlay').style.display = 'flex';
-    document.getElementById('optionsContainer').innerHTML = "<p style='color:var(--muted); padding:10px'>Claude sta elaborando...</p>";
+    document.getElementById('optionsContainer').innerHTML = "<p style='color:var(--muted); padding:10px'>Claude sta analizzando...</p>";
     
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({ 
                 action: 'proxyClaude', 
-                prompt: `Pasto attuale: "${food}" (${kcal} kcal). Dammi 4 alternative low-carb proteiche. Rispondi SOLO con array JSON: [{"alimento": "nome e peso", "calorie": numero}]`, 
+                prompt: `Pasto: "${food}" (${kcal} kcal). Chetogenica. Dammi 4 alternative. SOLO JSON: [{"alimento": "nome e peso", "calorie": numero}]`, 
                 key: key 
             })
         });
@@ -172,7 +173,7 @@ async function openSubPopup(id, food, kcal) {
             </div>`;
         });
         document.getElementById('optionsContainer').innerHTML = html;
-    } catch (e) { document.getElementById('optionsContainer').innerHTML = "Errore connessione IA."; }
+    } catch (e) { document.getElementById('optionsContainer').innerHTML = "Errore IA. Verifica chiave o credito."; }
 }
 
 async function applySub(f, k) {
@@ -181,16 +182,6 @@ async function applySub(f, k) {
     renderApp();
     document.getElementById('subOverlay').style.display = 'none';
     fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'replace', id: currentSubId.toString(), newFood: f, newCalories: k }) });
-}
-
-async function toggleGroup(mealName, currentlyAllDone) {
-    const newStatus = currentlyAllDone ? "FALSE" : "TRUE";
-    const items = allData.filter(r => r.Data === selectedDate && r['Tipologia Pasto'] === mealName);
-    items.forEach(item => {
-        item.Fatto = newStatus;
-        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: item.ID, value: newStatus }) });
-    });
-    renderApp();
 }
 
 async function updateWeight(id, newWeight, oldWeight, oldKcal) {
