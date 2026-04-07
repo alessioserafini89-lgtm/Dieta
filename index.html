@@ -3,178 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet v27</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Alessio Diet Pro</title>
     <style>
-        :root { --bg: #1a1a18; --surface: #222220; --card: #2a2a26; --border: #383832; --green: #7ab648; --green-dim: #1e2d12; --amber: #e8962a; --text: #f0ede6; --muted: #888878; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); color: var(--text); font-family: 'Source Sans 3', sans-serif; padding-bottom: 80px; }
-        header { background: linear-gradient(155deg, #1c2e10 0%, #0d1808 100%); padding: 15px 20px; border-bottom: 1px solid #304018; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
-        .tab-wrap { background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; position: sticky; top: 72px; z-index: 90; }
-        .tabs { display: flex; padding: 0 5px; }
-        .tab { padding: 15px 18px; color: var(--muted); cursor: pointer; white-space: nowrap; font-size: 14px; }
-        .tab.active { color: var(--green); border-bottom: 2px solid var(--green); font-weight: 600; }
-        .main { padding: 15px; max-width: 600px; margin: 0 auto; }
-        .meal-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
-        .meal-group.is-complete { border: 2px solid var(--green); }
-        .group-header { background: rgba(255,255,255,0.03); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .btn-fatto-all { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
-        .ingredient-row { display: flex; flex-direction: column; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .is-sub { background: rgba(0,0,0,0.1); padding-left: 25px; border-left: 3px solid var(--border); }
-        .is-parent { background: rgba(122, 182, 72, 0.05); }
-        .ingredient-row.done { opacity: 0.4; }
-        .check-mini { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: transparent; }
-        .check-mini.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
-        .weight-input { background: #1a1a18; border: 1px solid var(--border); color: var(--amber); width: 55px; padding: 4px; border-radius: 6px; text-align: center; font-size: 13px; font-weight: bold; appearance: textfield; -webkit-appearance: none; }
-        .macro-tag { font-size: 10px; color: var(--muted); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; }
-        .macro-tag b { color: var(--text); }
-        .sub-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; margin-top: 5px; width: fit-content; }
-        .ai-fab { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #000; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; z-index: 200; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 400; display: none; flex-direction: column; justify-content: flex-end; }
-        .popup { background: var(--surface); border-top: 3px solid var(--green); border-radius: 24px 24px 0 0; padding: 24px; max-height: 80vh; overflow-y: auto; }
-        .option-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; }
-        #loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .spinner { border: 4px solid var(--surface); border-top: 4px solid var(--green); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        :root { --bg: #000; --card: #1c1c1e; --green: #30d158; --amber: #ff9f0a; --text: #fff; --muted: #8e8e93; }
+        * { box-sizing: border-box; margin: 0; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 15px; padding-bottom: 90px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .kcal-box { text-align: right; color: var(--green); font-size: 24px; font-weight: bold; }
+        .tabs { display: flex; overflow-x: auto; gap: 10px; margin-bottom: 20px; padding-bottom: 10px; }
+        .tab { padding: 8px 16px; background: var(--card); border-radius: 18px; font-size: 14px; white-space: nowrap; border: 1px solid #333; }
+        .tab.active { background: var(--green); color: #000; font-weight: bold; }
+        .meal-card { background: var(--card); border-radius: 14px; margin-bottom: 15px; overflow: hidden; border: 1px solid #2c2c2e; }
+        .meal-card.done { border-color: var(--green); }
+        .meal-header { padding: 15px; background: rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center; }
+        .meal-header h2 { color: var(--amber); font-size: 18px; }
+        .btn-fatto { background: none; border: 1px solid var(--green); color: var(--green); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; }
+        .row { display: flex; flex-direction: column; padding: 12px 15px; border-top: 1px solid #2c2c2e; }
+        .sub { padding-left: 25px; background: rgba(0,0,0,0.2); }
+        .row-top { display: flex; align-items: center; gap: 12px; }
+        .check { width: 22px; height: 22px; border: 2px solid #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .check.active { background: var(--green); border-color: var(--green); color: #000; }
+        .info { flex: 1; font-size: 14px; }
+        .weight-input { width: 50px; background: #000; color: var(--amber); border: 1px solid #444; border-radius: 5px; text-align: center; font-size: 12px; font-weight: bold; }
+        .macro-tag { font-size: 9px; color: var(--muted); border: 1px solid #333; padding: 1px 5px; border-radius: 4px; margin-right: 4px; }
+        .sub-btn { background: none; border: 1px solid #444; color: var(--muted); padding: 3px 8px; border-radius: 5px; font-size: 9px; margin-top: 5px; width: fit-content; }
+        .robot { position: fixed; bottom: 20px; right: 20px; width: 54px; height: 54px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .popup { background: var(--card); padding: 20px; border-radius: 15px; width: 100%; border: 1px solid var(--green); }
+        .opt { background: #000; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; }
     </style>
 </head>
 <body>
-<div id="loader"><div class="spinner"></div></div>
-<header>
-    <h1 style="font-family:'Playfair Display'">Piano <em>Alessio</em></h1>
-    <div style="text-align:center;"><span id="remKcal" style="font-size: 1.4rem; color: var(--green); display: block; font-family:'Playfair Display'">2000</span><span style="font-size: 8px; color: var(--muted);">KCAL RIMASTE</span></div>
+<header class="header">
+    <h1>Piano Keto</h1>
+    <div class="kcal-box"><span id="remKcal">2000</span><div style="font-size:10px; color:var(--muted)">KCAL RIMASTE</div></div>
 </header>
-<div class="tab-wrap"><div class="tabs" id="tabs"></div></div>
-<div class="main" id="app"></div>
-
-<div id="subOverlay" class="overlay" onclick="this.style.display='none'">
-    <div class="popup" onclick="event.stopPropagation()">
-        <h3 style="margin-bottom:15px; font-family:'Playfair Display'">Alternative IA</h3>
-        <div id="optionsContainer"></div>
-    </div>
-</div>
-
-<button class="ai-fab" onclick="setApiKey()">🤖</button>
+<div class="tabs" id="tabList"></div>
+<div id="app"></div>
+<div id="aiOverlay" class="overlay" onclick="this.style.display='none'"><div class="popup" onclick="event.stopPropagation()"><h3 style="margin-bottom:15px">Scegli Sostituzione</h3><div id="aiOptions"></div></div></div>
+<button class="robot" onclick="setKey()">🤖</button>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYWSbyEhuW8ETLdMWcKIoKfumpFmqb6i7xy5z20MHzXt4FyjgD2-_5IQvqfckpao3cyw/exec";
-let allData = [];
-let selectedDate = "";
-let currentSubId = null;
+const SCRIPT_URL = "URL_DELLO_SCRIPT";
+let allData = [], selectedDate = "", activeId = null;
 
-function setApiKey() {
-    const key = prompt("Configura Chiave API Claude:", localStorage.getItem('ale_api_key') || "");
-    if (key) { localStorage.setItem('ale_api_key', key); alert("Chiave salvata!"); }
+function setKey() { const k = prompt("Chiave Claude:", localStorage.getItem('claude_key') || ""); if(k) localStorage.setItem('claude_key', k); }
+
+async function load() {
+    const r = await fetch(SCRIPT_URL);
+    allData = await r.json();
+    const dates = [...new Set(allData.map(x => x.Data))];
+    if(!selectedDate) selectedDate = dates[0];
+    render();
 }
 
-async function loadData() {
-    try {
-        const response = await fetch(SCRIPT_URL);
-        allData = await response.json();
-        const uniqueDates = [...new Set(allData.map(item => item.Data))];
-        if (!selectedDate) selectedDate = uniqueDates[0];
-        renderTabs(uniqueDates); renderApp();
-        document.getElementById('loader').style.display = 'none';
-    } catch (e) { document.getElementById('loader').innerHTML = "Errore!"; }
-}
-
-function renderTabs(dates) {
-    const container = document.getElementById('tabs'); container.innerHTML = "";
-    dates.forEach(d => {
-        const tab = document.createElement('div');
-        tab.className = `tab ${d === selectedDate ? 'active' : ''}`;
-        tab.innerText = d; tab.onclick = () => { selectedDate = d; renderTabs(dates); renderApp(); };
-        container.appendChild(tab);
-    });
-}
-
-function renderApp() {
-    const container = document.getElementById('app'); container.innerHTML = "";
-    const dietaGiorno = allData.filter(r => r.Data === selectedDate);
-    const groups = dietaGiorno.reduce((acc, item) => {
-        const key = item['Pasto'] || item['Tipologia Pasto'] || 'Altro';
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(item); return acc;
-    }, {});
-
-    let kcalConsumate = 0;
-    for (const [mealName, items] of Object.entries(groups)) {
-        const isAllDone = items.every(i => String(i.Fatto).toUpperCase() === "TRUE");
-        const groupEl = document.createElement('div');
-        groupEl.className = `meal-group ${isAllDone ? 'is-complete' : ''}`;
-        
-        let html = `<div class="group-header"><span style="color:var(--amber); font-family:'Playfair Display'; font-size:1.1rem">${mealName}</span><button class="btn-fatto-all" onclick="toggleGroup('${mealName}', ${isAllDone})">${isAllDone ? 'Disfai' : 'Fatto'}</button></div>`;
-        
-        items.forEach((item, index) => {
-            const isSub = String(item.ID).includes('.');
-            const isDone = String(item.Fatto).toUpperCase() === "TRUE";
-            const kcal = Math.round(parseFloat(item.Calorie) || 0);
-            
-            // Calcolo corretto: se è un padre e ha figli, non sommiamo il suo valore
-            let isFatherWithSubs = !isSub && items[index+1] && String(items[index+1].ID).includes('.');
-            if(isDone && !isFatherWithSubs) kcalConsumate += kcal;
-
-            html += `<div class="ingredient-row ${isSub ? 'is-sub' : 'is-parent'} ${isDone ? 'done' : ''}">
-                <div class="ing-top">
-                    <div class="check-mini ${isDone ? 'active' : ''}" onclick="toggleIngredient('${item.ID}', ${isDone})">✓</div>
-                    <div style="flex:1;">
-                        <div style="font-size:14px; color: ${isSub ? 'var(--text)' : 'var(--amber)'}">${item.Alimento}</div>
-                        ${!isSub ? `<div style="font-size:10px; color:var(--green)">${kcal} kcal | P:${item.Prot}g C:${item.Carb}g G:${item.Grassi}g</div>` : ''}
-                        ${isSub ? `<button class="sub-btn" onclick="openSubPopup('${item.ID}', '${item.Alimento}', ${kcal})">Sostituisci</button>` : ''}
-                    </div>
-                    ${isSub ? `<input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updateWeight('${item.ID}', this.value, ${item['Peso gr']}, ${item.Calorie})">` : ''}
-                    <div style="font-size:12px; font-weight:700; width:55px; text-align:right">${isSub ? kcal : ''}</div>
-                </div>
-                ${isSub ? `<div style="display:flex; padding-left:34px; gap:8px; margin-top:4px;">
-                    <span class="macro-tag">P:<b>${item.Prot}g</b></span><span class="macro-tag">C:<b>${item.Carb}g</b></span><span class="macro-tag">G:<b>${item.Grassi}g</b></span>
-                </div>` : ''}
-            </div>`;
-        });
-        groupEl.innerHTML = html; container.appendChild(groupEl);
-    }
-    document.getElementById('remKcal').textContent = 2000 - kcalConsumate;
-}
-
-async function openSubPopup(id, food, kcal) {
-    const key = localStorage.getItem('ale_api_key');
-    if(!key) return alert("Clicca sul Robot 🤖 in basso!");
-    currentSubId = id;
-    document.getElementById('subOverlay').style.display = 'flex';
-    document.getElementById('optionsContainer').innerHTML = "Caricamento alternative...";
+function render() {
+    const list = document.getElementById('tabList');
+    const dates = [...new Set(allData.map(x => x.Data))];
+    list.innerHTML = dates.map(d => `<div class="tab ${d===selectedDate?'active':''}" onclick="selectedDate='${d}';render()">${d}</div>`).join('');
     
-    try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                action: 'proxyClaude', 
-                prompt: "Nutrizionista Keto. Utente mangia: " + food + " (" + kcal + " kcal). Proponi 4 alternative Keto. Rispondi SOLO con array JSON: [{\"alimento\": \"nome\", \"calorie\": numero}]", 
-                key: key 
-            })
-        });
-        const fullResponse = await response.json();
-        const text = fullResponse.content[0].text;
-        const opts = JSON.parse(text.match(/\[.*\]/s)[0]);
-        let html = "";
-        opts.forEach(o => {
-            html += `<div class="option-card" onclick="applySub('${o.alimento.replace(/'/g, "\\'")}', ${o.calorie})">
-                <div style="font-weight:600; font-size:14px">${o.alimento}</div>
-                <div style="color:var(--amber); font-size:12px">${o.calorie} kcal</div>
+    const cont = document.getElementById('app'); cont.innerHTML = "";
+    const dayData = allData.filter(x => x.Data === selectedDate);
+    const groups = dayData.reduce((acc, x) => { const p = x.Pasto || x['Tipologia Pasto']; if(!acc[p]) acc[p] = []; acc[p].push(x); return acc; }, {});
+
+    let consumate = 0;
+    for(const [name, items] of Object.entries(groups)) {
+        const isDone = items.every(i => String(i.Fatto).toUpperCase() === "TRUE");
+        const card = document.createElement('div');
+        card.className = `meal-card ${isDone?'done':''}`;
+        
+        let rowsHtml = items.map((item, idx) => {
+            const isSub = String(item.ID).includes('.');
+            const done = String(item.Fatto).toUpperCase() === "TRUE";
+            const kcal = Math.round(Number(item.Calorie) || 0);
+            const isFatherWithSubs = !isSub && items[idx+1] && String(items[idx+1].ID).includes('.');
+            if(done && !isFatherWithSubs) consumate += kcal;
+
+            return `<div class="row ${isSub?'sub':''}">
+                <div class="row-top">
+                    <div class="check ${done?'active':''}" onclick="toggle('${item.ID}',${done})">✓</div>
+                    <div class="info">
+                        <div style="color:${isSub?'var(--text)':'var(--amber)'}">${item.Alimento}</div>
+                        <div style="font-size:10px; color:var(--muted)">P:${item.Prot}g C:${item.Carb}g G:${item.Grassi}g</div>
+                        ${isSub?`<button class="sub-btn" onclick="openAI('${item.ID}','${item.Alimento}',${kcal})">Sostituisci</button>`:''}
+                    </div>
+                    ${isSub?`<input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updWeight('${item.ID}',this.value,${item['Peso gr']},${item.Calorie})">`:''}
+                    <div style="width:40px; text-align:right; font-weight:bold">${isSub?kcal:''}</div>
+                </div>
             </div>`;
-        });
-        document.getElementById('optionsContainer').innerHTML = html;
-    } catch (e) { document.getElementById('optionsContainer').innerHTML = "Errore IA. Verifica chiave o connessione."; }
+        }).join('');
+
+        card.innerHTML = `<div class="meal-header"><h2>${name}</h2><button class="btn-fatto" onclick="toggleGroup('${name}',${isDone})">${isDone?'DISFAI':'FATTO'}</button></div>${rowsHtml}`;
+        cont.appendChild(card);
+    }
+    document.getElementById('remKcal').innerText = 2000 - consumate;
+}
+
+async function openAI(id, food, kcal) {
+    const key = localStorage.getItem('claude_key'); if(!key) return alert("Manca chiave!");
+    activeId = id; document.getElementById('aiOverlay').style.display='flex';
+    document.getElementById('aiOptions').innerHTML = "Claude sta pensando...";
+    try {
+        const r = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify({ action:'proxyClaude', key, prompt: `Keto nutri. Utente mangia ${food} (${kcal}kcal). 4 alternative Keto. SOLO JSON: [{"alimento":"nome","calorie":numero}]` })});
+        const data = await r.json();
+        const opts = JSON.parse(data.content[0].text.match(/\[.*\]/s)[0]);
+        document.getElementById('aiOptions').innerHTML = opts.map(o => `<div class="opt" onclick="applySub('${o.alimento}',${o.calorie})"><b>${o.alimento}</b><br><small>${o.calorie} kcal</small></div>`).join('');
+    } catch(e) { document.getElementById('aiOptions').innerHTML = "Errore IA."; }
 }
 
 async function applySub(f, k) {
-    const item = allData.find(i => i.ID == currentSubId);
-    item.Alimento = f; item.Calorie = k;
-    renderApp();
-    document.getElementById('subOverlay').style.display = 'none';
-    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'replace', id: currentSubId.toString(), newFood: f, newCalories: k }) });
+    allData.find(i => i.ID == activeId).Alimento = f;
+    allData.find(i => i.ID == activeId).Calorie = k;
+    render(); document.getElementById('aiOverlay').style.display='none';
+    fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify({action:'replace', id:activeId, newFood:f, newCalories:k})});
 }
 
-// ... (tieni updateWeight, toggleIngredient, toggleGroup come prima)
-window.onload = loadData;
+function toggle(id, curr) {
+    const ns = !curr ? "TRUE" : "FALSE";
+    allData.find(i => i.ID == id).Fatto = ns; render();
+    fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify({action:'toggleDone', id, value:ns})});
+}
+
+function toggleGroup(m, curr) {
+    const ns = curr ? "FALSE" : "TRUE";
+    allData.forEach(i => { if(i.Data === selectedDate && (i.Pasto === m || i['Tipologia Pasto'] === m)) { i.Fatto = ns; fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify({action:'toggleDone', id:i.ID, value:ns})}); }});
+    render();
+}
+
+function updWeight(id, nw, ow, ok) {
+    const nk = Math.round((ok/ow)*nw);
+    const item = allData.find(i => i.ID == id);
+    item['Peso gr'] = nw; item.Calorie = nk; render();
+    fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify({action:'updateWeight', id, newWeight:nw, newKcal:nk})});
+}
+
+window.onload = load;
 </script>
 </body>
 </html>
