@@ -3,83 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet Pro - Multi-Record</title>
+    <title>Alessio Diet Pro v14</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #1a1a18; --surface: #222220; --card: #2a2a26; --border: #383832;
-            --green: #7ab648; --green-dim: #1e2d12; --amber: #e8962a; --text: #f0ede6; --muted: #888878;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #1a1a18; --surface: #222220; --card: #2a2a26; --border: #383832; --green: #7ab648; --green-dim: #1e2d12; --amber: #e8962a; --text: #f0ede6; --muted: #888878; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); font-family: 'Source Sans 3', sans-serif; padding-bottom: 80px; }
-        header { background: linear-gradient(155deg, #1c2e10 0%, #0d1808 100%); padding: 20px 16px; border-bottom: 1px solid #304018; position: sticky; top: 0; z-index: 100; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-family: 'Playfair Display', serif; font-size: 1.3rem; }
+        header { background: linear-gradient(155deg, #1c2e10 0%, #0d1808 100%); padding: 20px 16px; border-bottom: 1px solid #304018; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
         .kcal-box { background: var(--green-dim); border: 1px solid #3a5020; border-radius: 10px; padding: 8px 12px; text-align: center; }
-        .kcal-num { display: block; font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--green); line-height: 1; }
-
-        .tab-wrap { background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; position: sticky; top: 82px; z-index: 90; }
+        .tab-wrap { background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; position: sticky; top: 78px; z-index: 90; }
         .tabs { display: flex; padding: 0 10px; }
-        .tab { flex-shrink: 0; padding: 12px 16px; text-align: center; color: var(--muted); cursor: pointer; }
+        .tab { flex-shrink: 0; padding: 12px 16px; color: var(--muted); cursor: pointer; }
         .tab.active { color: var(--green); border-bottom: 2px solid var(--green); font-weight: 600; }
-
-        .main { padding: 15px; max-width: 600px; margin: 0 auto; }
-        
-        /* GRUPPO PASTO */
         .meal-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
         .group-header { background: rgba(255,255,255,0.03); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .group-name { font-family: 'Playfair Display'; font-size: 1.1rem; color: var(--amber); }
-        .btn-all { background: var(--green); color: #000; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
-
-        /* SINGOLO RECORD INGREDIENTE */
         .ingredient-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 12px; }
-        .ingredient-row:last-child { border-bottom: none; }
-        .ingredient-row.done { opacity: 0.4; background: rgba(0,0,0,0.2); }
-        .check-mini { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); background: none; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+        .ingredient-row.done { opacity: 0.3; }
+        .check-mini { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .check-mini.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
-        .ing-name { flex: 1; font-size: 14px; }
-        .ing-kcal { font-size: 12px; font-weight: 600; color: var(--muted); }
-
-        .ai-fab { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #000; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 200; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
         #loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .spinner { border: 4px solid var(--surface); border-top: 4px solid var(--green); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .settings-btn { position: fixed; bottom: 20px; left: 20px; background: var(--card); border: 1px solid var(--border); color: var(--muted); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 200; }
     </style>
 </head>
 <body>
-
 <div id="loader"><div class="spinner"></div></div>
-
 <header>
-    <div class="header-top">
-        <h1>Piano <em>Alessio</em></h1>
-        <div class="kcal-box"><span class="kcal-num" id="remKcal">2000</span><span style="font-size:9px; color:var(--muted)">KCAL RIMASTE</span></div>
-    </div>
+    <h1>Piano <em>Alessio</em></h1>
+    <div class="kcal-box"><span id="remKcal" style="font-size: 1.4rem; color: var(--green); display: block;">2000</span><span style="font-size: 8px;">KCAL RIMASTE</span></div>
 </header>
-
 <div class="tab-wrap"><div class="tabs" id="tabs"></div></div>
 <div class="main" id="app"></div>
 
-<button class="ai-fab" onclick="setApiKey()">🤖</button>
+<button class="settings-btn" onclick="saveKey()">⚙️</button>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyl2iI7HHxtU3dQ43ttyGl6_4dyjSI3yqZNjCnYBTYAha3Z4RPYgjs8dp9X8yy9X8gg8g/exec";
+const SCRIPT_URL = "INCOLLA_QUI_IL_TUO_URL_DI_GOOGLE";
 let allData = [];
 let selectedDate = new Date().toLocaleDateString('it-IT');
 
-function setApiKey() {
-    const key = prompt("Incolla chiave Claude:", localStorage.getItem('ale_api_key') || "");
-    if(key) { localStorage.setItem('ale_api_key', key); alert("Chiave Salvata!"); }
+function saveKey() {
+    const k = prompt("Inserisci Chiave Claude (sk-ant...):", localStorage.getItem('claude_key') || "");
+    if(k) { localStorage.setItem('claude_key', k); alert("Chiave salvata nel telefono!"); }
 }
 
 async function loadData() {
     try {
         const response = await fetch(SCRIPT_URL);
         allData = await response.json();
-        renderTabs();
-        renderApp();
+        renderTabs(); renderApp();
         document.getElementById('loader').style.display = 'none';
-    } catch (e) { alert("Errore caricamento dati"); }
+    } catch (e) { document.getElementById('loader').innerHTML = "Errore dati"; }
 }
 
 function renderTabs() {
@@ -97,58 +72,49 @@ function renderTabs() {
 function renderApp() {
     const container = document.getElementById('app'); container.innerHTML = "";
     const dietaGiorno = allData.filter(r => r.Data === selectedDate);
-    
-    // Raggruppamento per Tipologia Pasto
     const groups = dietaGiorno.reduce((acc, item) => {
         if (!acc[item['Tipologia Pasto']]) acc[item['Tipologia Pasto']] = [];
-        acc[item['Tipologia Pasto']].push(item);
-        return acc;
+        acc[item['Tipologia Pasto']].push(item); return acc;
     }, {});
 
     let kcalConsumate = 0;
-
     for (const [mealName, items] of Object.entries(groups)) {
         const groupEl = document.createElement('div');
         groupEl.className = 'meal-group';
-        
-        let groupHtml = `<div class="group-header">
-            <span class="group-name">${mealName}</span>
-            <button class="btn-all" onclick="toggleMealGroup('${mealName}', true)">FATTO TUTTO</button>
-        </div>`;
-
+        let groupHtml = `<div class="group-header"><span style="color:var(--amber)">${mealName}</span> <button onclick="askAI('${mealName}')" style="background:none; border:1px solid var(--border); color:var(--green); font-size:10px; padding:3px 8px; border-radius:4px;">AI</button></div>`;
         items.forEach(item => {
             const isDone = item.Fatto === "TRUE" || item.Fatto === true;
-            if(isDone) kcalConsumate += parseInt(item.Calorie);
-            
-            groupHtml += `
-                <div class="ingredient-row ${isDone ? 'done' : ''}">
-                    <div class="check-mini ${isDone ? 'active' : ''}" onclick="toggleIngredient('${item.ID}', ${isDone})">✓</div>
-                    <div class="ing-name">${item.Alimento}</div>
-                    <div class="ing-kcal">${item.Calorie} kcal</div>
-                </div>`;
+            if(isDone) kcalConsumate += (parseInt(item.Calorie) || 0);
+            groupHtml += `<div class="ingredient-row ${isDone ? 'done' : ''}">
+                <div class="check-mini ${isDone ? 'active' : ''}" onclick="toggleIngredient('${item.ID}', ${isDone})">✓</div>
+                <div style="flex:1; font-size:14px">${item.Alimento}</div>
+                <div style="font-size:12px; color:var(--muted)">${item.Calorie} kcal</div>
+            </div>`;
         });
-
-        groupEl.innerHTML = groupHtml;
-        container.appendChild(groupEl);
+        groupEl.innerHTML = groupHtml; container.appendChild(groupEl);
     }
     document.getElementById('remKcal').textContent = 2000 - kcalConsumate;
 }
 
-async function toggleIngredient(id, currentStatus) {
-    const newStatus = !currentStatus;
-    const item = allData.find(i => i.ID == id);
-    item.Fatto = newStatus ? "TRUE" : "FALSE";
-    renderApp();
-    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: id.toString(), value: newStatus.toString().toUpperCase() }) });
+async function askAI(mealName) {
+    const key = localStorage.getItem('claude_key');
+    if(!key) return alert("Clicca ⚙️ e inserisci la chiave!");
+    const prompt = `Propone 4 alternative per ${mealName} low carb. Solo JSON: [{"alimento":"nome","calorie":100}]`;
+    
+    // USIAMO GOOGLE COME PROXY SICURO
+    const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'proxyClaude', prompt: prompt, key: key })
+    });
+    const resText = await response.text();
+    alert("Risposta IA: " + resText); // Qui poi gestiremo il popup con le scelte
 }
 
-async function toggleMealGroup(mealName, status) {
-    const items = allData.filter(r => r.Data === selectedDate && r['Tipologia Pasto'] === mealName);
-    for(let item of items) {
-        item.Fatto = "TRUE";
-        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: item.ID.toString(), value: "TRUE" }) });
-    }
+async function toggleIngredient(id, currentStatus) {
+    const newStatus = !currentStatus;
+    allData.find(i => i.ID == id).Fatto = newStatus ? "TRUE" : "FALSE";
     renderApp();
+    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: id, value: newStatus ? "TRUE" : "FALSE" }) });
 }
 
 window.onload = loadData;
