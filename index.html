@@ -3,58 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA IA TEST OPUS</title>
+    <title>TEST GEMINI GRATUITO</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
-        .btn { background: #007aff; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; color: #fff; margin-bottom: 10px; cursor: pointer; }
-        #debug { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; text-align: left; font-family: monospace; font-size: 11px; margin-top: 20px; white-space: pre-wrap; color: #00ff00; }
+        .btn { background: #1a73e8; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; color: #fff; margin-bottom: 10px; cursor: pointer; }
+        #debug { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; text-align: left; font-family: monospace; font-size: 11px; margin-top: 20px; white-space: pre-wrap; color: #00e5ff; }
     </style>
 </head>
 <body>
-    <h2>Test Canale Claude 3 OPUS</h2>
-    <button class="btn" style="background:#8e8e93" onclick="setKey()">1. IMPOSTA CHIAVE</button>
-    <button class="btn" onclick="runTest()">2. TESTA CONNESSIONE OPUS</button>
+    <h2>Test Canale Google Gemini (Gratis)</h2>
+    <p style="font-size:12px; color:#888; margin-bottom:20px;">Prendi la chiave gratis su: aistudio.google.com</p>
+    <button class="btn" style="background:#5f6368" onclick="setKey()">1. IMPOSTA CHIAVE GEMINI</button>
+    <button class="btn" onclick="runTest()">2. TESTA CONNESSIONE GEMINI</button>
 
     <div id="status" style="margin-top:20px; font-weight:bold;">Stato: In attesa</div>
     <div id="debug">Dettagli tecnici...</div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCVKC35f7X8SEti53Jb2UZwQmGGlKjhoaKy6hvPIqHiXVt5QcEB4svLdV6Kob4kZqCVg/exec";
+const SCRIPT_URL = "INCOLLA_IL_TUO_URL_DI_GOOGLE";
 
 function setKey() {
-    const k = prompt("Incolla chiave sk-ant...:");
-    if(k) localStorage.setItem('claude_key', k);
+    const k = prompt("Incolla la chiave API di Google Gemini:");
+    if(k) localStorage.setItem('gemini_key', k);
 }
 
 async function runTest() {
-    const key = localStorage.getItem('claude_key');
+    const key = localStorage.getItem('gemini_key');
     const status = document.getElementById('status');
     const debug = document.getElementById('debug');
-    
     if(!key) return alert("Inserisci la chiave!");
 
-    status.innerText = "Chiamando Claude 3 OPUS...";
+    status.innerText = "Chiamando Gemini...";
     status.style.color = "#ff9f0a";
 
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({
-                action: 'proxyClaude',
+                action: 'proxyAI',
                 key: key,
-                prompt: 'Rispondi con la frase "OPUS FUNZIONA"'
+                prompt: 'Rispondi solo con la frase "GEMINI FUNZIONA"'
             })
         });
 
         const rawData = await response.text();
-        debug.innerText = "RISPOSTA SERVER:\n" + rawData;
+        debug.innerText = "RISPOSTA GOOGLE:\n" + rawData;
         const data = JSON.parse(rawData);
         
-        if (data.content && data.content[0]) {
-            status.innerText = "IA FUNZIONANTE! Opus ha risposto.";
+        if (data.candidates && data.candidates[0].content) {
+            status.innerText = "SUCCESSO! Gemini ha risposto.";
             status.style.color = "#32d74b";
         } else {
-            status.innerText = "ERRORE: Leggi il Debug sotto.";
+            status.innerText = "ERRORE: Controlla il Debug.";
             status.style.color = "#ff453a";
         }
     } catch (e) {
