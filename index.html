@@ -1,131 +1,70 @@
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet v36</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST IA 100%</title>
     <style>
-        :root { --bg: #000; --card: #1c1c1e; --green: #32d74b; --amber: #ff9f0a; --text: #fff; --muted: #8e8e93; }
-        * { box-sizing: border-box; margin: 0; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .tab-bar { display: flex; overflow-x: auto; gap: 10px; padding: 0 20px 15px; }
-        .tab { padding: 8px 16px; background: var(--card); border-radius: 20px; font-size: 14px; white-space: nowrap; }
-        .tab.active { background: var(--green); color: #000; font-weight: bold; }
-        .meal-card { background: var(--card); margin: 15px; border-radius: 16px; border: 1px solid #2c2c2e; overflow: hidden; }
-        .row { padding: 15px; border-bottom: 1px solid #2c2c2e; display: flex; align-items: center; gap: 12px; }
-        .row.sub { padding-left: 35px; background: rgba(0,0,0,0.2); border-left: 2px solid #444; }
-        .check { width: 24px; height: 24px; border: 2px solid #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-        .check.active { background: var(--green); border-color: var(--green); color: #000; }
-        .info { flex: 1; }
-        .weight-input { width: 50px; background: #000; color: var(--amber); border: 1px solid #444; border-radius: 6px; text-align: center; font-weight: bold; padding: 4px; }
-        .sub-btn { background: #333; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; font-size: 10px; margin-top: 5px; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .popup { background: var(--card); border: 1px solid var(--green); border-radius: 20px; width: 100%; max-height: 80vh; padding: 20px; overflow-y: auto; }
-        .robot { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; border: none; }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 30px; }
+        input, button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 16px; }
+        button { background: #32d74b; color: #000; font-weight: bold; cursor: pointer; }
+        #log { background: #111; border: 1px solid #333; padding: 15px; text-align: left; font-family: monospace; font-size: 12px; overflow-x: auto; color: #0f0; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>Dieta Alessio</h2>
-        <div style="text-align:right"><span id="remKcal" style="color:var(--green); font-size:24px; font-weight:bold;">2000</span><div style="font-size:10px; color:var(--muted)">KCAL RIMASTE</div></div>
-    </div>
-    <div class="tab-bar" id="tabs"></div>
-    <div id="app"></div>
-    <div id="overlay" class="overlay" onclick="this.style.display='none'"><div class="popup" onclick="event.stopPropagation()"><h3 id="popTitle" style="margin-bottom:15px">Gemini sta cucinando...</h3><div id="options"></div></div></div>
-    <button class="robot" onclick="setKey()">🤖</button>
 
-<script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7cFdHruJ57qWlnKSe_pz7NunRlfbx8aPQ_Okk6aH5Ak2g1Ra0XUDMsJyaoaqNcIzvTQ/exec";
-let allData = [], selectedDate = "", activeItem = null;
+    <h2>Test Connessione IA</h2>
+    
+    <input type="text" id="apiKey" placeholder="Incolla chiave Gemini (AI Studio)">
+    <button onclick="testAI()">TESTA IA ORA</button>
 
-function setKey() { const k = prompt("Chiave Gemini (aistudio.google.com):"); if(k) localStorage.setItem('gem_key', k); }
+    <div id="status" style="margin: 20px; font-weight: bold;">Stato: In attesa</div>
+    <div id="log">I dettagli tecnici appariranno qui...</div>
 
-async function load() {
-    const r = await fetch(SCRIPT_URL);
-    allData = await r.json();
-    const dates = [...new Set(allData.map(x => x.Data))];
-    if(!selectedDate) selectedDate = dates[0];
-    render();
-}
+    <script>
+    // --- METTI IL TUO URL QUI ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7cFdHruJ57qWlnKSe_pz7NunRlfbx8aPQ_Okk6aH5Ak2g1Ra0XUDMsJyaoaqNcIzvTQ/exec";
 
-function render() {
-    document.getElementById('tabs').innerHTML = [...new Set(allData.map(x => x.Data))].map(d => `<div class="tab ${d===selectedDate?'active':''}" onclick="selectedDate='${d}';render()">${d}</div>`).join('');
-    const cont = document.getElementById('app'); cont.innerHTML = "";
-    const dayData = allData.filter(x => x.Data === selectedDate);
-    const groups = dayData.reduce((acc, x) => { const p = x.Pasto || x['Tipologia Pasto'] || 'Pasto'; if(!acc[p]) acc[p] = []; acc[p].push(x); return acc; }, {});
+    async function testAI() {
+        const key = document.getElementById('apiKey').value;
+        const status = document.getElementById('status');
+        const log = document.getElementById('log');
 
-    let consumate = 0;
-    for(const [pasto, items] of Object.entries(groups)) {
-        const card = document.createElement('div'); card.className = "meal-card";
-        let rows = items.map((item, idx) => {
-            const isSub = String(item.ID).includes('.');
-            const done = String(item.Fatto).toUpperCase() === "TRUE";
-            const kcal = Math.round(Number(item.Calorie) || 0);
-            if(done && (!isSub && (!items[idx+1] || !String(items[idx+1].ID).includes('.')))) consumate += kcal;
-            if(done && isSub) consumate += kcal;
+        if(!key) return alert("Inserisci la chiave Gemini!");
 
-            return `<div class="row ${isSub?'sub':''}">
-                <div class="check ${done?'active':''}" onclick="toggle('${item.ID}',${done})">✓</div>
-                <div class="info">
-                    <div style="color:${isSub?'var(--text)':'var(--amber)'}; font-weight:${isSub?'400':'600'}">${item.Alimento}</div>
-                    <div style="font-size:10px; color:var(--muted)">P:${item.Prot}g C:${item.Carb}g G:${item.Grassi}g</div>
-                    <button class="sub-btn" onclick="openAI('${item.ID}','${item.Alimento}',${kcal},${!isSub})">Sostituisci</button>
-                </div>
-                ${isSub?`<input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updWeight('${item.ID}',this.value,${item['Peso gr']},${item.Calorie})">`:''}
-                <div style="width:45px; text-align:right; font-weight:bold;">${kcal||''}</div>
-            </div>`;
-        }).join('');
-        card.innerHTML = `<div style="padding:15px; background:rgba(255,255,255,0.03); font-weight:bold; border-bottom:1px solid #2c2c2e">${pasto}</div>${rows}`;
-        cont.appendChild(card);
+        status.innerText = "Chiamata a Google Script...";
+        status.style.color = "orange";
+        log.innerText = "Avvio richiesta fetch...";
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'proxyAI',
+                    key: key,
+                    prompt: 'Rispondi solo con "FUNZIONA"'
+                })
+            });
+
+            log.innerText += "\nRisposta ricevuta dal server...";
+            const data = await response.json();
+            log.innerText += "\nJSON analizzato: " + JSON.stringify(data);
+
+            if (data.candidates && data.candidates[0].content) {
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                status.innerText = "SUCCESSO! L'IA HA RISPOSTO: " + aiResponse;
+                status.style.color = "#32d74b";
+            } else {
+                status.innerText = "ERRORE NELLA RISPOSTA IA";
+                status.style.color = "red";
+            }
+
+        } catch (e) {
+            status.innerText = "ERRORE CRITICO / CORS";
+            status.style.color = "red";
+            log.innerText += "\nERRORE: " + e.toString();
+        }
     }
-    document.getElementById('remKcal').innerText = 2000 - consumate;
-}
-
-async function openAI(id, food, kcal, isFather) {
-    const key = localStorage.getItem('gem_key'); if(!key) return alert("Manca Chiave Gemini!");
-    activeItem = { id, food, kcal, isFather };
-    document.getElementById('overlay').style.display = 'flex';
-    document.getElementById('options').innerHTML = "Attendere...";
-
-    const prompt = isFather 
-        ? `Sei un nutrizionista Keto. Sostituisci il piatto "${food}" (${kcal} kcal) con 3 alternative keto. Ogni alternativa deve avere 3 ingredienti. Rispondi SOLO JSON: [{"piatto": "Nome", "kcal": tot, "p": tot, "c": tot, "g": tot, "ingredients": [{"name": "ing1", "weight": 100, "kcal": 50, "p": 5, "c": 0, "g": 2}]}]`
-        : `Sostituisci "${food}" (${kcal} kcal) con 4 alternative keto. Rispondi SOLO JSON: [{"alimento": "nome", "calorie": numero}]`;
-
-    try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
-        const d = await r.json();
-        const text = d.candidates[0].content.parts[0].text;
-        const opts = JSON.parse(text.match(/\[.*\]/s)[0]);
-        document.getElementById('options').innerHTML = opts.map((o, i) => `<div style="background:#000; padding:12px; border-radius:10px; margin-bottom:10px; border:1px solid #333" onclick="applySub(${i})"><b>${o.piatto || o.alimento}</b><br><small>${o.kcal || o.calorie} kcal</small></div>`).join('');
-        window.lastOpts = opts;
-    } catch(e) { document.getElementById('options').innerHTML = "Errore. Riprova."; }
-}
-
-async function applySub(idx) {
-    const o = window.lastOpts[idx];
-    const payload = activeItem.isFather 
-        ? { action: 'bulkReplace', parentId: activeItem.id, newName: o.piatto, totalKcal: o.kcal, totalP: o.p, totalC: o.c, totalG: o.g, ingredients: o.ingredients }
-        : { action: 'replace', id: activeItem.id, newFood: o.alimento, newCalories: o.calorie };
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-    document.getElementById('overlay').style.display = 'none';
-    setTimeout(load, 1000);
-}
-
-function toggle(id, c) {
-    const ns = !c ? "TRUE" : "FALSE";
-    allData.find(i => i.ID == id).Fatto = ns; render();
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'toggleDone', id, value: ns }) });
-}
-
-function updWeight(id, nw, ow, ok) {
-    const nk = Math.round((ok/ow)*nw);
-    const item = allData.find(i => i.ID == id);
-    item['Peso gr'] = nw; item.Calorie = nk; render();
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateWeight', id, newWeight: nw, newKcal: nk }) });
-}
-
-window.onload = load;
-</script>
+    </script>
 </body>
 </html>
