@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA IA BLINDATO</title>
+    <title>SISTEMA IA RIPRISTINATO</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
-        .btn { background: #32d74b; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; color: #000; margin-bottom: 10px; }
-        #debug { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; text-align: left; font-family: monospace; font-size: 12px; margin-top: 20px; white-space: pre-wrap; color: #aaa; }
+        .btn { background: #32d74b; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; color: #000; margin-bottom: 10px; cursor: pointer; }
+        #debug { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; text-align: left; font-family: monospace; font-size: 11px; margin-top: 20px; white-space: pre-wrap; color: #00ff00; }
     </style>
 </head>
 <body>
-
-    <h2>Controllo Canale IA</h2>
+    <h2>Test Canale Claude 3.5</h2>
     <button class="btn" style="background:#8e8e93" onclick="setKey()">1. IMPOSTA CHIAVE</button>
     <button class="btn" onclick="runTest()">2. TESTA CONNESSIONE</button>
 
     <div id="status" style="margin-top:20px; font-weight:bold;">Stato: In attesa</div>
-    <div id="debug">I dettagli del server appariranno qui...</div>
+    <div id="debug">Dettagli tecnici...</div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwnT4DvqVj04f1YVbjBvR5w4m_XQ28eYeOZt-5aUPix90EN6dxM8a7cPKh4C8TOQK3DrA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxo7-jEhBMKCFO0S0YXEd5iMTrwA0Q3Ka6vuHH-1q5C6oAQv84r0v6yyh-0iCWYFaLtsQ/exec";
 
 function setKey() {
     const k = prompt("Incolla chiave sk-ant...:");
@@ -32,11 +31,10 @@ async function runTest() {
     const status = document.getElementById('status');
     const debug = document.getElementById('debug');
     
-    if(!key) return alert("Manca la chiave!");
+    if(!key) return alert("Inserisci la chiave!");
 
-    status.innerText = "Chiamata a Google in corso...";
+    status.innerText = "Chiamando Claude 3.5...";
     status.style.color = "#ff9f0a";
-    debug.innerText = "Avvio fetch...";
 
     try {
         const response = await fetch(SCRIPT_URL, {
@@ -44,29 +42,23 @@ async function runTest() {
             body: JSON.stringify({
                 action: 'proxyClaude',
                 key: key,
-                prompt: 'Rispondi solo con la parola "FUNZIONA"'
+                prompt: 'Rispondi solo con la parola "SISTEMA OPERATIVO"'
             })
         });
 
         const rawData = await response.text();
-        debug.innerText = "RISPOSTA GREZZA DAL SERVER:\n" + rawData;
-
+        debug.innerText = "RISPOSTA SERVER:\n" + rawData;
         const data = JSON.parse(rawData);
         
         if (data.content && data.content[0]) {
-            status.innerText = "SUCCESSO! L'IA RISPONDE.";
+            status.innerText = "IA FUNZIONANTE! Claude 3.5 ha risposto.";
             status.style.color = "#32d74b";
-        } else if (data.error) {
-            status.innerText = "ERRORE DAL SERVER GOOGLE";
-            status.style.color = "#ff453a";
         } else {
-            status.innerText = "ERRORE NELLA RISPOSTA IA";
+            status.innerText = "ERRORE: Controlla il Debug sotto.";
             status.style.color = "#ff453a";
         }
-
     } catch (e) {
-        status.innerText = "ERRORE DI RETE / CORS";
-        status.style.color = "#ff453a";
+        status.innerText = "ERRORE DI RETE";
         debug.innerText = e.toString();
     }
 }
