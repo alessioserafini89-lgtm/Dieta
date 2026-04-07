@@ -3,47 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEST IA FINALE</title>
+    <title>SCANNER MODELLI GEMINI</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 30px; }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
         input, button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 16px; }
-        button { background: #32d74b; color: #000; font-weight: bold; cursor: pointer; }
-        #log { background: #111; border: 1px solid #333; padding: 15px; text-align: left; font-family: monospace; font-size: 11px; color: #0f0; white-space: pre-wrap; }
+        button { background: #ff9f0a; color: #000; font-weight: bold; cursor: pointer; }
+        #log { background: #111; border: 1px solid #333; padding: 15px; text-align: left; font-family: monospace; font-size: 12px; color: #32d74b; white-space: pre-wrap; height: 300px; overflow-y: auto; }
     </style>
 </head>
 <body>
-    <h2>Test Gemini Flash</h2>
-    <input type="text" id="apiKey" placeholder="Incolla chiave AIza...">
-    <button onclick="testAI()">AVVIA TEST</button>
+    <h2>Scanner Modelli Autorizzati</h2>
+    <input type="text" id="apiKey" placeholder="Incolla la tua chiave AIza...">
+    <button onclick="scanModels()">TROVA I MODELLI</button>
     <div id="status" style="margin:20px; font-weight:bold;">In attesa...</div>
-    <div id="log">Risultato tecnico...</div>
+    <div id="log">I risultati appariranno qui...</div>
 
     <script>
+    // INCOLLA IL TUO URL GOOGLE SCRIPT QUI SOTTO
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxEzXCd4a8_5uzvhGGvyrWVlsBb0W7rHVOZQOYzSMoKEQU2t4o0DEVPTX3TsQMvWsZ5Q/exec";
 
-    async function testAI() {
+    async function scanModels() {
         const key = document.getElementById('apiKey').value;
         const status = document.getElementById('status');
         const log = document.getElementById('log');
 
-        status.innerText = "Chiamata in corso...";
-        log.innerText = "Richiesta inviata...";
+        if(!key) return alert("Inserisci la chiave!");
+
+        status.innerText = "Scansione account in corso...";
+        status.style.color = "orange";
+        log.innerText = "Attendi...";
 
         try {
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'proxyAI', key: key, prompt: 'Rispondi solo con: FUNZIONA' })
+                body: JSON.stringify({ action: 'scanModels', key: key })
             });
-
             const data = await response.json();
-            log.innerText = JSON.stringify(data, null, 2);
-
-            if (data.candidates && data.candidates[0].content) {
-                status.innerText = "CONVERSAZIONE ATTIVA! L'IA RISPONDE.";
+            
+            if (data.models) {
+                status.innerText = "SCANSIONE COMPLETATA!";
                 status.style.color = "#32d74b";
+                
+                // Filtra solo i modelli che supportano la generazione di testo
+                const validModels = data.models.filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"));
+                
+                let report = "I MODELLI CHE PUOI USARE SONO:\n\n";
+                validModels.forEach(m => {
+                    report += `✅ ${m.name}\n`;
+                });
+                log.innerText = report + "\n\n(JSON Grezzo):\n" + JSON.stringify(data, null, 2);
             } else {
-                status.innerText = "ERRORE: Controlla il log sotto.";
+                status.innerText = "NESSUN MODELLO TROVATO / ERRORE";
                 status.style.color = "red";
+                log.innerText = JSON.stringify(data, null, 2);
             }
         } catch (e) {
             status.innerText = "ERRORE DI RETE";
