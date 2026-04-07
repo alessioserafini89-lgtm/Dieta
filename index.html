@@ -44,7 +44,7 @@
 <button class="robot" onclick="setKey()">🤖</button>
 
 <script>
-const SCRIPT_URL = "URL_DELLO_SCRIPT";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYWSbyEhuW8ETLdMWcKIoKfumpFmqb6i7xy5z20MHzXt4FyjgD2-_5IQvqfckpao3cyw/exec";
 let allData = [], selectedDate = "", activeId = null;
 
 function setKey() { const k = prompt("Chiave Claude:", localStorage.getItem('claude_key') || ""); if(k) localStorage.setItem('claude_key', k); }
