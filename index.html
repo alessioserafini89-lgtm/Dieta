@@ -604,6 +604,17 @@ function calcKcal(item, qty) {
   if (item.kcalPer100 === null) return item.kcal;
   return Math.round(item.kcalPer100 * qty / 100);
 }
+  async function caricaPastiDaSheet() {
+  const url = "URL_DELLA_TUA_WEB_APP_DI_PRIMA";
+  const response = await fetch(url);
+  const pastiDalFoglio = await response.json();
+  
+  // Qui il codice prenderà i dati e genererà i blocchi che ora vedi "fissi"
+  console.log("Pasti caricati:", pastiDalFoglio);
+  renderizzaPasti(pastiDalFoglio); 
+}
+
+window.onload = caricaPastiDaSheet;
 
 function buildDays() {
   const main = document.getElementById('mainContent');
