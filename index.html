@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA IA RIPRISTINATO</title>
+    <title>SISTEMA IA TEST OPUS</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
-        .btn { background: #32d74b; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; color: #000; margin-bottom: 10px; cursor: pointer; }
+        .btn { background: #007aff; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; color: #fff; margin-bottom: 10px; cursor: pointer; }
         #debug { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; text-align: left; font-family: monospace; font-size: 11px; margin-top: 20px; white-space: pre-wrap; color: #00ff00; }
     </style>
 </head>
 <body>
-    <h2>Test Canale Claude 3.5</h2>
+    <h2>Test Canale Claude 3 OPUS</h2>
     <button class="btn" style="background:#8e8e93" onclick="setKey()">1. IMPOSTA CHIAVE</button>
-    <button class="btn" onclick="runTest()">2. TESTA CONNESSIONE</button>
+    <button class="btn" onclick="runTest()">2. TESTA CONNESSIONE OPUS</button>
 
     <div id="status" style="margin-top:20px; font-weight:bold;">Stato: In attesa</div>
     <div id="debug">Dettagli tecnici...</div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxo7-jEhBMKCFO0S0YXEd5iMTrwA0Q3Ka6vuHH-1q5C6oAQv84r0v6yyh-0iCWYFaLtsQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCVKC35f7X8SEti53Jb2UZwQmGGlKjhoaKy6hvPIqHiXVt5QcEB4svLdV6Kob4kZqCVg/exec";
 
 function setKey() {
     const k = prompt("Incolla chiave sk-ant...:");
@@ -33,7 +33,7 @@ async function runTest() {
     
     if(!key) return alert("Inserisci la chiave!");
 
-    status.innerText = "Chiamando Claude 3.5...";
+    status.innerText = "Chiamando Claude 3 OPUS...";
     status.style.color = "#ff9f0a";
 
     try {
@@ -42,7 +42,7 @@ async function runTest() {
             body: JSON.stringify({
                 action: 'proxyClaude',
                 key: key,
-                prompt: 'Rispondi solo con la parola "SISTEMA OPERATIVO"'
+                prompt: 'Rispondi con la frase "OPUS FUNZIONA"'
             })
         });
 
@@ -51,10 +51,10 @@ async function runTest() {
         const data = JSON.parse(rawData);
         
         if (data.content && data.content[0]) {
-            status.innerText = "IA FUNZIONANTE! Claude 3.5 ha risposto.";
+            status.innerText = "IA FUNZIONANTE! Opus ha risposto.";
             status.style.color = "#32d74b";
         } else {
-            status.innerText = "ERRORE: Controlla il Debug sotto.";
+            status.innerText = "ERRORE: Leggi il Debug sotto.";
             status.style.color = "#ff453a";
         }
     } catch (e) {
