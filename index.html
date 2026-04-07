@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEST IA 100%</title>
+    <title>TEST DEFINITIVO GEMINI</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 30px; }
         input, button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 16px; }
-        button { background: #32d74b; color: #000; font-weight: bold; cursor: pointer; }
-        #log { background: #111; border: 1px solid #333; padding: 15px; text-align: left; font-family: monospace; font-size: 12px; overflow-x: auto; color: #0f0; }
+        button { background: #1a73e8; color: #fff; font-weight: bold; cursor: pointer; }
+        #log { background: #111; border: 1px solid #333; padding: 15px; text-align: left; font-family: monospace; font-size: 12px; color: #00e5ff; white-space: pre-wrap; }
     </style>
 </head>
 <body>
-
-    <h2>Test Connessione IA</h2>
-    
-    <input type="text" id="apiKey" placeholder="Incolla chiave Gemini (AI Studio)">
-    <button onclick="testAI()">TESTA IA ORA</button>
-
+    <h2>Test Gemini v1</h2>
+    <input type="text" id="apiKey" placeholder="Incolla chiave AIza...">
+    <button onclick="testAI()">TESTA CONNESSIONE</button>
     <div id="status" style="margin: 20px; font-weight: bold;">Stato: In attesa</div>
-    <div id="log">I dettagli tecnici appariranno qui...</div>
+    <div id="log">Risposta del server...</div>
 
     <script>
-    // --- METTI IL TUO URL QUI ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7cFdHruJ57qWlnKSe_pz7NunRlfbx8aPQ_Okk6aH5Ak2g1Ra0XUDMsJyaoaqNcIzvTQ/exec";
 
     async function testAI() {
@@ -30,11 +26,10 @@
         const status = document.getElementById('status');
         const log = document.getElementById('log');
 
-        if(!key) return alert("Inserisci la chiave Gemini!");
+        if(!key) return alert("Manca la chiave!");
 
-        status.innerText = "Chiamata a Google Script...";
-        status.style.color = "orange";
-        log.innerText = "Avvio richiesta fetch...";
+        status.innerText = "Chiamata in corso...";
+        log.innerText = "Avvio...";
 
         try {
             const response = await fetch(SCRIPT_URL, {
@@ -42,27 +37,23 @@
                 body: JSON.stringify({
                     action: 'proxyAI',
                     key: key,
-                    prompt: 'Rispondi solo con "FUNZIONA"'
+                    prompt: 'Rispondi con la parola: FUNZIONA'
                 })
             });
 
-            log.innerText += "\nRisposta ricevuta dal server...";
             const data = await response.json();
-            log.innerText += "\nJSON analizzato: " + JSON.stringify(data);
+            log.innerText = JSON.stringify(data, null, 2);
 
             if (data.candidates && data.candidates[0].content) {
-                const aiResponse = data.candidates[0].content.parts[0].text;
-                status.innerText = "SUCCESSO! L'IA HA RISPOSTO: " + aiResponse;
+                status.innerText = "SUCCESS! L'IA RISPONDE.";
                 status.style.color = "#32d74b";
             } else {
-                status.innerText = "ERRORE NELLA RISPOSTA IA";
+                status.innerText = "ERRORE NEI DATI";
                 status.style.color = "red";
             }
-
         } catch (e) {
-            status.innerText = "ERRORE CRITICO / CORS";
-            status.style.color = "red";
-            log.innerText += "\nERRORE: " + e.toString();
+            status.innerText = "ERRORE DI RETE";
+            log.innerText = e.toString();
         }
     }
     </script>
