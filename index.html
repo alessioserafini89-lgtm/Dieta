@@ -3,35 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI TEST MINIMO</title>
+    <title>SISTEMA IA BLINDATO</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 50px 20px; }
-        button { background: #32d74b; border: none; padding: 20px; border-radius: 10px; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer; margin: 10px 0; }
-        #status { margin: 20px; color: #888; font-size: 14px; border: 1px solid #333; padding: 20px; min-height: 50px; word-break: break-all; }
+        body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
+        .btn { background: #32d74b; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; color: #000; margin-bottom: 10px; }
+        #debug { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; text-align: left; font-family: monospace; font-size: 12px; margin-top: 20px; white-space: pre-wrap; color: #aaa; }
     </style>
 </head>
 <body>
 
-    <h2>Test IA Diretto</h2>
-    <button onclick="setKey()">1. IMPOSTA CHIAVE</button><br>
-    <button onclick="runTest()">2. TESTA IA (Uova e Bacon)</button>
+    <h2>Controllo Canale IA</h2>
+    <button class="btn" style="background:#8e8e93" onclick="setKey()">1. IMPOSTA CHIAVE</button>
+    <button class="btn" onclick="runTest()">2. TESTA CONNESSIONE</button>
 
-    <div id="status">In attesa...</div>
+    <div id="status" style="margin-top:20px; font-weight:bold;">Stato: In attesa</div>
+    <div id="debug">I dettagli del server appariranno qui...</div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPQ3NW9ceSIHovrOTJXtyI_HSKkKdfslOa8YmElYd5VSjJ2vIo2S8wbFk05WQ5Yghu/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwnT4DvqVj04f1YVbjBvR5w4m_XQ28eYeOZt-5aUPix90EN6dxM8a7cPKh4C8TOQK3DrA/exec";
 
 function setKey() {
-    const k = prompt("Incolla la tua chiave API Claude (sk-ant...):");
-    if(k) { localStorage.setItem('test_key', k); alert("Chiave salvata!"); }
+    const k = prompt("Incolla chiave sk-ant...:");
+    if(k) localStorage.setItem('claude_key', k);
 }
 
 async function runTest() {
-    const key = localStorage.getItem('test_key');
+    const key = localStorage.getItem('claude_key');
     const status = document.getElementById('status');
-    if(!key) return alert("Imposta prima la chiave!");
+    const debug = document.getElementById('debug');
+    
+    if(!key) return alert("Manca la chiave!");
 
-    status.innerText = "Chiamata in corso...";
+    status.innerText = "Chiamata a Google in corso...";
+    status.style.color = "#ff9f0a";
+    debug.innerText = "Avvio fetch...";
 
     try {
         const response = await fetch(SCRIPT_URL, {
@@ -39,19 +44,30 @@ async function runTest() {
             body: JSON.stringify({
                 action: 'proxyClaude',
                 key: key,
-                prompt: 'Sostituisci "Uova e Bacon" con 3 alternative keto. Rispondi solo in JSON: [{"a": "nome", "k": 400}]'
+                prompt: 'Rispondi solo con la parola "FUNZIONA"'
             })
         });
 
-        const data = await response.json();
-        // Claude restituisce un oggetto 'content'
-        const text = data.content[0].text;
-        status.innerText = "RISPOSTA IA: " + text;
-        status.style.color = "#32d74b";
+        const rawData = await response.text();
+        debug.innerText = "RISPOSTA GREZZA DAL SERVER:\n" + rawData;
+
+        const data = JSON.parse(rawData);
+        
+        if (data.content && data.content[0]) {
+            status.innerText = "SUCCESSO! L'IA RISPONDE.";
+            status.style.color = "#32d74b";
+        } else if (data.error) {
+            status.innerText = "ERRORE DAL SERVER GOOGLE";
+            status.style.color = "#ff453a";
+        } else {
+            status.innerText = "ERRORE NELLA RISPOSTA IA";
+            status.style.color = "#ff453a";
+        }
 
     } catch (e) {
-        status.innerText = "ERRORE: " + e.message;
+        status.innerText = "ERRORE DI RETE / CORS";
         status.style.color = "#ff453a";
+        debug.innerText = e.toString();
     }
 }
 </script>
