@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet Premium</title>
+    <title>Alessio Diet Premium + Voice & Categories</title>
     <style>
         /* TEMA PREMIUM MODERNO */
         :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
@@ -38,7 +38,6 @@
         .info { flex: 1; }
         .name { font-size: 16px; font-weight: 500; display: flex; align-items: center; }
         .name.father { font-weight: 700; font-size: 17px; }
-        /* Il bullet point per gli ingredienti figli */
         .row.sub .name::before { content: '•'; color: var(--amber); font-weight: bold; font-size: 20px; margin-right: 8px; }
 
         .macros { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500; }
@@ -48,12 +47,22 @@
 
         .btn-sub { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
 
-        /* Popup */
+        /* Popup & Categorie */
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .popup { background: var(--card); border-radius: 24px; width: 100%; max-width: 400px; max-height: 85vh; padding: 25px; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .custom-input { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .cat-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .cat-btn:active { transform: scale(0.96); }
+
+        .custom-input { display: flex; gap: 8px; margin-bottom: 20px; }
+        .mic-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; width: 45px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s; }
+        .mic-btn.recording { background: #ff3b30; color: white; border-color: #ff3b30; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
         .custom-input input { flex: 1; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; }
-        .custom-input button { padding: 0 20px; border-radius: 12px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer;}
+        .custom-input button.create-btn { padding: 0 15px; border-radius: 12px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer;}
+        
         .opt-card { background: var(--bg); padding: 15px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .opt-card:active { transform: scale(0.98); }
 
@@ -72,8 +81,9 @@
     <button class="robot" onclick="setKey()">🔑</button>
 
 <script>
+// --- METTI IL TUO URL QUI ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxEzXCd4a8_5uzvhGGvyrWVlsBb0W7rHVOZQOYzSMoKEQU2t4o0DEVPTX3TsQMvWsZ5Q/exec";
-let allData = [], selectedDate = "", activeId = null, currentKcal = 0, aiOptions = [], selectedRecipe = null;
+let allData = [], selectedDate = "", activeId = null, currentFood = "", currentKcal = 0, aiOptions = [], selectedRecipe = null;
 
 function setKey() { const k = prompt("Incolla Chiave Gemini:"); if(k) localStorage.setItem('gem_key', k); }
 
@@ -95,7 +105,6 @@ function render() {
 
     let consumate = 0;
 
-    // Calcolo Calorie Sicuro (Padre se spuntato, altrimenti Figli se spuntati)
     dayData.forEach(item => {
         const isSub = String(item.ID).includes('.');
         const done = String(item.Fatto).toUpperCase() === "TRUE";
@@ -106,10 +115,8 @@ function render() {
                 const fatherId = String(item.ID).split('.')[0];
                 const father = dayData.find(x => String(x.ID) === fatherId);
                 const fatherDone = father ? String(father.Fatto).toUpperCase() === "TRUE" : false;
-                // Se il padre NON è spuntato, contiamo il figlio
                 if (!fatherDone) consumate += kcal;
             } else {
-                // Se è un padre (o riga singola), lo contiamo sempre
                 consumate += kcal;
             }
         }
@@ -124,8 +131,6 @@ function render() {
             const isSub = String(item.ID).includes('.');
             const done = String(item.Fatto).toUpperCase() === "TRUE";
             const kcal = Math.round(Number(item.Calorie) || 0);
-            
-            // Pulisce vecchi "-> " se presenti nel foglio
             const cleanName = item.Alimento.replace(/^->\s*/, '');
 
             card.innerHTML += `
@@ -134,7 +139,7 @@ function render() {
                     <div class="info">
                         <div class="name ${!isSub?'father':''}">${cleanName}</div>
                         <div class="macros">PROT ${item.Prot}g • CARB ${item.Carb}g • GRAS ${item.Grassi}g</div>
-                        ${!isSub ? `<button class="btn-sub" onclick="openAI('${item.ID}','${cleanName}',${kcal})">✨ Modifica Piatto</button>` : ''}
+                        ${!isSub ? `<button class="btn-sub" onclick="openMenu('${item.ID}','${cleanName.replace(/'/g, "\\'")}',${kcal})">✨ Modifica Piatto</button>` : ''}
                     </div>
                     ${isSub ? `<input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updWeight('${item.ID}',this.value,${item['Peso gr']},${item.Calorie})">` : ''}
                     <div class="kcal-val">${kcal>0?kcal:''}</div>
@@ -146,9 +151,10 @@ function render() {
     document.getElementById('remKcal').innerText = 2000 - consumate;
 }
 
-async function openAI(id, food, kcal) {
+// NUOVO STEP 1: Apre il Menu senza chiamare l'IA
+function openMenu(id, food, kcal) {
     const key = localStorage.getItem('gem_key'); if(!key) return alert("Inserisci chiave Gemini (pulsante in basso).");
-    activeId = id; currentKcal = kcal;
+    activeId = id; currentFood = food; currentKcal = kcal;
     const popup = document.getElementById('popupContent');
     document.getElementById('overlay').style.display='flex';
     
@@ -157,48 +163,93 @@ async function openAI(id, food, kcal) {
             <h3 style="font-size:20px;">Sostituisci</h3>
             <button onclick="document.getElementById('overlay').style.display='none'" style="background:none; border:none; font-size:24px; color:var(--muted); cursor:pointer;">&times;</button>
         </div>
-        <p style="font-size:13px; color:var(--muted); margin-bottom:15px;">Scrivi una ricetta personalizzata o scegli tra le proposte.</p>
-        <div class="custom-input">
-            <input type="text" id="customIdea" placeholder="Es. Pollo al forno con patate">
-            <button onclick="generateCustom()">Crea</button>
-        </div>
-        <div id="aiList" style="font-size:14px; font-weight:500;">Generazione alternative (~${kcal} kcal)...</div>
-    `;
-
-    const prompt = `Sei un nutrizionista. Crea 4 piatti keto o sani per sostituire "${food}" (totale: circa ${kcal} kcal per piatto). Rispondi SOLO con un array JSON senza formattazione (no markdown): [{"alimento": "Nome", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente1", "peso": 150, "calorie": 300, "prot": 20, "carb": 2, "grassi": 20}]}]`;
-    
-    try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
-        const d = await r.json();
-        const text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
-        aiOptions = JSON.parse(text);
         
-        document.getElementById('aiList').innerHTML = aiOptions.map((o, idx) => `
-            <div class="opt-card" onclick="reviewRecipe(${idx})">
-                <b style="font-size:16px;">${o.alimento}</b><br>
-                <div style="color:var(--green); font-weight:700; margin-top:5px; font-size:13px;">${o.calorie} kcal <span style="color:var(--muted); font-weight:500;">| P:${o.prot}g C:${o.carb}g G:${o.grassi}g</span></div>
-            </div>
-        `).join('');
-    } catch(e) { document.getElementById('aiList').innerHTML = "<span style='color:red'>Errore connessione. Riprova.</span>"; }
+        <p style="font-size:13px; color:var(--muted); margin-bottom:10px;">Scegli una categoria per generare alternative:</p>
+        
+        <div class="category-grid">
+            <button class="cat-btn" onclick="generateCategory('Pesce')">🐟 Pesce</button>
+            <button class="cat-btn" onclick="generateCategory('Carne')">🥩 Carne</button>
+            <button class="cat-btn" onclick="generateCategory('Formaggi')">🧀 Formaggi</button>
+            <button class="cat-btn" onclick="generateCategory('Uova')">🍳 Uova</button>
+            <button class="cat-btn" onclick="generateCategory('Vegano/Vegetariano')" style="grid-column: span 2; justify-content:center;">🥗 Vegetariano / Vegano</button>
+        </div>
+
+        <p style="font-size:13px; color:var(--muted); margin-bottom:10px; margin-top:20px;">Oppure dettalo a voce / scrivilo:</p>
+        <div class="custom-input">
+            <button id="micBtn" class="mic-btn" onclick="startDictation()">🎤</button>
+            <input type="text" id="customIdea" placeholder="Es. Tonno e fagioli">
+            <button class="create-btn" onclick="generateCustom()">Crea</button>
+        </div>
+        
+        <div id="aiList" style="margin-top:15px;"></div>
+    `;
 }
 
+// STEP 2: Generazione guidata tramite categoria
+async function generateCategory(category) {
+    const key = localStorage.getItem('gem_key');
+    document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Cerco alternative a base di ${category}... ⏳</div>`;
+    
+    const prompt = `Sei un nutrizionista. Crea 4 piatti keto o sani a base di ${category} per sostituire "${currentFood}" (totale: circa ${currentKcal} kcal per piatto, completi di eventuali contorni). Rispondi SOLO con un array JSON senza formattazione (no markdown): [{"alimento": "Nome", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente1", "peso": 150, "calorie": 300, "prot": 20, "carb": 2, "grassi": 20}]}]`;
+    
+    fetchAI(key, prompt, true);
+}
+
+// STEP 2 B: Generazione libera (Testo / Voce)
 async function generateCustom() {
     const customText = document.getElementById('customIdea').value;
     if(!customText) return;
     const key = localStorage.getItem('gem_key');
-    document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:20px;">Calcolo grammi e macro per <b>${customText}</b>... ⏳</div>`;
+    document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Calcolo grammi e macro per <b>${customText}</b>... ⏳</div>`;
     
     const prompt = `Voglio mangiare "${customText}". Crea la ricetta bilanciata per un totale esatto di circa ${currentKcal} kcal. Rispondi SOLO JSON (no array, no markdown): {"alimento": "${customText}", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}`;
 
+    fetchAI(key, prompt, false);
+}
+
+// Funzione unificata per chiamare Gemini
+async function fetchAI(key, prompt, isArray) {
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
         const d = await r.json();
         const text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
-        aiOptions = [JSON.parse(text)]; 
-        reviewRecipe(0); 
-    } catch(e) { document.getElementById('aiList').innerHTML = "<span style='color:red'>Errore calcolo. Sii più specifico.</span>"; }
+        
+        if (isArray) {
+            aiOptions = JSON.parse(text);
+            document.getElementById('aiList').innerHTML = aiOptions.map((o, idx) => `
+                <div class="opt-card" onclick="reviewRecipe(${idx})">
+                    <b style="font-size:16px;">${o.alimento}</b><br>
+                    <div style="color:var(--green); font-weight:700; margin-top:5px; font-size:13px;">${o.calorie} kcal <span style="color:var(--muted); font-weight:500;">| P:${o.prot}g C:${o.carb}g G:${o.grassi}g</span></div>
+                </div>
+            `).join('');
+        } else {
+            aiOptions = [JSON.parse(text)]; 
+            reviewRecipe(0); 
+        }
+    } catch(e) { document.getElementById('aiList').innerHTML = "<span style='color:red'>Errore IA. Riprova con termini diversi.</span>"; }
 }
 
+// LOGICA MICROFONO
+function startDictation() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert("Il tuo browser non supporta la dettatura vocale. Usa Safari o Chrome."); return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'it-IT'; recognition.interimResults = false; recognition.maxAlternatives = 1;
+    const micBtn = document.getElementById('micBtn');
+    micBtn.classList.add('recording');
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        document.getElementById('customIdea').value = event.results[0][0].transcript;
+        micBtn.classList.remove('recording');
+    };
+    recognition.onspeechend = function() { recognition.stop(); micBtn.classList.remove('recording'); };
+    recognition.onerror = function(event) { console.error("Errore mic:", event.error); micBtn.classList.remove('recording'); };
+}
+
+// STEP 3: REVISIONE RICETTA
 function reviewRecipe(idx) {
     selectedRecipe = aiOptions[idx];
     const popup = document.getElementById('popupContent');
@@ -214,7 +265,7 @@ function reviewRecipe(idx) {
         </div>
         
         <div style="display:flex; gap:10px;">
-            <button onclick="document.getElementById('overlay').style.display='none'" style="flex:1; padding:15px; border-radius:12px; background:var(--bg); color:var(--text); border:1px solid var(--border); cursor:pointer; font-weight:bold;">Annulla</button>
+            <button onclick="openMenu(activeId, currentFood, currentKcal)" style="flex:1; padding:15px; border-radius:12px; background:var(--bg); color:var(--text); border:1px solid var(--border); cursor:pointer; font-weight:bold;">Indietro</button>
             <button onclick="applyRecipe()" style="flex:1; padding:15px; border-radius:12px; background:var(--text); color:var(--bg); font-weight:bold; border:none; cursor:pointer;">Conferma Ricetta</button>
         </div>
     `;
