@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet v25 - Fix IA</title>
+    <title>Alessio Diet v27</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #1a1a18; --surface: #222220; --card: #2a2a26; --border: #383832; --green: #7ab648; --green-dim: #1e2d12; --amber: #e8962a; --text: #f0ede6; --muted: #888878; }
@@ -20,14 +20,12 @@
         .group-header { background: rgba(255,255,255,0.03); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .btn-fatto-all { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
         .ingredient-row { display: flex; flex-direction: column; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .ing-top { display: flex; align-items: center; gap: 10px; width: 100%; }
-        .ing-bottom { display: flex; padding-left: 34px; gap: 10px; margin-top: 5px; }
-        .is-sub { background: rgba(0,0,0,0.1); border-left: 3px solid var(--border); }
+        .is-sub { background: rgba(0,0,0,0.1); padding-left: 25px; border-left: 3px solid var(--border); }
         .is-parent { background: rgba(122, 182, 72, 0.05); }
         .ingredient-row.done { opacity: 0.4; }
         .check-mini { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: transparent; }
         .check-mini.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
-        .weight-input { background: #1a1a18; border: 1px solid var(--border); color: var(--amber); width: 55px; padding: 4px; border-radius: 6px; text-align: center; font-size: 13px; font-weight: bold; -webkit-appearance: none; }
+        .weight-input { background: #1a1a18; border: 1px solid var(--border); color: var(--amber); width: 55px; padding: 4px; border-radius: 6px; text-align: center; font-size: 13px; font-weight: bold; appearance: textfield; -webkit-appearance: none; }
         .macro-tag { font-size: 10px; color: var(--muted); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; }
         .macro-tag b { color: var(--text); }
         .sub-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; margin-top: 5px; width: fit-content; }
@@ -51,7 +49,7 @@
 
 <div id="subOverlay" class="overlay" onclick="this.style.display='none'">
     <div class="popup" onclick="event.stopPropagation()">
-        <h3 style="margin-bottom:15px; font-family:'Playfair Display'">Sostituisci Alimento</h3>
+        <h3 style="margin-bottom:15px; font-family:'Playfair Display'">Alternative IA</h3>
         <div id="optionsContainer"></div>
     </div>
 </div>
@@ -59,14 +57,14 @@
 <button class="ai-fab" onclick="setApiKey()">🤖</button>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGCutJ2CvacQTxCH0ZRH3d4pftYQF-XU_2fnT-527RuLVbvv9FjSUaXQGOfMv_AQyCqA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYWSbyEhuW8ETLdMWcKIoKfumpFmqb6i7xy5z20MHzXt4FyjgD2-_5IQvqfckpao3cyw/exec";
 let allData = [];
 let selectedDate = "";
 let currentSubId = null;
 
 function setApiKey() {
-    const key = prompt("Configura Chiave API (sk-ant...):", localStorage.getItem('ale_api_key') || "");
-    if (key) { localStorage.setItem('ale_api_key', key); alert("Chiave Salvata!"); }
+    const key = prompt("Configura Chiave API Claude:", localStorage.getItem('ale_api_key') || "");
+    if (key) { localStorage.setItem('ale_api_key', key); alert("Chiave salvata!"); }
 }
 
 async function loadData() {
@@ -107,25 +105,29 @@ function renderApp() {
         
         let html = `<div class="group-header"><span style="color:var(--amber); font-family:'Playfair Display'; font-size:1.1rem">${mealName}</span><button class="btn-fatto-all" onclick="toggleGroup('${mealName}', ${isAllDone})">${isAllDone ? 'Disfai' : 'Fatto'}</button></div>`;
         
-        items.forEach(item => {
-            const isSub = String(item.Alimento).startsWith('->') || String(item.ID).includes('.');
+        items.forEach((item, index) => {
+            const isSub = String(item.ID).includes('.');
             const isDone = String(item.Fatto).toUpperCase() === "TRUE";
             const kcal = Math.round(parseFloat(item.Calorie) || 0);
-            const p = item['Prot'] || 0, c = item['Carb'] || 0, g = item['Grassi'] || 0;
-            if(isDone) kcalConsumate += kcal;
+            
+            // Calcolo corretto: se è un padre e ha figli, non sommiamo il suo valore
+            let isFatherWithSubs = !isSub && items[index+1] && String(items[index+1].ID).includes('.');
+            if(isDone && !isFatherWithSubs) kcalConsumate += kcal;
 
             html += `<div class="ingredient-row ${isSub ? 'is-sub' : 'is-parent'} ${isDone ? 'done' : ''}">
                 <div class="ing-top">
                     <div class="check-mini ${isDone ? 'active' : ''}" onclick="toggleIngredient('${item.ID}', ${isDone})">✓</div>
                     <div style="flex:1;">
                         <div style="font-size:14px; color: ${isSub ? 'var(--text)' : 'var(--amber)'}">${item.Alimento}</div>
-                        ${!isSub ? `<div style="font-size:10px; color:var(--green)">Totale: ${kcal} kcal | P: ${p}g C: ${c}g G: ${g}g</div>` : ''}
+                        ${!isSub ? `<div style="font-size:10px; color:var(--green)">${kcal} kcal | P:${item.Prot}g C:${item.Carb}g G:${item.Grassi}g</div>` : ''}
                         ${isSub ? `<button class="sub-btn" onclick="openSubPopup('${item.ID}', '${item.Alimento}', ${kcal})">Sostituisci</button>` : ''}
                     </div>
                     ${isSub ? `<input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updateWeight('${item.ID}', this.value, ${item['Peso gr']}, ${item.Calorie})">` : ''}
                     <div style="font-size:12px; font-weight:700; width:55px; text-align:right">${isSub ? kcal : ''}</div>
                 </div>
-                ${isSub ? `<div class="ing-bottom"><span class="macro-tag">P: <b>${p}g</b></span><span class="macro-tag">C: <b>${c}g</b></span><span class="macro-tag">G: <b>${g}g</b></span></div>` : ''}
+                ${isSub ? `<div style="display:flex; padding-left:34px; gap:8px; margin-top:4px;">
+                    <span class="macro-tag">P:<b>${item.Prot}g</b></span><span class="macro-tag">C:<b>${item.Carb}g</b></span><span class="macro-tag">G:<b>${item.Grassi}g</b></span>
+                </div>` : ''}
             </div>`;
         });
         groupEl.innerHTML = html; container.appendChild(groupEl);
@@ -135,23 +137,22 @@ function renderApp() {
 
 async function openSubPopup(id, food, kcal) {
     const key = localStorage.getItem('ale_api_key');
-    if(!key) return alert("Clicca sul Robot 🤖!");
+    if(!key) return alert("Clicca sul Robot 🤖 in basso!");
     currentSubId = id;
     document.getElementById('subOverlay').style.display = 'flex';
-    document.getElementById('optionsContainer').innerHTML = "Caricamento...";
+    document.getElementById('optionsContainer').innerHTML = "Caricamento alternative...";
     
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({ 
                 action: 'proxyClaude', 
-                prompt: "Sei un nutrizionista Keto. Utente mangia: " + food + " (" + kcal + " kcal). Proponi 4 alternative Keto. Rispondi SOLO array JSON: [{\"alimento\": \"nome\", \"calorie\": numero}]", 
+                prompt: "Nutrizionista Keto. Utente mangia: " + food + " (" + kcal + " kcal). Proponi 4 alternative Keto. Rispondi SOLO con array JSON: [{\"alimento\": \"nome\", \"calorie\": numero}]", 
                 key: key 
             })
         });
-        const fullText = await response.text();
-        const data = JSON.parse(fullText);
-        const text = data.content[0].text;
+        const fullResponse = await response.json();
+        const text = fullResponse.content[0].text;
         const opts = JSON.parse(text.match(/\[.*\]/s)[0]);
         let html = "";
         opts.forEach(o => {
@@ -161,43 +162,18 @@ async function openSubPopup(id, food, kcal) {
             </div>`;
         });
         document.getElementById('optionsContainer').innerHTML = html;
-    } catch (e) { document.getElementById('optionsContainer').innerHTML = "Errore IA. Verifica chiave."; }
+    } catch (e) { document.getElementById('optionsContainer').innerHTML = "Errore IA. Verifica chiave o connessione."; }
 }
 
 async function applySub(f, k) {
     const item = allData.find(i => i.ID == currentSubId);
-    item.Alimento = "-> " + f; item.Calorie = k;
+    item.Alimento = f; item.Calorie = k;
     renderApp();
     document.getElementById('subOverlay').style.display = 'none';
-    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'replace', id: currentSubId.toString(), newFood: "-> " + f, newCalories: k }) });
+    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'replace', id: currentSubId.toString(), newFood: f, newCalories: k }) });
 }
 
-async function updateWeight(id, newWeight, oldWeight, oldKcal) {
-    const newKcal = Math.round((oldKcal / oldWeight) * newWeight);
-    const item = allData.find(i => i.ID == id);
-    item['Peso gr'] = newWeight; item.Calorie = newKcal;
-    renderApp();
-    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'updateWeight', id: id, newWeight: newWeight, newKcal: newKcal }) });
-}
-
-async function toggleIngredient(id, currentStatus) {
-    const newStatus = !currentStatus;
-    allData.find(i => i.ID == id).Fatto = newStatus ? "TRUE" : "FALSE";
-    renderApp();
-    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: id, value: newStatus ? "TRUE" : "FALSE" }) });
-}
-
-async function toggleGroup(mealName, currentlyAllDone) {
-    const newStatus = currentlyAllDone ? "FALSE" : "TRUE";
-    allData.forEach(item => {
-        const name = item['Pasto'] || item['Tipologia Pasto'];
-        if (item.Data === selectedDate && name === mealName) {
-            item.Fatto = newStatus;
-            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: item.ID, value: newStatus }) });
-        }
-    });
-    renderApp();
-}
+// ... (tieni updateWeight, toggleIngredient, toggleGroup come prima)
 window.onload = loadData;
 </script>
 </body>
