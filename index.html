@@ -1,25 +1,24 @@
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEST IA VERIFICATO 100%</title>
+    <title>TEST DEFINITIVO 1.1</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 30px; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; font-size: 16px; }
-        button { width: 100%; padding: 15px; background: #1a73e8; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        #log { background: #111; border: 1px solid #333; padding: 15px; text-align: left; font-family: monospace; font-size: 12px; color: #00ff00; white-space: pre-wrap; margin-top: 20px; border-radius: 8px; }
+        input, button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 16px; }
+        button { background: #32d74b; color: #000; font-weight: bold; }
+        #log { background: #111; border: 1px solid #333; padding: 15px; text-align: left; font-family: monospace; font-size: 11px; color: #0f0; white-space: pre-wrap; }
     </style>
 </head>
 <body>
-    <h2>Test Gemini v1 Stabile</h2>
-    <input type="text" id="apiKey" placeholder="Incolla la tua chiave APIza...">
-    <button onclick="testAI()">TESTA CONNESSIONE ORA</button>
-    <div id="status" style="margin: 20px; font-weight: bold; color: orange;">Stato: In attesa</div>
-    <div id="log">I dettagli tecnici appariranno qui...</div>
+    <h3>Test Gemini Flash Latest</h3>
+    <input type="text" id="apiKey" placeholder="Chiave AIza...">
+    <button onclick="testAI()">AVVIA TEST</button>
+    <div id="status" style="margin:20px; font-weight:bold;">In attesa...</div>
+    <div id="log">Log tecnico...</div>
 
     <script>
-    // --- INCOLLA QUI IL TUO URL DI GOOGLE APPS SCRIPT ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7cFdHruJ57qWlnKSe_pz7NunRlfbx8aPQ_Okk6aH5Ak2g1Ra0XUDMsJyaoaqNcIzvTQ/exec";
 
     async function testAI() {
@@ -27,40 +26,25 @@
         const status = document.getElementById('status');
         const log = document.getElementById('log');
 
-        if(!key) return alert("Per favore, inserisci la chiave API!");
-
-        status.innerText = "Chiamata a Google Script in corso...";
-        log.innerText = "Avvio richiesta fetch...";
-
+        status.innerText = "Chiamata in corso...";
         try {
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({
-                    action: 'proxyAI',
-                    key: key,
-                    prompt: 'Rispondi solo con la parola: FUNZIONA'
-                })
+                body: JSON.stringify({ action: 'proxyAI', key: key, prompt: 'Rispondi solo con: FUNZIONA' })
             });
-
             const data = await response.json();
-            log.innerText = "RISPOSTA RICEVUTA:\n" + JSON.stringify(data, null, 2);
+            log.innerText = JSON.stringify(data, null, 2);
 
-            // Verifica struttura Gemini v1
-            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-                const aiResponse = data.candidates[0].content.parts[0].text;
-                status.innerText = "SUCCESSO! L'IA RISPONDE: " + aiResponse;
+            if (data.candidates) {
+                status.innerText = "SUCCESSO! L'IA HA RISPOSTO.";
                 status.style.color = "#32d74b";
-            } else if (data.error) {
-                status.innerText = "ERRORE DALLE API GOOGLE";
-                status.style.color = "#ff453a";
             } else {
-                status.innerText = "ERRORE NELLA STRUTTURA DATI";
-                status.style.color = "#ff453a";
+                status.innerText = "ERRORE: Modello non trovato o Chiave errata.";
+                status.style.color = "red";
             }
         } catch (e) {
-            status.innerText = "ERRORE DI RETE / SCRIPT URL";
-            status.style.color = "#ff453a";
-            log.innerText = "Dettagli errore:\n" + e.toString() + "\n\nAssicurati che l'URL dello Script sia corretto e che il Deployment sia impostato su 'Chiunque'.";
+            status.innerText = "ERRORE DI RETE";
+            log.innerText = e.toString();
         }
     }
     </script>
