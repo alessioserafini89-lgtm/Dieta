@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet v20 - Smart Keto</title>
+    <title>Alessio Diet v21</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #1a1a18; --surface: #222220; --card: #2a2a26; --border: #383832; --green: #7ab648; --green-dim: #1e2d12; --amber: #e8962a; --text: #f0ede6; --muted: #888878; }
@@ -16,32 +16,22 @@
         .tab { padding: 15px 18px; color: var(--muted); cursor: pointer; white-space: nowrap; font-size: 14px; }
         .tab.active { color: var(--green); border-bottom: 2px solid var(--green); font-weight: 600; }
         .main { padding: 15px; max-width: 600px; margin: 0 auto; }
-        
         .meal-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; overflow: hidden; transition: border 0.3s; }
         .meal-group.is-complete { border: 2px solid var(--green); }
         .group-header { background: rgba(255,255,255,0.03); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .btn-fatto-all { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
-        
         .ingredient-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 10px; }
         .ingredient-row.done { opacity: 0.4; }
-        .check-mini { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: transparent; font-weight: bold; }
+        .check-mini { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-weight: bold; color: transparent; }
         .check-mini.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
-        
-        .weight-input { 
-            background: #1a1a18; border: 1px solid var(--border); color: var(--amber); 
-            width: 55px; padding: 5px; border-radius: 6px; text-align: center; font-size: 13px; font-weight: bold; 
-            appearance: textfield; -webkit-appearance: none; margin: 0;
-        }
+        .weight-input { background: #1a1a18; border: 1px solid var(--border); color: var(--amber); width: 55px; padding: 5px; border-radius: 6px; text-align: center; font-size: 13px; font-weight: bold; appearance: textfield; -webkit-appearance: none; margin: 0; }
         .weight-input::-webkit-outer-spin-button, .weight-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
         .sub-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 10px; border-radius: 6px; font-size: 10px; cursor: pointer; margin-top: 6px; }
         .ai-fab { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #000; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; z-index: 200; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; }
-        
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 400; display: none; flex-direction: column; justify-content: flex-end; }
         .popup { background: var(--surface); border-top: 3px solid var(--green); border-radius: 24px 24px 0 0; padding: 24px; max-height: 80vh; overflow-y: auto; }
         .option-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; }
-
-        #loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        #loader { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
         .spinner { border: 4px solid var(--surface); border-top: 4px solid var(--green); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -65,14 +55,14 @@
 <button class="ai-fab" onclick="setApiKey()">🤖</button>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb7a7ee7O8spYEv78OO4By6jsdbgitpVadNVuIkwiniqUyLClqr8NwjmuQnl3qoPCEWA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3pe2oLaqGseeBP9KV7npJO6clPPpAxzJKRo1OGcFGlubacPUWukFbNuu5z-0fpmND8A/exec";
 let allData = [];
 let selectedDate = "";
 let currentSubId = null;
 
 function setApiKey() {
-    const key = prompt("Configura Chiave Claude (sk-ant...):", localStorage.getItem('ale_api_key') || "");
-    if (key) { localStorage.setItem('ale_api_key', key); alert("Chiave Salvata! Prova ora a sostituire."); }
+    const key = prompt("Configura Chiave API (sk-ant...):", localStorage.getItem('ale_api_key') || "");
+    if (key) { localStorage.setItem('ale_api_key', key); alert("Chiave Salvata!"); }
 }
 
 async function loadData() {
@@ -84,7 +74,7 @@ async function loadData() {
         renderTabs(uniqueDates);
         renderApp();
         document.getElementById('loader').style.display = 'none';
-    } catch (e) { document.getElementById('loader').innerHTML = "Errore caricamento dati!"; }
+    } catch (e) { document.getElementById('loader').innerHTML = "Errore connessione!"; }
 }
 
 function renderTabs(dates) {
@@ -101,53 +91,47 @@ function renderTabs(dates) {
 function renderApp() {
     const container = document.getElementById('app'); container.innerHTML = "";
     const dietaGiorno = allData.filter(r => r.Data === selectedDate);
+    
     const groups = dietaGiorno.reduce((acc, item) => {
-        if (!acc[item['Tipologia Pasto']]) acc[item['Tipologia Pasto']] = [];
-        acc[item['Tipologia Pasto']].push(item); return acc;
+        // Fix per colonna "Pasto" o "Tipologia Pasto"
+        const key = item['Pasto'] || item['Tipologia Pasto'] || 'Altro';
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(item); return acc;
     }, {});
 
     let kcalConsumate = 0;
     for (const [mealName, items] of Object.entries(groups)) {
-        const isAllDone = items.every(i => i.Fatto === "TRUE" || i.Fatto === true);
+        const isAllDone = items.every(i => String(i.Fatto).toUpperCase() === "TRUE");
         const groupEl = document.createElement('div');
         groupEl.className = `meal-group ${isAllDone ? 'is-complete' : ''}`;
         
-        let groupHtml = `<div class="group-header">
-            <span style="color:var(--amber); font-family:'Playfair Display'; font-size:1.1rem">${mealName}</span>
-            <button class="btn-fatto-all" onclick="toggleGroup('${mealName}', ${isAllDone})">${isAllDone ? 'Disfai' : 'Fatto'}</button>
-        </div>`;
-        
-        items.forEach(item => {
-            const isDone = item.Fatto === "TRUE" || item.Fatto === true;
-            const kcal = Math.round(parseFloat(item.Calorie) || 0);
-            if(isDone) kcalConsumate += kcal;
-            
-            groupHtml += `<div class="ingredient-row ${isDone ? 'done' : ''}">
-                <div class="check-mini ${isDone ? 'active' : ''}" onclick="toggleIngredient('${item.ID}', ${isDone})">✓</div>
-                <div style="flex:1; font-size:14px">${item.Alimento} <br>
-                <button class="sub-btn" onclick="openSubPopup('${item.ID}', '${item.Alimento}', ${kcal})">Sostituisci</button></div>
-                <input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updateWeight('${item.ID}', this.value, ${item['Peso gr']}, ${item.Calorie})">
-                <div style="font-size:11px; color:var(--muted); min-width:45px; text-align:right">${kcal} kcal</div>
-            </div>`;
-        });
-        groupEl.innerHTML = groupHtml; container.appendChild(groupEl);
+        groupEl.innerHTML = `
+            <div class="group-header">
+                <span style="color:var(--amber); font-family:'Playfair Display'; font-size:1.1rem">${mealName}</span>
+                <button class="btn-fatto-all" onclick="toggleGroup('${mealName}', ${isAllDone})">${isAllDone ? 'Disfai' : 'Fatto'}</button>
+            </div>
+            ${items.map(item => {
+                const isDone = String(item.Fatto).toUpperCase() === "TRUE";
+                const kcal = Math.round(parseFloat(item.Calorie) || 0);
+                if(isDone) kcalConsumate += kcal;
+                return `
+                <div class="ingredient-row ${isDone ? 'done' : ''}">
+                    <div class="check-mini ${isDone ? 'active' : ''}" onclick="toggleIngredient('${item.ID}', ${isDone})">✓</div>
+                    <div style="flex:1; font-size:14px">${item.Alimento} <br>
+                    <button class="sub-btn" onclick="openSubPopup('${item.ID}', '${item.Alimento}', ${kcal})">Sostituisci</button></div>
+                    <input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updateWeight('${item.ID}', this.value, ${item['Peso gr']}, ${item.Calorie})">
+                    <div style="font-size:11px; color:var(--muted); min-width:45px; text-align:right">${kcal} kcal</div>
+                </div>`;
+            }).join('')}
+        `;
+        container.appendChild(groupEl);
     }
     document.getElementById('remKcal').textContent = 2000 - kcalConsumate;
 }
 
-async function toggleGroup(mealName, currentlyAllDone) {
-    const newStatus = currentlyAllDone ? "FALSE" : "TRUE";
-    const items = allData.filter(r => r.Data === selectedDate && r['Tipologia Pasto'] === mealName);
-    for (let item of items) {
-        item.Fatto = newStatus;
-        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: item.ID, value: newStatus }) });
-    }
-    renderApp();
-}
-
 async function openSubPopup(id, food, kcal) {
     const key = localStorage.getItem('ale_api_key');
-    if(!key) return alert("Clicca sul Robot 🤖 per configurare la chiave!");
+    if(!key) return alert("Inserisci la chiave API cliccando sul Robot!");
     currentSubId = id;
     document.getElementById('subOverlay').style.display = 'flex';
     document.getElementById('optionsContainer').innerHTML = "<p style='color:var(--muted); padding:10px'>Claude sta analizzando...</p>";
@@ -157,13 +141,14 @@ async function openSubPopup(id, food, kcal) {
             method: 'POST',
             body: JSON.stringify({ 
                 action: 'proxyClaude', 
-                prompt: `Pasto: "${food}" (${kcal} kcal). Chetogenica. Dammi 4 alternative. SOLO JSON: [{"alimento": "nome e peso", "calorie": numero}]`, 
+                prompt: "Sei un nutrizionista. L'utente mangia: " + food + " (" + kcal + " kcal). Proponi 4 alternative chetogeniche (zero carboidrati). Rispondi SOLO con un array JSON: [{\"alimento\": \"Nome e peso\", \"calorie\": numero}]", 
                 key: key 
             })
         });
-        const resText = await response.text();
-        const data = JSON.parse(resText);
-        const jsonMatch = data.content[0].text.match(/\[.*\]/s);
+        const fullResponse = await response.text();
+        const data = JSON.parse(fullResponse);
+        const text = data.content[0].text;
+        const jsonMatch = text.match(/\[.*\]/s);
         const opts = JSON.parse(jsonMatch[0]);
         let html = "";
         opts.forEach(o => {
@@ -173,7 +158,7 @@ async function openSubPopup(id, food, kcal) {
             </div>`;
         });
         document.getElementById('optionsContainer').innerHTML = html;
-    } catch (e) { document.getElementById('optionsContainer').innerHTML = "Errore IA. Verifica chiave o credito."; }
+    } catch (e) { document.getElementById('optionsContainer').innerHTML = "Errore IA. Verifica chiave o rete."; }
 }
 
 async function applySub(f, k) {
@@ -181,7 +166,20 @@ async function applySub(f, k) {
     item.Alimento = f; item.Calorie = k;
     renderApp();
     document.getElementById('subOverlay').style.display = 'none';
-    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'replace', id: currentSubId.toString(), newFood: f, newCalories: k }) });
+    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'replace', id: currentSubId.toString(), newFood: f, newCalories: k }) });
+}
+
+async function toggleGroup(mealName, currentlyAllDone) {
+    const newStatus = currentlyAllDone ? "FALSE" : "TRUE";
+    const dietaGiorno = allData.filter(r => r.Data === selectedDate);
+    dietaGiorno.forEach(item => {
+        const name = item['Pasto'] || item['Tipologia Pasto'];
+        if(name === mealName) {
+            item.Fatto = newStatus;
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: item.ID, value: newStatus }) });
+        }
+    });
+    renderApp();
 }
 
 async function updateWeight(id, newWeight, oldWeight, oldKcal) {
@@ -194,9 +192,10 @@ async function updateWeight(id, newWeight, oldWeight, oldKcal) {
 
 async function toggleIngredient(id, currentStatus) {
     const newStatus = !currentStatus;
-    allData.find(i => i.ID == id).Fatto = newStatus ? "TRUE" : "FALSE";
+    const item = allData.find(i => i.ID == id);
+    item.Fatto = newStatus ? "TRUE" : "FALSE";
     renderApp();
-    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: id, value: newStatus ? "TRUE" : "FALSE" }) });
+    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'toggleDone', id: id, value: newStatus ? "TRUE" : "FALSE" }) });
 }
 
 window.onload = loadData;
