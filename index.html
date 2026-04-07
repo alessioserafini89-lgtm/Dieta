@@ -692,6 +692,9 @@ function getItemKcal(di, mi, ii) {
   return item.kcal;
 }
 
+// 1. Definisci l'URL della tua Web App all'inizio dello script
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzERQ_ZOC7IQZt2e_WQ-vNZ6RJXrsQo66fv3VOH9rdP6ZN5J0_AmaWqrIGduSiT6jp04Q/exec";
+
 function toggleItem(itemId, di, mi, ii) {
   const s = getState();
   s[itemId] = !s[itemId];
@@ -701,6 +704,23 @@ function toggleItem(itemId, di, mi, ii) {
   updateKcal(di);
   autoCheckMeal(di, mi);
   updateDots();
+
+  // --- NUOVA PARTE: INVIO AL FOGLIO GOOGLE ---
+  if (s[itemId]) { // Invia solo se viene marcato come completato
+    const item = DAYS[di].meals[mi].items[ii];
+    const mealName = DAYS[di].meals[mi].name;
+    
+    fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Importante per evitare errori di sicurezza cross-domain
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pastoNome: mealName,
+        alimento: item.food,
+        calorie: getItemKcal(di, mi, ii)
+      })
+    }).then(() => console.log("Dato inviato al foglio!"));
+  }
 }
 
 function applyItemState(itemId) {
