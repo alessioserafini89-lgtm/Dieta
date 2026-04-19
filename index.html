@@ -22,7 +22,6 @@
         .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .meal-title { font-size: 18px; font-weight: 700; color: var(--amber); }
         
-        /* Bottoni Header Pasto */
         .header-btns { display: flex; gap: 8px; }
         .add-btn { background: var(--green); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; font-size:18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .info-btn { background: var(--text); color: var(--bg); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -49,7 +48,6 @@
         .create-btn { padding: 0 14px; border-radius: 12px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer; }
         .opt-card { background: var(--bg); padding: 15px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
 
-        /* Stili per il Grafico Macro */
         .macro-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 15px 0; background: #333;}
         .m-prot { background: var(--blue); transition: width 0.5s ease; }
         .m-carb { background: var(--amber); transition: width 0.5s ease; }
@@ -70,7 +68,6 @@
     <div id="overlay" class="overlay"><div class="popup" id="popupContent"></div></div>
 
 <script>
-// ---------- INSERISCI IL TUO URL QUI SOTTO ----------
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxEzXCd4a8_5uzvhGGvyrWVlsBb0W7rHVOZQOYzSMoKEQU2t4o0DEVPTX3TsQMvWsZ5Q/exec";
 
 let allData = [], selectedDate = "", activeId = null, currentFood = "", currentKcal = 0, remKcalVal = 0, activePasto = "";
@@ -112,7 +109,6 @@ function render() {
     for(const [pasto, items] of Object.entries(groups)) {
         const groupDiv = document.createElement('div'); groupDiv.className = "meal-group";
         
-        // Header del pasto con i due bottoni (Info e Add)
         groupDiv.innerHTML = `
             <div class="meal-header">
                 <div class="meal-title">${pasto}</div>
@@ -144,7 +140,7 @@ function render() {
     }
 }
 
-// ================= VISTA INFO PASTO (GRAFICO) =================
+// ================= VISTA INFO PASTO =================
 function openMealInfo(pasto) {
     const items = allData.filter(x => x.Data === selectedDate && x.Pasto === pasto);
     let tKcal = 0, tP = 0, tC = 0, tF = 0;
@@ -154,7 +150,6 @@ function openMealInfo(pasto) {
         const isSub = String(item.ID).includes('.');
         const hasChildren = !isSub && items.some(child => String(child.ID).startsWith(item.ID + '.'));
 
-        // Sommiamo solo le "foglie" reali (gli ingredienti veri)
         if (!hasChildren) {
             tKcal += Number(item.Calorie) || 0;
             tP += Number(item.Prot) || 0;
@@ -171,7 +166,6 @@ function openMealInfo(pasto) {
         }
     });
 
-    // Calcolo percentuali per il grafico
     const totalMacros = (tP + tC + tF) || 1; 
     const pPct = (tP / totalMacros) * 100;
     const cPct = (tC / totalMacros) * 100;
@@ -261,7 +255,8 @@ async function generateFinal(side) {
     const popup = document.getElementById('popupContent');
     popup.innerHTML = "<div style='text-align:center; padding:30px;'><h3>👨‍🍳 Lo Chef sta cucinando...</h3><p style='color:var(--muted)'>Calcolo le grammature perfette per ${currentKcal} kcal.</p></div>";
     
-    const prompt = `Crea 4 piatti sani composti principalmente da "${step1Main}" e come contorno "${step2Side}" (il totale esatto deve essere circa ${currentKcal} kcal). Bilancia le grammature di entrambi. Rispondi SOLO array JSON: [{"alimento": "Nome Ricetta", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 150, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}]`;
+    // AGGIUNTA "istruzioni" AL PROMPT
+    const prompt = `Crea 4 piatti sani composti principalmente da "${step1Main}" e come contorno "${step2Side}" (il totale esatto deve essere circa ${currentKcal} kcal). Bilancia le grammature di entrambi. Rispondi SOLO array JSON: [{"alimento": "Nome Ricetta", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "istruzioni": "1. Cuoci la carne... 2. Aggiungi il sale...", "ingredienti": [{"nome": "Ingrediente", "peso": 150, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}]`;
     
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
@@ -287,16 +282,25 @@ async function applyRecipe(recipe) {
     
     let ingStr = recipe.ingredienti.map(i => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span>• ${i.nome}</span> <b>${i.peso}g</b></div>`).join('');
     
+    // Gestione sicura delle istruzioni
+    const istruzioni = recipe.istruzioni ? recipe.istruzioni.replace(/\n/g, "<br>") : "Nessuna istruzione fornita dall'IA.";
+    
     popup.innerHTML = `
         <h2 style="color:var(--green); margin-bottom:5px;">Piatto aggiunto! 🎉</h2>
         <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Dati sincronizzati su Fogli.</p>
         
         <div style="background:var(--bg); padding:20px; border-radius:16px; border:1px solid var(--border); margin-bottom:20px;">
-            <h3 style="margin-bottom:15px; color:var(--text);">${recipe.alimento}</h3>
+            <h3 style="margin-bottom:15px; color:var(--text); line-height:1.2;">${recipe.alimento}</h3>
             ${ingStr}
+            
+            <div id="recipeBox" style="display:none; margin-top:15px; padding-top:15px; border-top:1px dashed var(--border); font-size:14px; line-height:1.5;">
+                <b style="color:var(--amber);">Preparazione:</b><br><br>
+                ${istruzioni}
+            </div>
         </div>
         
-        <button onclick="document.getElementById('overlay').style.display='none'; load()" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--text); color:var(--bg); font-weight:bold; font-size:16px;">Chiudi</button>
+        <button onclick="document.getElementById('recipeBox').style.display='block'; this.style.display='none';" style="width:100%; padding:15px; margin-bottom:10px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-weight:bold; font-size:16px; cursor:pointer;">📖 Mostra Ricetta</button>
+        <button onclick="document.getElementById('overlay').style.display='none'; load()" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--text); color:var(--bg); font-weight:bold; font-size:16px; cursor:pointer;">Chiudi</button>
     `;
 }
 
