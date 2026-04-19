@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet Elite v5</title>
+    <title>Alessio Diet Elite v6</title>
     <style>
         :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --red: #ff3b30; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
         @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #2c2c2e; --shadow: rgba(0,0,0,0.3); } }
@@ -87,7 +87,7 @@ async function load() {
         const dates = [...new Set(allData.map(x => x.Data))];
         if(!selectedDate) selectedDate = dates[0];
         render();
-    } catch(e) { document.getElementById('app').innerHTML = "<div style='padding:20px; text-align:center;'>Caricamento in corso...</div>"; }
+    } catch(e) { document.getElementById('app').innerHTML = "<div style='padding:20px; text-align:center;'>Caricamento... Assicurati di aver fatto Nuova Versione su Apps Script!</div>"; }
 }
 
 function render() {
@@ -165,9 +165,9 @@ function openEdit(id, currentName, currentWeight) {
             <h3>Modifica Alimento</h3>
             <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
         </div>
-        <p style="font-size:12px; color:var(--muted)">Modificando il nome o i grammi, l'IA ricalcolerà i macro corretti.</p>
+        <p style="font-size:12px; color:var(--muted)">L'IA calcolerà i valori per questo specifico elemento.</p>
         <div style="margin: 15px 0;">
-            <label style="font-size:12px; font-weight:bold;">Alimento</label>
+            <label style="font-size:12px; font-weight:bold;">Alimento / Nome</label>
             <input type="text" id="editName" value="${currentName}" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
         </div>
         <div style="margin: 15px 0;">
@@ -184,8 +184,10 @@ async function saveEdit() {
     const key = localStorage.getItem('gem_key');
     if(!key) return alert("Inserisci la chiave 🔑");
     
-    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Calcolo nuovi macros... ⏳</div>";
-    const prompt = `Ricalcola i valori nutrizionali per '${newName}' con un peso esatto di ${newWeight} grammi. Restituisci SOLO un oggetto JSON valido: {"alimento": "${newName}", "peso": ${newWeight}, "calorie": 150, "prot": 10, "carb": 5, "grassi": 8}`;
+    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Calcolo macros precisi... ⏳</div>";
+    
+    // PROMPT BLINDATO: Niente ricette, solo l'ingrediente specifico!
+    const prompt = `Sei un database nutrizionale. Restituisci i valori nutrizionali ESATTI per l'ingrediente o alimento: "${newName}", calcolati per un peso esatto di ${newWeight} grammi. IMPORTANTE: NON creare una ricetta o un piatto composto. Restituisci i dati SOLO di questo alimento specifico. Restituisci SOLO un oggetto JSON valido: {"alimento": "${newName}", "peso": ${newWeight}, "calorie": 35, "prot": 1, "carb": 7, "grassi": 0}`;
     
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
@@ -193,7 +195,6 @@ async function saveEdit() {
         let text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
         let item = JSON.parse(text);
         
-        // Correzione automatica nel caso Gemini usi chiavi diverse (es. "nome" invece di "alimento")
         if (Array.isArray(item)) item = item[0];
         item.alimento = item.alimento || item.nome || newName;
         item.peso = item.peso || newWeight;
@@ -240,28 +241,41 @@ function openAdd(pasto) {
             <h3>Aggiungi a ${pasto}</h3>
             <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
         </div>
-        <p style="font-size:12px; color:var(--muted)">Target: circa ${remKcalVal} kcal rimaste.</p>
-        <input type="text" id="newItemName" placeholder="Es. Tonno e fagioli" style="width:100%; padding:12px; margin:15px 0; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        <p style="font-size:12px; color:var(--muted)">Target attuale: circa ${remKcalVal} kcal rimaste.</p>
+        <div style="margin: 15px 0;">
+            <label style="font-size:12px; font-weight:bold;">Alimento</label>
+            <input type="text" id="newItemName" placeholder="Es. Mela, Tonno, ecc..." style="width:100%; padding:12px; margin-top:5px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        </div>
+        <div style="margin: 15px 0;">
+            <label style="font-size:12px; font-weight:bold;">Grammi (opzionale)</label>
+            <input type="number" id="newItemWeight" placeholder="Es. 150" style="width:100%; padding:12px; margin-top:5px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        </div>
         <button onclick="saveNewItem()" style="width:100%; padding:15px; background:var(--text); color:var(--bg); border:none; border-radius:12px; font-weight:bold;">Calcola e Aggiungi</button>
     `;
 }
 
 async function saveNewItem() {
     const name = document.getElementById('newItemName').value;
+    const weight = document.getElementById('newItemWeight').value;
     const key = localStorage.getItem('gem_key');
     if(!key) return alert("Inserisci la chiave 🔑");
+    if(!name) return alert("Inserisci il nome dell'alimento!");
+
     document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>L'IA sta calcolando i macro... ⏳</div>";
-    const prompt = `Crea un alimento sano per "${name}" di circa ${remKcalVal} kcal. Rispondi SOLO JSON: {"alimento": "${name}", "calorie": 300, "peso": 150, "prot": 25, "carb": 5, "grassi": 15}`;
+    
+    // PROMPT BLINDATO: Usa i grammi se ci sono, altrimenti usa le kcal rimaste. Ma NON fare ricette.
+    let weightInstruction = weight ? `per un peso esatto di ${weight} grammi` : `calcolando una porzione adatta per circa ${remKcalVal} kcal`;
+    const prompt = `Sei un calcolatore nutrizionale. Calcola i valori per: "${name}" ${weightInstruction}. IMPORTANTE: Se è un ingrediente semplice (es. Pachino, Mela), NON inventare ricette complesse o Power Bowl, restituisci solo quello che ti è stato chiesto. Rispondi SOLO in formato JSON: {"alimento": "${name}", "calorie": 150, "peso": ${weight || 100}, "prot": 5, "carb": 15, "grassi": 2}`;
+    
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
         const d = await r.json();
         let text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
         let item = JSON.parse(text);
         
-        // Correzione chiavi JSON
         if (Array.isArray(item)) item = item[0];
         item.alimento = item.alimento || item.nome || name;
-        item.peso = item.peso || 0;
+        item.peso = item.peso || weight || 0;
         item.calorie = item.calorie || item.kcal || 0;
         item.prot = item.prot || item.proteine || 0;
         item.carb = item.carb || item.carboidrati || 0;
@@ -337,7 +351,7 @@ async function generateCustom() {
     if(!customText) return;
     const key = localStorage.getItem('gem_key');
     document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Calcolo grammi e macro per <b>${customText}</b>... ⏳</div>`;
-    const prompt = `Voglio mangiare "${customText}". Crea la ricetta bilanciata per un totale esatto di circa ${currentKcal} kcal. Rispondi SOLO JSON (no array): {"alimento": "${customText}", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}`;
+    const prompt = `Voglio mangiare "${customText}". Crea la ricetta bilanciata per un totale esatto di circa ${currentKcal} kcal. Se è un ingrediente singolo, NON inventare ricette. Rispondi SOLO JSON (no array): {"alimento": "${customText}", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}`;
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
         const d = await r.json();
