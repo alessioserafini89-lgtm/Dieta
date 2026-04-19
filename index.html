@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet - Chef & Info Edition</title>
+    <title>Alessio Diet - The Ultimate Edition</title>
     <style>
         :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --red: #ff3b30; --blue: #0a84ff; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
         @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #2c2c2e; --shadow: rgba(0,0,0,0.3); } }
@@ -25,6 +25,7 @@
         .header-btns { display: flex; gap: 8px; }
         .add-btn { background: var(--green); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; font-size:18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .info-btn { background: var(--text); color: var(--bg); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .sugg-btn { background: var(--amber); color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         .card { background: var(--card); border-radius: 20px; box-shadow: 0 4px 15px var(--shadow); border: 1px solid var(--border); overflow: hidden; }
         .row { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: 0.2s; }
@@ -37,8 +38,14 @@
         .name { font-size: 16px; font-weight: 500; }
         .macros { font-size: 11px; color: var(--muted); margin-top: 4px; }
         .kcal-val { width: 45px; text-align: right; font-weight: 800; font-size: 16px; color: var(--text); }
-        .btn-sub { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 8px; cursor: pointer; }
         
+        /* Matita e input peso ripristinati */
+        .actions { display: flex; gap: 8px; align-items: center; }
+        .action-icon { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.5; transition: 0.2s; padding: 4px; }
+        .action-icon:hover { opacity: 1; transform: scale(1.1); }
+        .del-icon { color: var(--red); }
+        .weight-input { width: 55px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 4px; text-align: center; font-weight: 700; font-size: 14px; }
+
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .popup { background: var(--card); border-radius: 24px; width: 100%; max-width: 400px; max-height: 85vh; padding: 25px; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
@@ -109,14 +116,23 @@ function render() {
     for(const [pasto, items] of Object.entries(groups)) {
         const groupDiv = document.createElement('div'); groupDiv.className = "meal-group";
         
+        const firstFather = items.find(i => !String(i.ID).includes('.'));
+        let suggClick = "alert('Aggiungi prima un piatto base con il tasto + da poter sostituire!')";
+        if (firstFather) {
+            const fName = firstFather.Alimento.replace(/^->\s*/, '').replace(/'/g, "\\'");
+            const fKcal = Math.round(Number(firstFather.Calorie) || 0);
+            suggClick = `openStep1('${firstFather.ID}', '${fName}', ${fKcal})`;
+        }
+
         groupDiv.innerHTML = `
             <div class="meal-header">
                 <div class="meal-title">${pasto}</div>
                 <div class="header-btns">
-                    <button class="info-btn" onclick="openMealInfo('${pasto}')">
+                    <button class="info-btn" onclick="openMealInfo('${pasto}')" title="Info Macros">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                     </button>
-                    <button class="add-btn" onclick="openAdd('${pasto}')">+</button>
+                    <button class="sugg-btn" onclick="${suggClick}" title="Suggerisci Piatto">✨</button>
+                    <button class="add-btn" onclick="openAdd('${pasto}')" title="Aggiungi Elemento">+</button>
                 </div>
             </div>`;
             
@@ -125,19 +141,85 @@ function render() {
             const isSub = String(item.ID).includes('.');
             const done = String(item.Fatto).toUpperCase() === "TRUE";
             const cleanName = item.Alimento.replace(/^->\s*/, '');
-            card.innerHTML += `<div class="row ${isSub?'sub':''}">
-                <div class="check ${done?'active':''}" onclick="toggle('${item.ID}',${done},${!isSub})">✓</div>
-                <div class="info">
-                    <div class="name ${!isSub?'father':''}">${cleanName}</div>
-                    <div class="macros">P:${item.Prot} C:${item.Carb} G:${item.Grassi}</div>
-                    ${!isSub ? `<button class="btn-sub" onclick="openStep1('${item.ID}','${cleanName.replace(/'/g, "\\'")}',${item.Calorie})">✨ Suggerisci</button>` : ''}
-                </div>
-                <div class="kcal-val">${item.Calorie}</div>
-                <button style="border:none;background:none;opacity:0.3;font-size:18px;" onclick="deleteItem('${item.ID}')">🗑️</button>
-            </div>`;
+            const weight = item['Peso gr'] || 0;
+
+            card.innerHTML += `
+                <div class="row ${isSub?'sub':''}">
+                    <div class="check ${done?'active':''}" onclick="toggle('${item.ID}',${done},${!isSub})">✓</div>
+                    <div class="info">
+                        <div class="name ${!isSub?'father':''}">${cleanName} ${weight > 0 && !isSub ? `(${weight}g)` : ''}</div>
+                        <div class="macros">P:${item.Prot} C:${item.Carb} G:${item.Grassi}</div>
+                    </div>
+                    ${isSub ? `<input type="number" class="weight-input" value="${weight}" onchange="updWeight('${item.ID}',this.value)">` : ''}
+                    <div class="kcal-val">${item.Calorie}</div>
+                    <div class="actions">
+                        <button class="action-icon" onclick="openEdit('${item.ID}','${cleanName.replace(/'/g, "\\'")}', '${weight}')">✏️</button>
+                        <button class="action-icon del-icon" onclick="deleteItem('${item.ID}')">🗑️</button>
+                    </div>
+                </div>`;
         });
         groupDiv.appendChild(card); cont.appendChild(groupDiv);
     }
+}
+
+// ================= MODIFICA PESO (INLINE) =================
+async function updWeight(id, nw) {
+    document.getElementById('overlay').style.display='flex';
+    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Ricalcolo macro ed aggiorno totale... ⏳</div>";
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateWeight', id: id, newWeight: nw }) });
+    document.getElementById('overlay').style.display = 'none';
+    load();
+}
+
+// ================= MODIFICA AVANZATA (MATITA) =================
+function openEdit(id, currentName, currentWeight) {
+    activeId = id;
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('popupContent').innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <h3>Modifica Alimento</h3>
+            <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
+        </div>
+        <p style="font-size:12px; color:var(--muted)">L'IA ricalcolerà i macro se modifichi il nome o i grammi.</p>
+        <div style="margin: 15px 0;">
+            <label style="font-size:12px; font-weight:bold;">Alimento / Nome</label>
+            <input type="text" id="editName" value="${currentName}" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        </div>
+        <div style="margin: 15px 0;">
+            <label style="font-size:12px; font-weight:bold;">Grammi (g)</label>
+            <input type="number" id="editWeight" value="${currentWeight}" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        </div>
+        <button onclick="saveEdit()" style="width:100%; padding:15px; background:var(--green); color:#fff; border:none; border-radius:12px; font-weight:bold; font-size:16px;">Salva Modifiche</button>
+    `;
+}
+
+async function saveEdit() {
+    const newName = document.getElementById('editName').value;
+    const newWeight = document.getElementById('editWeight').value;
+    const key = localStorage.getItem('gem_key');
+    if(!key) return alert("Inserisci la chiave 🔑");
+    
+    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Calcolo nuovi macros... ⏳</div>";
+    
+    const prompt = `Ricalcola i valori nutrizionali per '${newName}' con un peso esatto di ${newWeight} grammi. Restituisci SOLO un oggetto JSON valido: {"alimento": "${newName}", "peso": ${newWeight}, "calorie": 150, "prot": 10, "carb": 5, "grassi": 8}`;
+    
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
+        const d = await r.json();
+        let text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
+        let item = JSON.parse(text);
+        
+        if (Array.isArray(item)) item = item[0];
+        item.alimento = item.alimento || item.nome || newName;
+        item.peso = item.peso || newWeight;
+        item.calorie = item.calorie || item.kcal || 0;
+        item.prot = item.prot || item.proteine || 0;
+        item.carb = item.carb || item.carboidrati || 0;
+        item.grassi = item.grassi || item.fat || 0;
+
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'editSingleItem', id: activeId, item }) });
+        document.getElementById('overlay').style.display = 'none'; load();
+    } catch(e) { alert("Errore durante il calcolo. Riprova."); document.getElementById('overlay').style.display = 'none'; }
 }
 
 // ================= VISTA INFO PASTO =================
@@ -209,7 +291,7 @@ function openStep1(id, food, kcal) {
             <h3>Passo 1 di 2</h3>
             <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
         </div>
-        <p style="margin-bottom:20px; font-size:14px; color:var(--muted);">Scegli la <b>proteina principale</b> per il tuo piatto:</p>
+        <p style="margin-bottom:20px; font-size:14px; color:var(--muted);">Scegli la <b>proteina principale</b> per sostituire ${currentFood}:</p>
         <div class="cat-grid">
             <button class="cat-btn" onclick="selectMain('Pesce')">🐟 Pesce</button>
             <button class="cat-btn" onclick="selectMain('Carne')">🥩 Carne bianca/rossa</button>
@@ -255,7 +337,6 @@ async function generateFinal(side) {
     const popup = document.getElementById('popupContent');
     popup.innerHTML = "<div style='text-align:center; padding:30px;'><h3>👨‍🍳 Lo Chef sta cucinando...</h3><p style='color:var(--muted)'>Calcolo le grammature perfette per ${currentKcal} kcal.</p></div>";
     
-    // AGGIUNTA "istruzioni" AL PROMPT
     const prompt = `Crea 4 piatti sani composti principalmente da "${step1Main}" e come contorno "${step2Side}" (il totale esatto deve essere circa ${currentKcal} kcal). Bilancia le grammature di entrambi. Rispondi SOLO array JSON: [{"alimento": "Nome Ricetta", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "istruzioni": "1. Cuoci la carne... 2. Aggiungi il sale...", "ingredienti": [{"nome": "Ingrediente", "peso": 150, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}]`;
     
     try {
@@ -281,8 +362,6 @@ async function applyRecipe(recipe) {
     await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'replaceRecipe', id: activeId, recipe }) });
     
     let ingStr = recipe.ingredienti.map(i => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span>• ${i.nome}</span> <b>${i.peso}g</b></div>`).join('');
-    
-    // Gestione sicura delle istruzioni
     const istruzioni = recipe.istruzioni ? recipe.istruzioni.replace(/\n/g, "<br>") : "Nessuna istruzione fornita dall'IA.";
     
     popup.innerHTML = `
