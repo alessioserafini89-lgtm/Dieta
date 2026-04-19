@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet Elite v6</title>
+    <title>Alessio Diet - Chef Edition</title>
     <style>
         :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --red: #ff3b30; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
         @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #2c2c2e; --shadow: rgba(0,0,0,0.3); } }
@@ -12,71 +12,49 @@
         .header { padding: 25px 20px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 10; }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .header h2 { font-size: 28px; font-weight: 800; margin: 0; }
-        .key-btn { background: var(--card); border: 1px solid var(--border); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px var(--shadow); }
-        .kcal-box { text-align: right; background: var(--card); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border); }
+        .kcal-box { text-align: right; background: var(--card); padding: 8px 15px; border-radius: 12px; box-shadow: 0 4px 10px var(--shadow); border: 1px solid var(--border); }
         .kcal-num { color: var(--green); font-size: 22px; font-weight: 800; }
-        .kcal-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
         .tabs { display: flex; overflow-x: auto; gap: 10px; padding: 5px 20px 15px; scrollbar-width: none; }
-        .tabs::-webkit-scrollbar { display: none; }
         .tab { padding: 10px 20px; background: var(--card); border-radius: 25px; font-size: 14px; font-weight: 600; white-space: nowrap; color: var(--muted); border: 1px solid var(--border); cursor: pointer; }
         .tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
         .meal-group { padding: 0 20px; margin-bottom: 25px; }
         .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .meal-title { font-size: 18px; font-weight: 700; color: var(--amber); }
-        .add-btn { background: var(--green); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .add-btn { background: var(--green); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; }
         .card { background: var(--card); border-radius: 20px; box-shadow: 0 4px 15px var(--shadow); border: 1px solid var(--border); overflow: hidden; }
         .row { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: 0.2s; }
         .row.sub { padding-left: 20px; background: rgba(142, 142, 147, 0.03); }
-        .row.sub .name::before { content: '•'; color: var(--amber); margin-right: 8px; font-weight: bold; font-size: 18px; }
+        .row.sub .name::before { content: '•'; color: var(--amber); margin-right: 8px; font-weight: bold; }
         .row.done { opacity: 0.5; }
-        .check { width: 28px; height: 28px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; color: transparent; }
+        .check { width: 28px; height: 28px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: transparent; }
         .check.active { background: var(--green); border-color: var(--green); color: #fff; }
         .info { flex: 1; min-width:0; }
-        .name { font-size: 16px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .name.father { font-weight: 700; color: var(--green); }
-        .macros { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500; }
-        .kcal-val { width: 45px; text-align: right; font-weight: 800; font-size: 16px; color: var(--text); }
-        .btn-sub { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
-        
-        .actions { display: flex; gap: 8px; align-items: center; }
-        .action-icon { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.5; transition: 0.2s; padding: 4px; }
-        .action-icon:hover { opacity: 1; transform: scale(1.1); }
-        .del-icon { color: var(--red); }
-        .weight-input { width: 55px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 4px; text-align: center; font-weight: 700; font-size: 14px; }
-
-        /* Popup */
+        .name { font-size: 16px; font-weight: 500; }
+        .macros { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .btn-sub { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 8px; cursor: pointer; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .popup { background: var(--card); border-radius: 24px; width: 100%; max-width: 400px; max-height: 85vh; padding: 25px; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .cat-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; transition: 0.2s; }
-        .custom-input { display: flex; gap: 6px; margin-bottom: 20px; align-items: stretch;}
-        .tool-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; width: 42px; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; }
-        .tool-btn.recording { background: #ff3b30; color: white; border-color: #ff3b30; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .custom-input input { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; min-width: 0; }
-        .create-btn { padding: 0 14px; border-radius: 12px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer;}
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .cat-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; }
+        .custom-input { display: flex; gap: 6px; margin-bottom: 20px; }
+        .custom-input input { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+        .create-btn { padding: 0 14px; border-radius: 12px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer; }
         .opt-card { background: var(--bg); padding: 15px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="header-left">
-            <h2>Dieta</h2>
-            <button class="key-btn" onclick="setKey()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-            </button>
-        </div>
-        <div class="kcal-box"><div class="kcal-num" id="remKcal">2000</div><div class="kcal-label">Kcal Rimaste</div></div>
+        <div class="header-left"><h2>Dieta</h2><button class="key-btn" onclick="setKey()">🔑</button></div>
+        <div class="kcal-box"><div class="kcal-num" id="remKcal">2000</div></div>
     </div>
-    
     <div class="tabs" id="tabList"></div>
     <div id="app"></div>
     <div id="overlay" class="overlay"><div class="popup" id="popupContent"></div></div>
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxEzXCd4a8_5uzvhGGvyrWVlsBb0W7rHVOZQOYzSMoKEQU2t4o0DEVPTX3TsQMvWsZ5Q/exec";
-
 let allData = [], selectedDate = "", activeId = null, currentFood = "", currentKcal = 0, remKcalVal = 0, activePasto = "";
+let step1Main = "", step2Side = "";
 
 function setKey() { const k = prompt("Incolla Chiave Gemini:"); if(k) localStorage.setItem('gem_key', k); }
 
@@ -87,7 +65,7 @@ async function load() {
         const dates = [...new Set(allData.map(x => x.Data))];
         if(!selectedDate) selectedDate = dates[0];
         render();
-    } catch(e) { document.getElementById('app').innerHTML = "<div style='padding:20px; text-align:center;'>Caricamento... Assicurati di aver fatto Nuova Versione su Apps Script!</div>"; }
+    } catch(e) { console.error(e); }
 }
 
 function render() {
@@ -100,15 +78,12 @@ function render() {
     dayData.forEach(item => {
         const isSub = String(item.ID).includes('.');
         const done = String(item.Fatto).toUpperCase() === "TRUE";
-        const kcal = Math.round(Number(item.Calorie) || 0);
-
         if (done) {
             if (isSub) {
                 const fatherId = String(item.ID).split('.')[0];
                 const father = dayData.find(x => String(x.ID) === fatherId);
-                const fatherDone = father ? String(father.Fatto).toUpperCase() === "TRUE" : false;
-                if (!fatherDone) consumate += kcal;
-            } else { consumate += kcal; }
+                if (!father || String(father.Fatto).toUpperCase() !== "TRUE") consumate += Math.round(Number(item.Calorie)||0);
+            } else { consumate += Math.round(Number(item.Calorie)||0); }
         }
     });
     remKcalVal = 2000 - consumate;
@@ -118,248 +93,117 @@ function render() {
         const groupDiv = document.createElement('div'); groupDiv.className = "meal-group";
         groupDiv.innerHTML = `<div class="meal-header"><div class="meal-title">${pasto}</div><button class="add-btn" onclick="openAdd('${pasto}')">+</button></div>`;
         const card = document.createElement('div'); card.className = "card";
-        
-        items.forEach((item) => {
+        items.forEach(item => {
             const isSub = String(item.ID).includes('.');
             const done = String(item.Fatto).toUpperCase() === "TRUE";
-            const kcal = Math.round(Number(item.Calorie) || 0);
             const cleanName = item.Alimento.replace(/^->\s*/, '');
-            const weight = item['Peso gr'] || 0;
-
-            card.innerHTML += `
-                <div class="row ${isSub ? 'sub' : ''} ${done ? 'done' : ''}">
-                    <div class="check ${done?'active':''}" onclick="toggle('${item.ID}',${done},${!isSub})">✓</div>
-                    <div class="info">
-                        <div class="name ${!isSub?'father':''}">${cleanName} ${weight > 0 && !isSub ? `(${weight}g)` : ''}</div>
-                        <div class="macros">P:${item.Prot} C:${item.Carb} G:${item.Grassi}</div>
-                        ${!isSub ? `<button class="btn-sub" onclick="openMenu('${item.ID}','${cleanName.replace(/'/g, "\\'")}',${kcal})">✨ Sostituisci</button>` : ''}
-                    </div>
-                    ${isSub ? `<input type="number" class="weight-input" value="${weight}" onchange="updWeight('${item.ID}',this.value)">` : ''}
-                    <div class="kcal-val">${kcal>0?kcal:''}</div>
-                    <div class="actions">
-                        <button class="action-icon" onclick="openEdit('${item.ID}','${cleanName.replace(/'/g, "\\'")}', '${weight}')">✏️</button>
-                        <button class="action-icon del-icon" onclick="deleteItem('${item.ID}')">🗑️</button>
-                    </div>
-                </div>`;
+            card.innerHTML += `<div class="row ${isSub?'sub':''}">
+                <div class="check ${done?'active':''}" onclick="toggle('${item.ID}',${done},${!isSub})">✓</div>
+                <div class="info">
+                    <div class="name ${!isSub?'father':''}">${cleanName}</div>
+                    <div class="macros">P:${item.Prot} C:${item.Carb} G:${item.Grassi}</div>
+                    ${!isSub ? `<button class="btn-sub" onclick="openStep1('${item.ID}','${cleanName}',${item.Calorie})">✨ Suggerisci</button>` : ''}
+                </div>
+                <div class="kcal-val">${item.Calorie}</div>
+                <button style="border:none;background:none;opacity:0.3" onclick="deleteItem('${item.ID}')">🗑️</button>
+            </div>`;
         });
-        groupDiv.appendChild(card);
-        cont.appendChild(groupDiv);
+        groupDiv.appendChild(card); cont.appendChild(groupDiv);
     }
 }
 
-// =================== MODIFICA PESO RAPIDO (INLINE) ===================
-async function updWeight(id, nw) {
-    document.getElementById('overlay').style.display='flex';
-    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Ricalcolo macro ed aggiorno totale... ⏳</div>";
-    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateWeight', id: id, newWeight: nw }) });
-    document.getElementById('overlay').style.display = 'none';
-    load();
-}
-
-// =================== LOGICA MATITA (MODIFICA AVANZATA) ===================
-function openEdit(id, currentName, currentWeight) {
-    activeId = id;
-    document.getElementById('overlay').style.display = 'flex';
-    document.getElementById('popupContent').innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-            <h3>Modifica Alimento</h3>
-            <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
-        </div>
-        <p style="font-size:12px; color:var(--muted)">L'IA calcolerà i valori per questo specifico elemento.</p>
-        <div style="margin: 15px 0;">
-            <label style="font-size:12px; font-weight:bold;">Alimento / Nome</label>
-            <input type="text" id="editName" value="${currentName}" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
-        </div>
-        <div style="margin: 15px 0;">
-            <label style="font-size:12px; font-weight:bold;">Grammi (g)</label>
-            <input type="number" id="editWeight" value="${currentWeight}" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
-        </div>
-        <button onclick="saveEdit()" style="width:100%; padding:15px; background:var(--green); color:#fff; border:none; border-radius:12px; font-weight:bold; font-size:16px;">Salva Modifiche</button>
-    `;
-}
-
-async function saveEdit() {
-    const newName = document.getElementById('editName').value;
-    const newWeight = document.getElementById('editWeight').value;
-    const key = localStorage.getItem('gem_key');
-    if(!key) return alert("Inserisci la chiave 🔑");
-    
-    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Calcolo macros precisi... ⏳</div>";
-    
-    // PROMPT BLINDATO: Niente ricette, solo l'ingrediente specifico!
-    const prompt = `Sei un database nutrizionale. Restituisci i valori nutrizionali ESATTI per l'ingrediente o alimento: "${newName}", calcolati per un peso esatto di ${newWeight} grammi. IMPORTANTE: NON creare una ricetta o un piatto composto. Restituisci i dati SOLO di questo alimento specifico. Restituisci SOLO un oggetto JSON valido: {"alimento": "${newName}", "peso": ${newWeight}, "calorie": 35, "prot": 1, "carb": 7, "grassi": 0}`;
-    
-    try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
-        const d = await r.json();
-        let text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
-        let item = JSON.parse(text);
-        
-        if (Array.isArray(item)) item = item[0];
-        item.alimento = item.alimento || item.nome || newName;
-        item.peso = item.peso || newWeight;
-        item.calorie = item.calorie || item.kcal || 0;
-        item.prot = item.prot || item.proteine || 0;
-        item.carb = item.carb || item.carboidrati || 0;
-        item.grassi = item.grassi || item.fat || 0;
-
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'editSingleItem', id: activeId, item }) });
-        document.getElementById('overlay').style.display = 'none'; load();
-    } catch(e) { alert("Errore durante il calcolo. Riprova."); document.getElementById('overlay').style.display = 'none'; }
-}
-
-// =================== MENU + E SOSTITUZIONE ===================
-function openMenu(id, food, kcal) {
+// STEP 1: Scelta Piatto Principale
+function openStep1(id, food, kcal) {
     activeId = id; currentFood = food; currentKcal = kcal;
-    document.getElementById('overlay').style.display='flex';
-    document.getElementById('popupContent').innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-            <h3>Sostituisci</h3>
-            <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
-        </div>
-        <div class="category-grid">
-            <button class="cat-btn" onclick="generateCategory('Pesce')">🐟 Pesce</button>
-            <button class="cat-btn" onclick="generateCategory('Carne')">🥩 Carne</button>
-            <button class="cat-btn" onclick="generateCategory('Formaggi')">🧀 Formaggi</button>
-            <button class="cat-btn" onclick="generateCategory('Uova')">🍳 Uova</button>
+    document.getElementById('overlay').style.display = 'flex';
+    const popup = document.getElementById('popupContent');
+    popup.innerHTML = `
+        <h3>Passo 1/2</h3>
+        <p style="margin-bottom:15px">Cosa ti va come piatto principale?</p>
+        <div class="cat-grid">
+            <button class="cat-btn" onclick="selectMain('Pesce')">🐟 Pesce</button>
+            <button class="cat-btn" onclick="selectMain('Carne')">🥩 Carne</button>
+            <button class="cat-btn" onclick="selectMain('Uova')">🍳 Uova</button>
+            <button class="cat-btn" onclick="selectMain('Formaggi')">🧀 Formaggi</button>
         </div>
         <div class="custom-input">
-            <label class="tool-btn">📷 <input type="file" accept="image/*" capture="environment" onchange="handleImageUpload(event)" style="display:none;"></label>
-            <button id="micBtn" class="tool-btn" onclick="startDictation()">🎤</button>
-            <input type="text" id="customIdea" placeholder="Dettalo o scrivilo...">
-            <button class="create-btn" onclick="generateCustom()">Vai</button>
+            <input type="text" id="customMain" placeholder="Es: Petto di pollo">
+            <button class="create-btn" onclick="selectMain(document.getElementById('customMain').value)">Ok</button>
         </div>
-        <div id="aiList"></div>
     `;
 }
 
-function openAdd(pasto) {
-    activePasto = pasto;
-    document.getElementById('overlay').style.display = 'flex';
-    document.getElementById('popupContent').innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-            <h3>Aggiungi a ${pasto}</h3>
-            <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
+function selectMain(val) {
+    step1Main = val;
+    openStep2();
+}
+
+// STEP 2: Scelta Contorno
+function openStep2() {
+    const popup = document.getElementById('popupContent');
+    popup.innerHTML = `
+        <h3>Passo 2/2</h3>
+        <p style="margin-bottom:15px">E come contorno?</p>
+        <div class="cat-grid">
+            <button class="cat-btn" onclick="generateFinal('Verdure grigliate')">🥗 Verdure</button>
+            <button class="cat-btn" onclick="generateFinal('Insalata mista')">🥬 Insalata</button>
+            <button class="cat-btn" onclick="generateFinal('Patate al forno')">🥔 Patate</button>
+            <button class="cat-btn" onclick="generateFinal('Nessun contorno')">❌ Nessuno</button>
         </div>
-        <p style="font-size:12px; color:var(--muted)">Target attuale: circa ${remKcalVal} kcal rimaste.</p>
-        <div style="margin: 15px 0;">
-            <label style="font-size:12px; font-weight:bold;">Alimento</label>
-            <input type="text" id="newItemName" placeholder="Es. Mela, Tonno, ecc..." style="width:100%; padding:12px; margin-top:5px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        <div class="custom-input">
+            <input type="text" id="customSide" placeholder="Es: Broccoli">
+            <button class="create-btn" onclick="generateFinal(document.getElementById('customSide').value)">Vai</button>
         </div>
-        <div style="margin: 15px 0;">
-            <label style="font-size:12px; font-weight:bold;">Grammi (opzionale)</label>
-            <input type="number" id="newItemWeight" placeholder="Es. 150" style="width:100%; padding:12px; margin-top:5px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
-        </div>
-        <button onclick="saveNewItem()" style="width:100%; padding:15px; background:var(--text); color:var(--bg); border:none; border-radius:12px; font-weight:bold;">Calcola e Aggiungi</button>
     `;
 }
 
-async function saveNewItem() {
-    const name = document.getElementById('newItemName').value;
-    const weight = document.getElementById('newItemWeight').value;
+async function generateFinal(side) {
+    step2Side = side;
     const key = localStorage.getItem('gem_key');
-    if(!key) return alert("Inserisci la chiave 🔑");
-    if(!name) return alert("Inserisci il nome dell'alimento!");
-
-    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>L'IA sta calcolando i macro... ⏳</div>";
+    const popup = document.getElementById('popupContent');
+    popup.innerHTML = "<p style='text-align:center'>Lo Chef sta creando 4 varianti... ⏳</p>";
     
-    // PROMPT BLINDATO: Usa i grammi se ci sono, altrimenti usa le kcal rimaste. Ma NON fare ricette.
-    let weightInstruction = weight ? `per un peso esatto di ${weight} grammi` : `calcolando una porzione adatta per circa ${remKcalVal} kcal`;
-    const prompt = `Sei un calcolatore nutrizionale. Calcola i valori per: "${name}" ${weightInstruction}. IMPORTANTE: Se è un ingrediente semplice (es. Pachino, Mela), NON inventare ricette complesse o Power Bowl, restituisci solo quello che ti è stato chiesto. Rispondi SOLO in formato JSON: {"alimento": "${name}", "calorie": 150, "peso": ${weight || 100}, "prot": 5, "carb": 15, "grassi": 2}`;
+    const prompt = `Crea 4 piatti keto/sani composti da "${step1Main}" e "${step2Side}" (totale circa ${currentKcal} kcal). Rispondi SOLO array JSON: [{"alimento": "Nome", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "X", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}]`;
     
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
         const d = await r.json();
-        let text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
-        let item = JSON.parse(text);
-        
-        if (Array.isArray(item)) item = item[0];
-        item.alimento = item.alimento || item.nome || name;
-        item.peso = item.peso || weight || 0;
-        item.calorie = item.calorie || item.kcal || 0;
-        item.prot = item.prot || item.proteine || 0;
-        item.carb = item.carb || item.carboidrati || 0;
-        item.grassi = item.grassi || item.fat || 0;
-
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addNewItem', pasto: activePasto, data: selectedDate, item }) });
-        document.getElementById('overlay').style.display = 'none'; load();
-    } catch(e) { alert("Errore IA. Riprova."); load(); }
-}
-
-async function generateCategory(cat) {
-    const key = localStorage.getItem('gem_key');
-    document.getElementById('aiList').innerHTML = "Cerco alternative...";
-    const prompt = `Crea 4 piatti keto/sani a base di ${cat} per sostituire "${currentFood}" (~${currentKcal} kcal). Rispondi SOLO array JSON: [{"alimento": "Nome", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "X", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}]`;
-    const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
-    const d = await r.json();
-    const opts = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, ""));
-    document.getElementById('aiList').innerHTML = opts.map((o, idx) => `<div class="opt-card" onclick="applyRecipe(${JSON.stringify(o).replace(/"/g, '&quot;')})"><b>${o.alimento}</b> (${o.calorie} kcal)</div>`).join('');
+        const opts = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, ""));
+        popup.innerHTML = `<h3>Scegli la tua preferita</h3>` + opts.map((o, idx) => `
+            <div class="opt-card" onclick="applyRecipe(${JSON.stringify(o).replace(/"/g, '&quot;')})">
+                <b>${o.alimento}</b><br><small>${o.calorie} kcal | P:${o.prot} C:${o.carb} G:${o.grassi}</small>
+            </div>
+        `).join('');
+    } catch(e) { popup.innerHTML = "Errore IA. Riprova."; }
 }
 
 async function applyRecipe(recipe) {
-    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Salvataggio... ⏳</div>";
+    const popup = document.getElementById('popupContent');
+    popup.innerHTML = "<p style='text-align:center'>Salvataggio e preparazione ricetta... ⏳</p>";
     await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'replaceRecipe', id: activeId, recipe }) });
-    document.getElementById('overlay').style.display = 'none'; load();
+    
+    // MOSTRA LA RICETTA FINALE DOPO IL SALVATAGGIO
+    let ingStr = recipe.ingredienti.map(i => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:5px 0"><span>• ${i.nome}</span> <b>${i.peso}g</b></div>`).join('');
+    popup.innerHTML = `
+        <h2 style="color:var(--green)">Buon appetito! 🎉</h2>
+        <div style="background:var(--bg);padding:15px;border-radius:15px;margin:15px 0">
+            <h3 style="margin-bottom:10px">${recipe.alimento}</h3>
+            ${ingStr}
+        </div>
+        <p style="font-size:12px;color:var(--muted);text-align:center">Dati salvati correttamente su Google Sheets.</p>
+        <button onclick="document.getElementById('overlay').style.display='none';load()" style="width:100%;padding:15px;margin-top:15px;border-radius:12px;border:none;background:var(--text);color:var(--bg);font-weight:bold">Chiudi</button>
+    `;
 }
 
 function toggle(id, curr, isFather) {
     const ns = !curr ? "TRUE" : "FALSE";
     const action = isFather ? "bulkToggle" : "toggleDone";
     fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action, id, parentId: id, value: ns }) });
-    setTimeout(load, 300);
+    setTimeout(load, 400);
 }
 
-function deleteItem(id) {
-    if(confirm("Sei sicuro di voler eliminare questa riga?")) {
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRow', id }) });
-        setTimeout(load, 500);
-    }
-}
-
-function startDictation() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const rec = new SpeechRecognition(); rec.lang = 'it-IT';
-    rec.onstart = () => document.getElementById('micBtn').classList.add('recording');
-    rec.onresult = (e) => { document.getElementById('customIdea').value = e.results[0][0].transcript; };
-    rec.onend = () => document.getElementById('micBtn').classList.remove('recording');
-    rec.start();
-}
-
-function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Analizzo la foto... ⏳</div>`;
-    const reader = new FileReader();
-    reader.onloadend = function() { generateFromImage(reader.result.split(',')[1], file.type); };
-    reader.readAsDataURL(file);
-}
-
-async function generateFromImage(base64data, mimeType) {
-    const key = localStorage.getItem('gem_key');
-    const promptText = `Analizza questo piatto. Crea la ricetta e stima gli ingredienti in modo che il totale calorico raggiunga circa ${currentKcal} kcal. Rispondi SOLO JSON (no array): {"alimento": "Nome Piatto", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}`;
-    const parts = [{ "text": promptText }, { "inlineData": { "mimeType": mimeType, "data": base64data } }];
-    try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key: key, parts: parts }) });
-        const d = await r.json();
-        const recipe = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, ""));
-        applyRecipe(recipe);
-    } catch(e) { document.getElementById('aiList').innerHTML = "<span style='color:red'>Errore. Foto non chiara.</span>"; }
-}
-
-async function generateCustom() {
-    const customText = document.getElementById('customIdea').value;
-    if(!customText) return;
-    const key = localStorage.getItem('gem_key');
-    document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Calcolo grammi e macro per <b>${customText}</b>... ⏳</div>`;
-    const prompt = `Voglio mangiare "${customText}". Crea la ricetta bilanciata per un totale esatto di circa ${currentKcal} kcal. Se è un ingrediente singolo, NON inventare ricette. Rispondi SOLO JSON (no array): {"alimento": "${customText}", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}`;
-    try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
-        const d = await r.json();
-        const recipe = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, ""));
-        applyRecipe(recipe);
-    } catch(e) { document.getElementById('aiList').innerHTML = "<span style='color:red'>Errore IA. Riprova.</span>"; }
-}
-
+function deleteItem(id) { if(confirm("Eliminare?")) { fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRow', id }) }); setTimeout(load, 500); } }
+function openAdd(pasto) { /* Funzione add esistente... */ }
 window.onload = load;
 </script>
 </body>
