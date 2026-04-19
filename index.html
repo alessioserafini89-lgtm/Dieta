@@ -43,7 +43,7 @@
         
         .info { flex: 1; min-width:0; }
         .name { font-size: 16px; font-weight: 500; }
-        .name span { color: var(--muted); font-size: 14px; font-weight: normal; } /* Stile per i grammi testuali */
+        .name span { color: var(--muted); font-size: 14px; font-weight: normal; }
         .macros { font-size: 11px; color: var(--muted); margin-top: 4px; }
         .kcal-val { width: 45px; text-align: right; font-weight: 800; font-size: 16px; color: var(--text); }
         
@@ -65,7 +65,11 @@
         .m-prot { background: var(--blue); transition: width 0.5s ease; }
         .m-carb { background: var(--amber); transition: width 0.5s ease; }
         .m-fat { background: var(--red); transition: width 0.5s ease; }
-        .macro-legend { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 20px; }
+        
+        /* Nuovi stili per i bottoni dei macro */
+        .macro-legend { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; gap: 8px; margin-bottom: 15px; }
+        .macro-btn { flex: 1; padding: 10px 5px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px var(--shadow); }
+        .macro-btn:active { transform: scale(0.95); background: var(--bg); }
     </style>
 </head>
 <body>
@@ -91,6 +95,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxEzXCd4a8_5uzvhGGv
 
 let allData = [], selectedDate = "", activeId = null, currentFood = "", currentKcal = 0, remKcalVal = 0, activePasto = "";
 let step1Main = "", step2Side = "";
+let currentInfoItems = []; // Variabile per memorizzare gli ingredienti attualmente visualizzati nel grafico
 
 function setKey() { const k = prompt("Incolla Chiave Gemini:"); if(k) localStorage.setItem('gem_key', k); }
 
@@ -155,7 +160,6 @@ function render() {
             const cleanName = item.Alimento.replace(/^->\s*/, '');
             const weight = Number(item['Peso gr']) || 0;
             
-            // Creazione testo unificato: "Olio - 30g" (Mostra il peso solo se è maggiore di 0)
             const weightText = weight > 0 ? ` <span>- ${weight}g</span>` : '';
 
             card.innerHTML += `<div class="row ${isSub?'sub':''}">
@@ -226,20 +230,19 @@ async function saveEdit() {
     } catch(e) { alert("Errore durante il calcolo. Riprova."); document.getElementById('overlay').style.display = 'none'; }
 }
 
-// ================= VISTA INFO PASTO SINGOLO =================
+// ================= VISTA INFO E GRAFICI (CON DRILL-DOWN) =================
 function openMealInfo(pasto) {
     const items = allData.filter(x => x.Data === selectedDate && x.Pasto === pasto);
     showMacroPopup(`Riepilogo ${pasto}`, items);
 }
 
-// ================= VISTA RECAP GIORNALIERO =================
 function openDailyInfo() {
     const items = allData.filter(x => x.Data === selectedDate);
     showMacroPopup(`Recap Giornata`, items, "Calorie Totali Pianificate");
 }
 
-// Funzione unificata per mostrare il popup grafico
 function showMacroPopup(title, items, subtitle = "Calorie Totali") {
+    currentInfoItems = items; // Salviamo gli elementi per la funzione renderMacroDetails
     let tKcal = 0, tP = 0, tC = 0, tF = 0;
     
     items.forEach(item => {
@@ -266,7 +269,7 @@ function showMacroPopup(title, items, subtitle = "Calorie Totali") {
             <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
         </div>
         
-        <div style="text-align:center; margin-bottom:25px; padding:20px; background:var(--bg); border-radius:16px; border:1px solid var(--border);">
+        <div style="text-align:center; margin-bottom:15px; padding:20px; background:var(--bg); border-radius:16px; border:1px solid var(--border);">
             <div style="font-size:38px; font-weight:800; color:var(--text); line-height:1;">${Math.round(tKcal)}</div>
             <div style="font-size:12px; color:var(--muted); text-transform:uppercase; font-weight:700; margin-top:5px;">${subtitle}</div>
             
@@ -277,12 +280,56 @@ function showMacroPopup(title, items, subtitle = "Calorie Totali") {
             </div>
             
             <div class="macro-legend">
-                <div style="color:var(--blue)">PROT: ${Math.round(tP)}g</div>
-                <div style="color:var(--amber)">CARB: ${Math.round(tC)}g</div>
-                <div style="color:var(--red)">GRAS: ${Math.round(tF)}g</div>
+                <div class="macro-btn" style="color:var(--blue)" onclick="renderMacroDetails('prot')">PROT: ${Math.round(tP)}g</div>
+                <div class="macro-btn" style="color:var(--amber)" onclick="renderMacroDetails('carb')">CARB: ${Math.round(tC)}g</div>
+                <div class="macro-btn" style="color:var(--red)" onclick="renderMacroDetails('grassi')">GRAS: ${Math.round(tF)}g</div>
             </div>
         </div>
+        
+        <div id="macroDetailsList" style="text-align:left; margin-bottom:20px; min-height:40px;">
+            <div style="font-size:12px; color:var(--muted); text-align:center; padding:10px;">Premi su un Macro qui sopra per vederne le fonti 👆</div>
+        </div>
+
         <button onclick="document.getElementById('overlay').style.display='none';" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--text); color:var(--bg); font-weight:bold; font-size:16px; cursor:pointer;">Chiudi</button>
+    `;
+}
+
+// Funzione per generare la classifica degli alimenti per macro
+function renderMacroDetails(type) {
+    let title = type === 'prot' ? 'Proteine' : type === 'carb' ? 'Carboidrati' : 'Grassi';
+    let color = type === 'prot' ? 'var(--blue)' : type === 'carb' ? 'var(--amber)' : 'var(--red)';
+    
+    // Filtriamo solo gli ingredienti "veri" (foglie)
+    let leaves = currentInfoItems.filter(item => {
+        const isSub = String(item.ID).includes('.');
+        const hasChildren = !isSub && currentInfoItems.some(child => String(child.ID).startsWith(item.ID + '.'));
+        return !hasChildren;
+    });
+
+    // Mappiamo, filtriamo gli zeri e ordiniamo dal più alto al più basso
+    let mapped = leaves.map(item => {
+        let val = 0;
+        if(type === 'prot') val = Number(item.Prot) || 0;
+        if(type === 'carb') val = Number(item.Carb) || 0;
+        if(type === 'grassi') val = Number(item.Grassi) || 0;
+        return { name: item.Alimento.replace(/^->\s*/, ''), val: val };
+    }).filter(x => x.val > 0).sort((a,b) => b.val - a.val);
+
+    let listHtml = '';
+    if(mapped.length === 0) {
+        listHtml = `<div style="font-size:13px; color:var(--muted); text-align:center;">Nessun alimento fornisce ${title.toLowerCase()}.</div>`;
+    } else {
+        listHtml = mapped.map(x => `
+            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:14px;">
+                <span>${x.name}</span>
+                <b style="color:${color}">${Math.round(x.val)}g</b>
+            </div>
+        `).join('');
+    }
+
+    document.getElementById('macroDetailsList').innerHTML = `
+        <h4 style="margin-bottom:10px; color:${color}; font-size:12px; text-transform:uppercase; font-weight:800;">Top Fonti di ${title}</h4>
+        ${listHtml}
     `;
 }
 
