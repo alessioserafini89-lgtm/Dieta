@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet - Chef Edition</title>
+    <title>Alessio Diet - Chef & Info Edition</title>
     <style>
-        :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --red: #ff3b30; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
+        :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --red: #ff3b30; --blue: #0a84ff; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
         @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #2c2c2e; --shadow: rgba(0,0,0,0.3); } }
         * { box-sizing: border-box; margin: 0; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
@@ -14,13 +14,19 @@
         .header h2 { font-size: 28px; font-weight: 800; margin: 0; }
         .kcal-box { text-align: right; background: var(--card); padding: 8px 15px; border-radius: 12px; box-shadow: 0 4px 10px var(--shadow); border: 1px solid var(--border); }
         .kcal-num { color: var(--green); font-size: 22px; font-weight: 800; }
+        .kcal-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
         .tabs { display: flex; overflow-x: auto; gap: 10px; padding: 5px 20px 15px; scrollbar-width: none; }
         .tab { padding: 10px 20px; background: var(--card); border-radius: 25px; font-size: 14px; font-weight: 600; white-space: nowrap; color: var(--muted); border: 1px solid var(--border); cursor: pointer; }
         .tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
         .meal-group { padding: 0 20px; margin-bottom: 25px; }
         .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .meal-title { font-size: 18px; font-weight: 700; color: var(--amber); }
-        .add-btn { background: var(--green); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+        
+        /* Bottoni Header Pasto */
+        .header-btns { display: flex; gap: 8px; }
+        .add-btn { background: var(--green); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; font-size:18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .info-btn { background: var(--text); color: var(--bg); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
         .card { background: var(--card); border-radius: 20px; box-shadow: 0 4px 15px var(--shadow); border: 1px solid var(--border); overflow: hidden; }
         .row { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: 0.2s; }
         .row.sub { padding-left: 20px; background: rgba(142, 142, 147, 0.03); }
@@ -31,8 +37,10 @@
         .info { flex: 1; min-width:0; }
         .name { font-size: 16px; font-weight: 500; }
         .macros { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .kcal-val { width: 45px; text-align: right; font-weight: 800; font-size: 16px; color: var(--text); }
         .btn-sub { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 8px; cursor: pointer; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .popup { background: var(--card); border-radius: 24px; width: 100%; max-width: 400px; max-height: 85vh; padding: 25px; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .cat-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; }
@@ -40,19 +48,31 @@
         .custom-input input { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
         .create-btn { padding: 0 14px; border-radius: 12px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer; }
         .opt-card { background: var(--bg); padding: 15px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
+
+        /* Stili per il Grafico Macro */
+        .macro-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 15px 0; background: #333;}
+        .m-prot { background: var(--blue); transition: width 0.5s ease; }
+        .m-carb { background: var(--amber); transition: width 0.5s ease; }
+        .m-fat { background: var(--red); transition: width 0.5s ease; }
+        .macro-legend { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="header-left"><h2>Dieta</h2><button class="key-btn" onclick="setKey()">🔑</button></div>
-        <div class="kcal-box"><div class="kcal-num" id="remKcal">2000</div></div>
+        <div class="header-left">
+            <h2>Dieta</h2>
+            <button class="add-btn" style="background:var(--card); border:1px solid var(--border); color:var(--text);" onclick="setKey()">🔑</button>
+        </div>
+        <div class="kcal-box"><div class="kcal-num" id="remKcal">2000</div><div class="kcal-label">Kcal Rimaste</div></div>
     </div>
     <div class="tabs" id="tabList"></div>
     <div id="app"></div>
     <div id="overlay" class="overlay"><div class="popup" id="popupContent"></div></div>
 
 <script>
+// ---------- INSERISCI IL TUO URL QUI SOTTO ----------
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxEzXCd4a8_5uzvhGGvyrWVlsBb0W7rHVOZQOYzSMoKEQU2t4o0DEVPTX3TsQMvWsZ5Q/exec";
+
 let allData = [], selectedDate = "", activeId = null, currentFood = "", currentKcal = 0, remKcalVal = 0, activePasto = "";
 let step1Main = "", step2Side = "";
 
@@ -65,7 +85,7 @@ async function load() {
         const dates = [...new Set(allData.map(x => x.Data))];
         if(!selectedDate) selectedDate = dates[0];
         render();
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error("Errore di caricamento."); }
 }
 
 function render() {
@@ -91,7 +111,19 @@ function render() {
 
     for(const [pasto, items] of Object.entries(groups)) {
         const groupDiv = document.createElement('div'); groupDiv.className = "meal-group";
-        groupDiv.innerHTML = `<div class="meal-header"><div class="meal-title">${pasto}</div><button class="add-btn" onclick="openAdd('${pasto}')">+</button></div>`;
+        
+        // Header del pasto con i due bottoni (Info e Add)
+        groupDiv.innerHTML = `
+            <div class="meal-header">
+                <div class="meal-title">${pasto}</div>
+                <div class="header-btns">
+                    <button class="info-btn" onclick="openMealInfo('${pasto}')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    </button>
+                    <button class="add-btn" onclick="openAdd('${pasto}')">+</button>
+                </div>
+            </div>`;
+            
         const card = document.createElement('div'); card.className = "card";
         items.forEach(item => {
             const isSub = String(item.ID).includes('.');
@@ -102,99 +134,173 @@ function render() {
                 <div class="info">
                     <div class="name ${!isSub?'father':''}">${cleanName}</div>
                     <div class="macros">P:${item.Prot} C:${item.Carb} G:${item.Grassi}</div>
-                    ${!isSub ? `<button class="btn-sub" onclick="openStep1('${item.ID}','${cleanName}',${item.Calorie})">✨ Suggerisci</button>` : ''}
+                    ${!isSub ? `<button class="btn-sub" onclick="openStep1('${item.ID}','${cleanName.replace(/'/g, "\\'")}',${item.Calorie})">✨ Suggerisci</button>` : ''}
                 </div>
                 <div class="kcal-val">${item.Calorie}</div>
-                <button style="border:none;background:none;opacity:0.3" onclick="deleteItem('${item.ID}')">🗑️</button>
+                <button style="border:none;background:none;opacity:0.3;font-size:18px;" onclick="deleteItem('${item.ID}')">🗑️</button>
             </div>`;
         });
         groupDiv.appendChild(card); cont.appendChild(groupDiv);
     }
 }
 
-// STEP 1: Scelta Piatto Principale
+// ================= VISTA INFO PASTO (GRAFICO) =================
+function openMealInfo(pasto) {
+    const items = allData.filter(x => x.Data === selectedDate && x.Pasto === pasto);
+    let tKcal = 0, tP = 0, tC = 0, tF = 0;
+    let ingList = '';
+
+    items.forEach(item => {
+        const isSub = String(item.ID).includes('.');
+        const hasChildren = !isSub && items.some(child => String(child.ID).startsWith(item.ID + '.'));
+
+        // Sommiamo solo le "foglie" reali (gli ingredienti veri)
+        if (!hasChildren) {
+            tKcal += Number(item.Calorie) || 0;
+            tP += Number(item.Prot) || 0;
+            tC += Number(item.Carb) || 0;
+            tF += Number(item.Grassi) || 0;
+            const cleanName = item.Alimento.replace(/^->\s*/, '');
+            const weight = item['Peso gr'] ? `<span style="color:var(--muted)">(${item['Peso gr']}g)</span>` : '';
+            
+            ingList += `
+                <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
+                    <div style="font-weight:500;">${cleanName} ${weight}</div>
+                    <div style="font-weight:bold;">${Math.round(Number(item.Calorie)||0)} <small style="color:var(--muted);font-weight:normal;">kcal</small></div>
+                </div>`;
+        }
+    });
+
+    // Calcolo percentuali per il grafico
+    const totalMacros = (tP + tC + tF) || 1; 
+    const pPct = (tP / totalMacros) * 100;
+    const cPct = (tC / totalMacros) * 100;
+    const fPct = (tF / totalMacros) * 100;
+
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('popupContent').innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center;">
+            <h3 style="margin:0; font-size:22px;">Riepilogo ${pasto}</h3>
+            <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
+        </div>
+        
+        <div style="text-align:center; margin-bottom:25px; padding:20px; background:var(--bg); border-radius:16px; border:1px solid var(--border);">
+            <div style="font-size:38px; font-weight:800; color:var(--text); line-height:1;">${Math.round(tKcal)}</div>
+            <div style="font-size:12px; color:var(--muted); text-transform:uppercase; font-weight:700; margin-top:5px;">Calorie Totali</div>
+            
+            <div class="macro-bar">
+                <div class="m-prot" style="width:${pPct}%"></div>
+                <div class="m-carb" style="width:${cPct}%"></div>
+                <div class="m-fat" style="width:${fPct}%"></div>
+            </div>
+            
+            <div class="macro-legend">
+                <div style="color:var(--blue)">PROT: ${Math.round(tP)}g</div>
+                <div style="color:var(--amber)">CARB: ${Math.round(tC)}g</div>
+                <div style="color:var(--red)">GRAS: ${Math.round(tF)}g</div>
+            </div>
+        </div>
+
+        <h4 style="margin-bottom:10px; color:var(--muted); font-size:12px; text-transform:uppercase; font-weight:700;">Ingredienti del pasto</h4>
+        ${ingList || '<div style="font-size:14px; color:var(--muted);">Nessun alimento presente.</div>'}
+    `;
+}
+
+// ================= SUGGERISCI (CHEF EDITION) =================
 function openStep1(id, food, kcal) {
     activeId = id; currentFood = food; currentKcal = kcal;
     document.getElementById('overlay').style.display = 'flex';
-    const popup = document.getElementById('popupContent');
-    popup.innerHTML = `
-        <h3>Passo 1/2</h3>
-        <p style="margin-bottom:15px">Cosa ti va come piatto principale?</p>
+    document.getElementById('popupContent').innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <h3>Passo 1 di 2</h3>
+            <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
+        </div>
+        <p style="margin-bottom:20px; font-size:14px; color:var(--muted);">Scegli la <b>proteina principale</b> per il tuo piatto:</p>
         <div class="cat-grid">
             <button class="cat-btn" onclick="selectMain('Pesce')">🐟 Pesce</button>
-            <button class="cat-btn" onclick="selectMain('Carne')">🥩 Carne</button>
+            <button class="cat-btn" onclick="selectMain('Carne')">🥩 Carne bianca/rossa</button>
             <button class="cat-btn" onclick="selectMain('Uova')">🍳 Uova</button>
-            <button class="cat-btn" onclick="selectMain('Formaggi')">🧀 Formaggi</button>
+            <button class="cat-btn" onclick="selectMain('Formaggi')">🧀 Formaggio o Latticini</button>
         </div>
         <div class="custom-input">
-            <input type="text" id="customMain" placeholder="Es: Petto di pollo">
-            <button class="create-btn" onclick="selectMain(document.getElementById('customMain').value)">Ok</button>
+            <input type="text" id="customMain" placeholder="Oppure scrivilo (es. Tofu)">
+            <button class="create-btn" onclick="selectMain(document.getElementById('customMain').value)">Avanti</button>
         </div>
     `;
 }
 
 function selectMain(val) {
+    if(!val) return;
     step1Main = val;
-    openStep2();
-}
-
-// STEP 2: Scelta Contorno
-function openStep2() {
     const popup = document.getElementById('popupContent');
     popup.innerHTML = `
-        <h3>Passo 2/2</h3>
-        <p style="margin-bottom:15px">E come contorno?</p>
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <h3>Passo 2 di 2</h3>
+            <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
+        </div>
+        <p style="margin-bottom:20px; font-size:14px; color:var(--muted);">E come <b>contorno</b> cosa abbiniamo a ${step1Main}?</p>
         <div class="cat-grid">
-            <button class="cat-btn" onclick="generateFinal('Verdure grigliate')">🥗 Verdure</button>
-            <button class="cat-btn" onclick="generateFinal('Insalata mista')">🥬 Insalata</button>
-            <button class="cat-btn" onclick="generateFinal('Patate al forno')">🥔 Patate</button>
-            <button class="cat-btn" onclick="generateFinal('Nessun contorno')">❌ Nessuno</button>
+            <button class="cat-btn" onclick="generateFinal('Verdure cotte o grigliate')">🥗 Verdure Cotte</button>
+            <button class="cat-btn" onclick="generateFinal('Insalata fresca')">🥬 Insalata Fresca</button>
+            <button class="cat-btn" onclick="generateFinal('Patate o Riso')">🥔 Fonte di Carboidrati</button>
+            <button class="cat-btn" onclick="generateFinal('Nessun contorno')">❌ Solo ${step1Main}</button>
         </div>
         <div class="custom-input">
-            <input type="text" id="customSide" placeholder="Es: Broccoli">
-            <button class="create-btn" onclick="generateFinal(document.getElementById('customSide').value)">Vai</button>
+            <input type="text" id="customSide" placeholder="Es. Spinaci al burro">
+            <button class="create-btn" onclick="generateFinal(document.getElementById('customSide').value)">Genera</button>
         </div>
     `;
 }
 
 async function generateFinal(side) {
+    if(!side) return;
     step2Side = side;
     const key = localStorage.getItem('gem_key');
-    const popup = document.getElementById('popupContent');
-    popup.innerHTML = "<p style='text-align:center'>Lo Chef sta creando 4 varianti... ⏳</p>";
+    if(!key) return alert("Inserisci la chiave 🔑");
     
-    const prompt = `Crea 4 piatti keto/sani composti da "${step1Main}" e "${step2Side}" (totale circa ${currentKcal} kcal). Rispondi SOLO array JSON: [{"alimento": "Nome", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "X", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}]`;
+    const popup = document.getElementById('popupContent');
+    popup.innerHTML = "<div style='text-align:center; padding:30px;'><h3>👨‍🍳 Lo Chef sta cucinando...</h3><p style='color:var(--muted)'>Calcolo le grammature perfette per ${currentKcal} kcal.</p></div>";
+    
+    const prompt = `Crea 4 piatti sani composti principalmente da "${step1Main}" e come contorno "${step2Side}" (il totale esatto deve essere circa ${currentKcal} kcal). Bilancia le grammature di entrambi. Rispondi SOLO array JSON: [{"alimento": "Nome Ricetta", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 150, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}]`;
     
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
         const d = await r.json();
         const opts = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, ""));
-        popup.innerHTML = `<h3>Scegli la tua preferita</h3>` + opts.map((o, idx) => `
-            <div class="opt-card" onclick="applyRecipe(${JSON.stringify(o).replace(/"/g, '&quot;')})">
-                <b>${o.alimento}</b><br><small>${o.calorie} kcal | P:${o.prot} C:${o.carb} G:${o.grassi}</small>
-            </div>
-        `).join('');
+        popup.innerHTML = `
+            <h3 style="margin-bottom:15px;">Scegli la tua variante</h3>
+            ${opts.map((o) => `
+                <div class="opt-card" onclick='applyRecipe(${JSON.stringify(o).replace(/'/g, "&apos;")})'>
+                    <b style="font-size:16px;">${o.alimento}</b><br>
+                    <small style="color:var(--green); font-weight:bold;">${o.calorie} kcal | P:${o.prot} C:${o.carb} G:${o.grassi}</small>
+                </div>
+            `).join('')}
+            <button onclick="openStep1(activeId, currentFood, currentKcal)" style="width:100%; padding:12px; margin-top:10px; background:var(--bg); border:1px solid var(--border); border-radius:12px; font-weight:bold; color:var(--text);">Indietro</button>
+        `;
     } catch(e) { popup.innerHTML = "Errore IA. Riprova."; }
 }
 
 async function applyRecipe(recipe) {
     const popup = document.getElementById('popupContent');
-    popup.innerHTML = "<p style='text-align:center'>Salvataggio e preparazione ricetta... ⏳</p>";
+    popup.innerHTML = "<div style='text-align:center; padding:30px;'><h3>Salvataggio su Google Fogli... ⏳</h3></div>";
     await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'replaceRecipe', id: activeId, recipe }) });
     
-    // MOSTRA LA RICETTA FINALE DOPO IL SALVATAGGIO
-    let ingStr = recipe.ingredienti.map(i => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:5px 0"><span>• ${i.nome}</span> <b>${i.peso}g</b></div>`).join('');
+    let ingStr = recipe.ingredienti.map(i => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span>• ${i.nome}</span> <b>${i.peso}g</b></div>`).join('');
+    
     popup.innerHTML = `
-        <h2 style="color:var(--green)">Buon appetito! 🎉</h2>
-        <div style="background:var(--bg);padding:15px;border-radius:15px;margin:15px 0">
-            <h3 style="margin-bottom:10px">${recipe.alimento}</h3>
+        <h2 style="color:var(--green); margin-bottom:5px;">Piatto aggiunto! 🎉</h2>
+        <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Dati sincronizzati su Fogli.</p>
+        
+        <div style="background:var(--bg); padding:20px; border-radius:16px; border:1px solid var(--border); margin-bottom:20px;">
+            <h3 style="margin-bottom:15px; color:var(--text);">${recipe.alimento}</h3>
             ${ingStr}
         </div>
-        <p style="font-size:12px;color:var(--muted);text-align:center">Dati salvati correttamente su Google Sheets.</p>
-        <button onclick="document.getElementById('overlay').style.display='none';load()" style="width:100%;padding:15px;margin-top:15px;border-radius:12px;border:none;background:var(--text);color:var(--bg);font-weight:bold">Chiudi</button>
+        
+        <button onclick="document.getElementById('overlay').style.display='none'; load()" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--text); color:var(--bg); font-weight:bold; font-size:16px;">Chiudi</button>
     `;
 }
 
+// ================= FUNZIONI BASE =================
 function toggle(id, curr, isFather) {
     const ns = !curr ? "TRUE" : "FALSE";
     const action = isFather ? "bulkToggle" : "toggleDone";
@@ -202,8 +308,38 @@ function toggle(id, curr, isFather) {
     setTimeout(load, 400);
 }
 
-function deleteItem(id) { if(confirm("Eliminare?")) { fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRow', id }) }); setTimeout(load, 500); } }
-function openAdd(pasto) { /* Funzione add esistente... */ }
+function deleteItem(id) { if(confirm("Eliminare questa riga?")) { fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRow', id }) }); setTimeout(load, 500); } }
+
+function openAdd(pasto) {
+    activePasto = pasto;
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('popupContent').innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><h3>Aggiungi a ${pasto}</h3><button onclick="document.getElementById('overlay').style.display='none'" style="border:none;background:none;font-size:24px;">&times;</button></div>
+        <p style="font-size:12px; color:var(--muted)">Target attuale: circa ${remKcalVal} kcal rimaste.</p>
+        <div style="margin: 15px 0;"><label style="font-size:12px; font-weight:bold;">Alimento</label><input type="text" id="newItemName" placeholder="Es. Mela" style="width:100%; padding:12px; margin-top:5px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);"></div>
+        <div style="margin: 15px 0;"><label style="font-size:12px; font-weight:bold;">Grammi (opzionale)</label><input type="number" id="newItemWeight" placeholder="Es. 150" style="width:100%; padding:12px; margin-top:5px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);"></div>
+        <button onclick="saveNewItem()" style="width:100%; padding:15px; background:var(--text); color:var(--bg); border:none; border-radius:12px; font-weight:bold;">Aggiungi</button>
+    `;
+}
+
+async function saveNewItem() {
+    const name = document.getElementById('newItemName').value;
+    const weight = document.getElementById('newItemWeight').value;
+    const key = localStorage.getItem('gem_key');
+    if(!key) return alert("Inserisci la chiave 🔑");
+    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:30px;'>L'IA calcola... ⏳</div>";
+    let wInst = weight ? `per ${weight}g` : `per circa ${remKcalVal} kcal`;
+    const prompt = `Valori per "${name}" ${wInst}. NO RICETTE. SOLO JSON: {"alimento": "${name}", "calorie": 150, "peso": ${weight||100}, "prot": 5, "carb": 15, "grassi": 2}`;
+    try {
+        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
+        const d = await r.json();
+        let item = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim());
+        if (Array.isArray(item)) item = item[0];
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addNewItem', pasto: activePasto, data: selectedDate, item }) });
+        document.getElementById('overlay').style.display = 'none'; load();
+    } catch(e) { alert("Errore IA"); load(); }
+}
+
 window.onload = load;
 </script>
 </body>
