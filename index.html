@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet Elite v4</title>
+    <title>Alessio Diet Elite v5</title>
     <style>
         :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --red: #ff3b30; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
         @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #2c2c2e; --shadow: rgba(0,0,0,0.3); } }
@@ -31,18 +31,18 @@
         .row.done { opacity: 0.5; }
         .check { width: 28px; height: 28px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; color: transparent; }
         .check.active { background: var(--green); border-color: var(--green); color: #fff; }
-        .info { flex: 1; }
-        .name { font-size: 16px; font-weight: 500; }
-        .name.father { font-weight: 700; color: var(--green); } /* Colore padre per distinguerlo bene */
+        .info { flex: 1; min-width:0; }
+        .name { font-size: 16px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .name.father { font-weight: 700; color: var(--green); }
         .macros { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500; }
         .kcal-val { width: 45px; text-align: right; font-weight: 800; font-size: 16px; color: var(--text); }
         .btn-sub { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
         
-        /* Icone Azioni */
         .actions { display: flex; gap: 8px; align-items: center; }
         .action-icon { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.5; transition: 0.2s; padding: 4px; }
         .action-icon:hover { opacity: 1; transform: scale(1.1); }
         .del-icon { color: var(--red); }
+        .weight-input { width: 55px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 4px; text-align: center; font-weight: 700; font-size: 14px; }
 
         /* Popup */
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -53,11 +53,9 @@
         .tool-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; width: 42px; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; }
         .tool-btn.recording { background: #ff3b30; color: white; border-color: #ff3b30; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .custom-input input { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; }
+        .custom-input input { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; min-width: 0; }
         .create-btn { padding: 0 14px; border-radius: 12px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer;}
         .opt-card { background: var(--bg); padding: 15px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
-        
-        .weight-input { width: 55px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 4px; text-align: center; font-weight: 700; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -89,7 +87,7 @@ async function load() {
         const dates = [...new Set(allData.map(x => x.Data))];
         if(!selectedDate) selectedDate = dates[0];
         render();
-    } catch(e) { document.getElementById('app').innerHTML = "<div style='padding:20px; text-align:center;'>Caricamento... Assicurati di aver fatto Nuova Versione su Apps Script!</div>"; }
+    } catch(e) { document.getElementById('app').innerHTML = "<div style='padding:20px; text-align:center;'>Caricamento in corso...</div>"; }
 }
 
 function render() {
@@ -149,7 +147,7 @@ function render() {
     }
 }
 
-// =================== MODIFICA PESO (INLINE) ===================
+// =================== MODIFICA PESO RAPIDO (INLINE) ===================
 async function updWeight(id, nw) {
     document.getElementById('overlay').style.display='flex';
     document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Ricalcolo macro ed aggiorno totale... ⏳</div>";
@@ -158,7 +156,7 @@ async function updWeight(id, nw) {
     load();
 }
 
-// =================== LOGICA MATITA (MODIFICA AVANZATA CON IA) ===================
+// =================== LOGICA MATITA (MODIFICA AVANZATA) ===================
 function openEdit(id, currentName, currentWeight) {
     activeId = id;
     document.getElementById('overlay').style.display = 'flex';
@@ -167,9 +165,9 @@ function openEdit(id, currentName, currentWeight) {
             <h3>Modifica Alimento</h3>
             <button onclick="document.getElementById('overlay').style.display='none'" style="border:none; background:none; font-size:24px;">&times;</button>
         </div>
-        <p style="font-size:12px; color:var(--muted)">L'IA ricalcolerà i macro se modifichi il nome.</p>
+        <p style="font-size:12px; color:var(--muted)">Modificando il nome o i grammi, l'IA ricalcolerà i macro corretti.</p>
         <div style="margin: 15px 0;">
-            <label style="font-size:12px; font-weight:bold;">Alimento / Nome</label>
+            <label style="font-size:12px; font-weight:bold;">Alimento</label>
             <input type="text" id="editName" value="${currentName}" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
         </div>
         <div style="margin: 15px 0;">
@@ -187,18 +185,29 @@ async function saveEdit() {
     if(!key) return alert("Inserisci la chiave 🔑");
     
     document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:20px; font-weight:bold;'>Calcolo nuovi macros... ⏳</div>";
-    const prompt = `Ricalcola i valori nutrizionali per '${newName}' con un peso esatto di ${newWeight} grammi. Restituisci SOLO un oggetto JSON: {"alimento": "${newName}", "peso": ${newWeight}, "calorie": 150, "prot": 10, "carb": 5, "grassi": 8}`;
+    const prompt = `Ricalcola i valori nutrizionali per '${newName}' con un peso esatto di ${newWeight} grammi. Restituisci SOLO un oggetto JSON valido: {"alimento": "${newName}", "peso": ${newWeight}, "calorie": 150, "prot": 10, "carb": 5, "grassi": 8}`;
     
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
         const d = await r.json();
-        const item = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, ""));
+        let text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
+        let item = JSON.parse(text);
+        
+        // Correzione automatica nel caso Gemini usi chiavi diverse (es. "nome" invece di "alimento")
+        if (Array.isArray(item)) item = item[0];
+        item.alimento = item.alimento || item.nome || newName;
+        item.peso = item.peso || newWeight;
+        item.calorie = item.calorie || item.kcal || 0;
+        item.prot = item.prot || item.proteine || 0;
+        item.carb = item.carb || item.carboidrati || 0;
+        item.grassi = item.grassi || item.fat || 0;
+
         await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'editSingleItem', id: activeId, item }) });
         document.getElementById('overlay').style.display = 'none'; load();
     } catch(e) { alert("Errore durante il calcolo. Riprova."); document.getElementById('overlay').style.display = 'none'; }
 }
 
-// =================== SOSTITUZIONE PIATTO ===================
+// =================== MENU + E SOSTITUZIONE ===================
 function openMenu(id, food, kcal) {
     activeId = id; currentFood = food; currentKcal = kcal;
     document.getElementById('overlay').style.display='flex';
@@ -246,7 +255,18 @@ async function saveNewItem() {
     try {
         const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
         const d = await r.json();
-        const item = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, ""));
+        let text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
+        let item = JSON.parse(text);
+        
+        // Correzione chiavi JSON
+        if (Array.isArray(item)) item = item[0];
+        item.alimento = item.alimento || item.nome || name;
+        item.peso = item.peso || 0;
+        item.calorie = item.calorie || item.kcal || 0;
+        item.prot = item.prot || item.proteine || 0;
+        item.carb = item.carb || item.carboidrati || 0;
+        item.grassi = item.grassi || item.fat || 0;
+
         await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addNewItem', pasto: activePasto, data: selectedDate, item }) });
         document.getElementById('overlay').style.display = 'none'; load();
     } catch(e) { alert("Errore IA. Riprova."); load(); }
@@ -296,10 +316,7 @@ function handleImageUpload(event) {
     if (!file) return;
     document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Analizzo la foto... ⏳</div>`;
     const reader = new FileReader();
-    reader.onloadend = function() {
-        const base64String = reader.result.split(',')[1];
-        generateFromImage(base64String, file.type);
-    };
+    reader.onloadend = function() { generateFromImage(reader.result.split(',')[1], file.type); };
     reader.readAsDataURL(file);
 }
 
