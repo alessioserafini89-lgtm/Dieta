@@ -3,333 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alessio Diet Premium + Vision</title>
+    <title>Alessio Diet Elite</title>
     <style>
-        /* TEMA PREMIUM MODERNO */
-        :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
-        @media (prefers-color-scheme: dark) { :root { --bg: #000000; --card: #1c1c1e; --text: #ffffff; --border: #2c2c2e; --shadow: rgba(0,0,0,0.3); } }
-        
-        * { box-sizing: border-box; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        :root { --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --green: #34c759; --amber: #ff9f0a; --red: #ff3b30; --border: #e5e5ea; --shadow: rgba(0,0,0,0.05); }
+        @media (prefers-color-scheme: dark) { :root { --bg: #000; --card: #1c1c1e; --text: #fff; --border: #2c2c2e; --shadow: rgba(0,0,0,0.3); } }
+        * { box-sizing: border-box; margin: 0; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
-        
         .header { padding: 25px 20px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 10; }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .header h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin: 0; }
-        
-        /* ICONA CHIAVE IN ALTO */
-        .key-btn { background: var(--card); border: 1px solid var(--border); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px var(--shadow); padding: 0; }
-        .key-btn:active { transform: scale(0.92); }
-
-        .kcal-box { text-align: right; background: var(--card); padding: 8px 15px; border-radius: 12px; box-shadow: 0 4px 10px var(--shadow); }
+        .key-btn { background: var(--card); border: 1px solid var(--border); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); }
+        .kcal-box { text-align: right; background: var(--card); padding: 8px 15px; border-radius: 12px; box-shadow: 0 4px 10px var(--shadow); border: 1px solid var(--border); }
         .kcal-num { color: var(--green); font-size: 22px; font-weight: 800; }
-        .kcal-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-
         .tabs { display: flex; overflow-x: auto; gap: 10px; padding: 5px 20px 15px; scrollbar-width: none; }
-        .tabs::-webkit-scrollbar { display: none; }
-        .tab { padding: 10px 20px; background: var(--card); border-radius: 25px; font-size: 14px; font-weight: 600; white-space: nowrap; color: var(--muted); border: 1px solid var(--border); cursor: pointer; box-shadow: 0 2px 5px var(--shadow); transition: 0.2s; }
+        .tab { padding: 10px 20px; background: var(--card); border-radius: 25px; font-size: 14px; font-weight: 600; white-space: nowrap; color: var(--muted); border: 1px solid var(--border); cursor: pointer; }
         .tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
-
         .meal-group { padding: 0 20px; margin-bottom: 25px; }
-        .meal-title { font-size: 18px; font-weight: 700; color: var(--amber); margin-bottom: 12px; margin-left: 5px; }
-        
+        .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .meal-title { font-size: 18px; font-weight: 700; color: var(--amber); }
+        .add-btn { background: var(--green); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .card { background: var(--card); border-radius: 20px; box-shadow: 0 4px 15px var(--shadow); border: 1px solid var(--border); overflow: hidden; }
-        .row { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; transition: 0.2s; }
-        .row:last-child { border-bottom: none; }
+        .row { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
         .row.sub { padding-left: 20px; background: rgba(142, 142, 147, 0.03); }
-        .row.done { opacity: 0.6; }
-
-        .check { width: 28px; height: 28px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; color: transparent; }
+        .row.sub .name::before { content: '•'; color: var(--amber); margin-right: 8px; font-weight: bold; }
+        .check { width: 28px; height: 28px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: transparent; }
         .check.active { background: var(--green); border-color: var(--green); color: #fff; }
-
         .info { flex: 1; }
-        .name { font-size: 16px; font-weight: 500; display: flex; align-items: center; }
-        .name.father { font-weight: 700; font-size: 17px; }
-        .row.sub .name::before { content: '•'; color: var(--amber); font-weight: bold; font-size: 20px; margin-right: 8px; }
-
-        .macros { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500; }
-        
-        .weight-input { width: 60px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 6px; text-align: center; font-weight: 700; font-size: 14px; }
-        .kcal-val { width: 45px; text-align: right; font-weight: 800; font-size: 16px; color: var(--text); }
-
-        .btn-sub { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 8px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-
-        /* Popup & Categorie */
+        .name { font-size: 16px; font-weight: 500; }
+        .name.father { font-weight: 700; }
+        .weight-input { width: 55px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 4px; text-align: center; font-weight: bold; }
+        .del-btn { color: var(--red); background: none; border: none; cursor: pointer; opacity: 0.3; }
+        .del-btn:hover { opacity: 1; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .popup { background: var(--card); border-radius: 24px; width: 100%; max-width: 400px; max-height: 85vh; padding: 25px; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        
-        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .cat-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .cat-btn:active { transform: scale(0.96); }
-
-        .custom-input { display: flex; gap: 6px; margin-bottom: 20px; align-items: stretch;}
-        .tool-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; width: 42px; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; transition: 0.2s; flex-shrink: 0; margin: 0; padding: 0; }
-        .tool-btn.recording { background: #ff3b30; color: white; border-color: #ff3b30; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        .custom-input input[type="text"] { flex: 1; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; min-width: 0; }
-        .custom-input button.create-btn { padding: 0 14px; border-radius: 12px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer;}
-        
-        .opt-card { background: var(--bg); padding: 15px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
-        .opt-card:active { transform: scale(0.98); }
+        .popup { background: var(--card); border-radius: 24px; width: 100%; max-width: 400px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .btn-sub { background: var(--bg); border: 1px solid var(--border); padding: 6px 10px; border-radius: 10px; font-size: 11px; margin-top: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="header-left">
-            <h2>Dieta</h2>
-            <button class="key-btn" onclick="setKey()" title="Imposta Chiave API">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-            </button>
-        </div>
-        <div class="kcal-box"><div class="kcal-num" id="remKcal">2000</div><div class="kcal-label">Kcal Rimaste</div></div>
+        <button class="key-btn" onclick="setKey()">🔑</button>
+        <h2>Dieta</h2>
+        <div class="kcal-box"><div class="kcal-num" id="remKcal">2000</div></div>
     </div>
-    
     <div class="tabs" id="tabList"></div>
     <div id="app"></div>
-    
     <div id="overlay" class="overlay"><div class="popup" id="popupContent"></div></div>
 
 <script>
-// --- METTI IL TUO URL QUI ---
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxEzXCd4a8_5uzvhGGvyrWVlsBb0W7rHVOZQOYzSMoKEQU2t4o0DEVPTX3TsQMvWsZ5Q/exec";
-let allData = [], selectedDate = "", activeId = null, currentFood = "", currentKcal = 0, aiOptions = [], selectedRecipe = null;
+const SCRIPT_URL = "IL_TUO_URL_QUI";
+let allData = [], selectedDate = "", activePasto = "", remKcalVal = 0;
 
-function setKey() { const k = prompt("Incolla Chiave Gemini:"); if(k) localStorage.setItem('gem_key', k); }
+function setKey() { const k = prompt("Chiave Gemini:"); if(k) localStorage.setItem('gem_key', k); }
 
 async function load() {
-    try {
-        const r = await fetch(SCRIPT_URL);
-        allData = await r.json();
-        const dates = [...new Set(allData.map(x => x.Data))];
-        if(!selectedDate) selectedDate = dates[0];
-        render();
-    } catch(e) { document.getElementById('app').innerHTML = "<div style='padding:20px; text-align:center;'>Errore caricamento.</div>"; }
+    const r = await fetch(SCRIPT_URL);
+    allData = await r.json();
+    const dates = [...new Set(allData.map(x => x.Data))];
+    if(!selectedDate) selectedDate = dates[0];
+    render();
 }
 
 function render() {
     document.getElementById('tabList').innerHTML = [...new Set(allData.map(x => x.Data))].map(d => `<div class="tab ${d===selectedDate?'active':''}" onclick="selectedDate='${d}';render()">${d}</div>`).join('');
     const cont = document.getElementById('app'); cont.innerHTML = "";
     const dayData = allData.filter(x => x.Data === selectedDate);
-    const groups = dayData.reduce((acc, x) => { const p = x.Pasto || "Pasto"; if(!acc[p]) acc[p] = []; acc[p].push(x); return acc; }, {});
+    const groups = dayData.reduce((acc, x) => { const p = x.Pasto || "Altro"; if(!acc[p]) acc[p] = []; acc[p].push(x); return acc; }, {});
 
     let consumate = 0;
-
     dayData.forEach(item => {
-        const isSub = String(item.ID).includes('.');
         const done = String(item.Fatto).toUpperCase() === "TRUE";
-        const kcal = Math.round(Number(item.Calorie) || 0);
-
-        if (done) {
-            if (isSub) {
-                const fatherId = String(item.ID).split('.')[0];
-                const father = dayData.find(x => String(x.ID) === fatherId);
-                const fatherDone = father ? String(father.Fatto).toUpperCase() === "TRUE" : false;
-                if (!fatherDone) consumate += kcal;
-            } else {
-                consumate += kcal;
-            }
-        }
+        if(done && !String(item.ID).includes('.')) consumate += Math.round(Number(item.Calorie)||0);
     });
+    remKcalVal = 2000 - consumate;
+    document.getElementById('remKcal').innerText = remKcalVal;
 
     for(const [pasto, items] of Object.entries(groups)) {
         const groupDiv = document.createElement('div'); groupDiv.className = "meal-group";
-        groupDiv.innerHTML = `<div class="meal-title">${pasto}</div>`;
+        groupDiv.innerHTML = `<div class="meal-header"><div class="meal-title">${pasto}</div><button class="add-btn" onclick="openAdd('${pasto}')">+</button></div>`;
         const card = document.createElement('div'); card.className = "card";
-        
-        items.forEach((item) => {
+        items.forEach(item => {
             const isSub = String(item.ID).includes('.');
             const done = String(item.Fatto).toUpperCase() === "TRUE";
-            const kcal = Math.round(Number(item.Calorie) || 0);
-            const cleanName = item.Alimento.replace(/^->\s*/, '');
-
-            // Icona "Sostituisci" moderna
-            const iconReplace = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>`;
-
-            card.innerHTML += `
-                <div class="row ${isSub ? 'sub' : ''} ${done ? 'done' : ''}">
-                    <div class="check ${done?'active':''}" onclick="toggle('${item.ID}',${done})">✓</div>
-                    <div class="info">
-                        <div class="name ${!isSub?'father':''}">${cleanName}</div>
-                        <div class="macros">PROT ${item.Prot}g • CARB ${item.Carb}g • GRAS ${item.Grassi}g</div>
-                        ${!isSub ? `<button class="btn-sub" onclick="openMenu('${item.ID}','${cleanName.replace(/'/g, "\\'")}',${kcal})">${iconReplace} Sostituisci</button>` : ''}
-                    </div>
-                    ${isSub ? `<input type="number" class="weight-input" value="${item['Peso gr']}" onchange="updWeight('${item.ID}',this.value,${item['Peso gr']},${item.Calorie})">` : ''}
-                    <div class="kcal-val">${kcal>0?kcal:''}</div>
-                </div>`;
-        });
-        groupDiv.appendChild(card);
-        cont.appendChild(groupDiv);
-    }
-    document.getElementById('remKcal').innerText = 2000 - consumate;
-}
-
-function openMenu(id, food, kcal) {
-    const key = localStorage.getItem('gem_key'); if(!key) return alert("Premi l'icona della chiave in alto a sinistra per inserire le API.");
-    activeId = id; currentFood = food; currentKcal = kcal;
-    const popup = document.getElementById('popupContent');
-    document.getElementById('overlay').style.display='flex';
-    
-    // Icone SVG Moderne per la barra degli strumenti
-    const iconClose = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
-    const iconCamera = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`;
-    const iconMic = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>`;
-
-    popup.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="font-size:20px;">Sostituisci</h3>
-            <button onclick="document.getElementById('overlay').style.display='none'" style="background:none; border:none; color:var(--muted); cursor:pointer;">${iconClose}</button>
-        </div>
-        
-        <p style="font-size:13px; color:var(--muted); margin-bottom:10px;">Scegli una categoria:</p>
-        
-        <div class="category-grid">
-            <button class="cat-btn" onclick="generateCategory('Pesce')">🐟 Pesce</button>
-            <button class="cat-btn" onclick="generateCategory('Carne')">🥩 Carne</button>
-            <button class="cat-btn" onclick="generateCategory('Formaggi')">🧀 Formaggi</button>
-            <button class="cat-btn" onclick="generateCategory('Uova')">🍳 Uova</button>
-            <button class="cat-btn" onclick="generateCategory('Vegano/Vegetariano')" style="grid-column: span 2; justify-content:center;">🥗 Vegetariano / Vegano</button>
-        </div>
-
-        <p style="font-size:13px; color:var(--muted); margin-bottom:10px; margin-top:15px;">Foto, voce o testo:</p>
-        <div class="custom-input">
-            <label class="tool-btn">
-                ${iconCamera} <input type="file" accept="image/*" capture="environment" onchange="handleImageUpload(event)" style="display:none;">
-            </label>
-            <button id="micBtn" class="tool-btn" onclick="startDictation()">${iconMic}</button>
-            <input type="text" id="customIdea" placeholder="Es. Salmone">
-            <button class="create-btn" onclick="generateCustom()">Crea</button>
-        </div>
-        
-        <div id="aiList" style="margin-top:10px;"></div>
-    `;
-}
-
-// LOGICA FOTOCAMERA
-function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Analizzo la foto... ⏳</div>`;
-
-    const reader = new FileReader();
-    reader.onloadend = function() {
-        const base64String = reader.result.split(',')[1];
-        generateFromImage(base64String, file.type);
-    };
-    reader.readAsDataURL(file);
-}
-
-async function generateFromImage(base64data, mimeType) {
-    const key = localStorage.getItem('gem_key');
-    const promptText = `Analizza questo piatto. Crea la ricetta e stima gli ingredienti in modo che il totale calorico raggiunga circa ${currentKcal} kcal. Rispondi SOLO JSON (no array, no markdown): {"alimento": "Nome Piatto Visto", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}`;
-    
-    const parts = [{ "text": promptText }, { "inlineData": { "mimeType": mimeType, "data": base64data } }];
-
-    try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key: key, parts: parts }) });
-        const d = await r.json();
-        const text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
-        aiOptions = [JSON.parse(text)]; 
-        reviewRecipe(0); 
-    } catch(e) { document.getElementById('aiList').innerHTML = "<span style='color:red'>Errore. Foto non chiara.</span>"; }
-}
-
-async function generateCategory(category) {
-    const key = localStorage.getItem('gem_key');
-    document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Cerco alternative a base di ${category}... ⏳</div>`;
-    
-    const prompt = `Sei un nutrizionista. Crea 4 piatti keto o sani a base di ${category} per sostituire "${currentFood}" (totale: circa ${currentKcal} kcal per piatto). Rispondi SOLO con un array JSON senza formattazione (no markdown): [{"alimento": "Nome", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente1", "peso": 150, "calorie": 300, "prot": 20, "carb": 2, "grassi": 20}]}]`;
-    fetchAI(key, prompt, true);
-}
-
-async function generateCustom() {
-    const customText = document.getElementById('customIdea').value;
-    if(!customText) return;
-    const key = localStorage.getItem('gem_key');
-    document.getElementById('aiList').innerHTML = `<div style="text-align:center; padding:15px; font-size:14px; font-weight:500;">Calcolo grammi e macro per <b>${customText}</b>... ⏳</div>`;
-    
-    const prompt = `Voglio mangiare "${customText}". Crea la ricetta bilanciata per un totale esatto di circa ${currentKcal} kcal. Rispondi SOLO JSON (no array, no markdown): {"alimento": "${customText}", "calorie": 400, "prot": 30, "carb": 5, "grassi": 25, "ingredienti": [{"nome": "Ingrediente", "peso": 100, "calorie": 200, "prot": 15, "carb": 2, "grassi": 10}]}`;
-    fetchAI(key, prompt, false);
-}
-
-async function fetchAI(key, prompt, isArray) {
-    try {
-        const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
-        const d = await r.json();
-        const text = d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim();
-        
-        if (isArray) {
-            aiOptions = JSON.parse(text);
-            document.getElementById('aiList').innerHTML = aiOptions.map((o, idx) => `
-                <div class="opt-card" onclick="reviewRecipe(${idx})">
-                    <b style="font-size:16px;">${o.alimento}</b><br>
-                    <div style="color:var(--green); font-weight:700; margin-top:5px; font-size:13px;">${o.calorie} kcal <span style="color:var(--muted); font-weight:500;">| P:${o.prot}g C:${o.carb}g G:${o.grassi}g</span></div>
+            card.innerHTML += `<div class="row ${isSub?'sub':''}">
+                <div class="check ${done?'active':''}" onclick="toggle('${item.ID}',${done},${!isSub})">✓</div>
+                <div class="info">
+                    <div class="name ${!isSub?'father':''}">${item.Alimento}</div>
+                    <div style="font-size:10px; color:var(--muted)">${item.Calorie} kcal | P:${item.Prot} C:${item.Carb} G:${item.Grassi}</div>
                 </div>
-            `).join('');
-        } else {
-            aiOptions = [JSON.parse(text)]; 
-            reviewRecipe(0); 
-        }
-    } catch(e) { document.getElementById('aiList').innerHTML = "<span style='color:red'>Errore IA. Riprova.</span>"; }
-}
-
-function startDictation() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert("Browser non supportato per la voce."); return;
+                <button class="del-btn" onclick="deleteItem('${item.ID}')">🗑</button>
+            </div>`;
+        });
+        groupDiv.appendChild(card); cont.appendChild(groupDiv);
     }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'it-IT'; recognition.interimResults = false; recognition.maxAlternatives = 1;
-    const micBtn = document.getElementById('micBtn');
-    micBtn.classList.add('recording');
-    recognition.start();
-
-    recognition.onresult = function(event) {
-        document.getElementById('customIdea').value = event.results[0][0].transcript;
-        micBtn.classList.remove('recording');
-    };
-    recognition.onspeechend = function() { recognition.stop(); micBtn.classList.remove('recording'); };
-    recognition.onerror = function(event) { console.error("Errore mic:", event.error); micBtn.classList.remove('recording'); };
 }
 
-function reviewRecipe(idx) {
-    selectedRecipe = aiOptions[idx];
-    const popup = document.getElementById('popupContent');
-    let ingHtml = selectedRecipe.ingredienti.map(i => `<div style="font-size:13px; padding:6px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between;"><span>• ${i.nome} (${i.peso}g)</span><span style="font-weight:bold">${i.calorie} kcal</span></div>`).join('');
-
-    popup.innerHTML = `
-        <h3 style="color:var(--text); margin-bottom:5px; font-size:22px;">${selectedRecipe.alimento}</h3>
-        <div style="color:var(--green); font-weight:800; font-size:18px; margin-bottom:20px;">${selectedRecipe.calorie} kcal <span style="color:var(--muted); font-size:12px; font-weight:600;">(P:${selectedRecipe.prot} C:${selectedRecipe.carb} G:${selectedRecipe.grassi})</span></div>
-        
-        <div style="background:var(--bg); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid var(--border);">
-            <div style="font-size:10px; color:var(--muted); font-weight:700; margin-bottom:10px;">NUOVI INGREDIENTI</div>
-            ${ingHtml}
-        </div>
-        
-        <div style="display:flex; gap:10px;">
-            <button onclick="openMenu(activeId, currentFood, currentKcal)" style="flex:1; padding:15px; border-radius:12px; background:var(--bg); color:var(--text); border:1px solid var(--border); cursor:pointer; font-weight:bold;">Indietro</button>
-            <button onclick="applyRecipe()" style="flex:1; padding:15px; border-radius:12px; background:var(--text); color:var(--bg); font-weight:bold; border:none; cursor:pointer;">Conferma Ricetta</button>
-        </div>
+function openAdd(pasto) {
+    activePasto = pasto;
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('popupContent').innerHTML = `
+        <h3>Aggiungi a ${pasto}</h3>
+        <p style="font-size:12px; color:var(--muted)">Calcolerò i macro per stare nelle ${remKcalVal} kcal rimaste.</p>
+        <input type="text" id="newItemName" placeholder="Cosa vuoi mangiare?" style="width:100%; padding:12px; margin:15px 0; border-radius:10px; border:1px solid var(--border)">
+        <button onclick="saveNewItem()" style="width:100%; padding:15px; background:var(--text); color:var(--bg); border:none; border-radius:12px; font-weight:bold;">Aggiungi</button>
     `;
 }
 
-function applyRecipe() {
-    document.getElementById('popupContent').innerHTML = "<div style='text-align:center; padding:30px; font-weight:bold;'>Salvataggio su Excel in corso... ⏳</div>";
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'replaceRecipe', id: activeId, recipe: selectedRecipe }) })
-    .then(() => { document.getElementById('overlay').style.display = 'none'; load(); });
+async function saveNewItem() {
+    const name = document.getElementById('newItemName').value;
+    const key = localStorage.getItem('gem_key');
+    document.getElementById('popupContent').innerHTML = "Sto calcolando...";
+    const prompt = `Crea una riga nutrizionale per "${name}" basandoti su circa ${remKcalVal} kcal. Rispondi SOLO JSON: {"alimento": "${name}", "calorie": 300, "peso": 100, "prot": 20, "carb": 5, "grassi": 10}`;
+    const r = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'proxyAI', key, prompt }) });
+    const d = await r.json();
+    const item = JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, ""));
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addNewItem', pasto: activePasto, data: selectedDate, item }) });
+    document.getElementById('overlay').style.display = 'none'; load();
 }
 
-function toggle(id, c) {
-    const ns = !c ? "TRUE" : "FALSE";
-    allData.find(i => i.ID == id).Fatto = ns; render();
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'toggleDone', id, value: ns }) });
+function toggle(id, curr, isFather) {
+    const ns = !curr ? "TRUE" : "FALSE";
+    const action = isFather ? "bulkToggle" : "toggleDone";
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action, id, parentId: id, value: ns }) });
+    load(); // Ricarica subito
 }
 
-function updWeight(id, nw, ow, ok) {
-    const nk = Math.round((ok/ow)*nw);
-    const item = allData.find(i => i.ID == id);
-    item['Peso gr'] = nw; item.Calorie = nk; render();
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateWeight', id, newWeight: nw, newKcal: nk }) });
+function deleteItem(id) {
+    if(confirm("Sei sicuro di voler eliminare questo alimento?")) {
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRow', id }) });
+        setTimeout(load, 500);
+    }
 }
 
 window.onload = load;
